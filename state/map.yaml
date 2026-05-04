@@ -71,6 +71,7 @@ current_artifacts:
     - docs/research/translations/ircss-french-houses-system-map.md
     - docs/research/translations/ircss-french-houses-node-atlas.md
     - docs/research/translations/ircss-french-houses-node-mechanisms.md
+    - docs/research/builds/aetheria-bloom-habitat.md
   tools:
     - tools/vibegeometry_state.py
     - tools/vibegeometry_prepare_compaction.py
@@ -80,6 +81,7 @@ current_artifacts:
     - tools/verify_fieldvalue_translations.py
     - tools/geometry_script_loader.py
     - tools/smoke_nodes_to_script_converter.py
+    - tools/verify_aetheria_bloom_habitat.py
   pending_contracts:
     - schemas/scene-brief.schema.json
     - schemas/node-graph-manifest.schema.json
@@ -94,8 +96,8 @@ data_flow:
   - If state grows faster than understanding, cut it back.
 
 current_status:
-  summary: VibeGeometry has an initial persistence scaffold plus verified Geometry Script translations for local math/utility samples, a first official Blender demo tranche, and two IRCSS French Houses city-scale footholds. The IRCSS pass verified MakeSpiral as an architectural spine and PointyGothicCone as ornament grown from a structural host, and now includes a file-level dependency map, an all-node atlas, and a node mechanism study for the 108-group town kit. The remaining large-system blockers are repeat-zone feedback, repeat Top outputs, foreach zones, and gizmo nodes. The repo-local Geometry Script fork includes a Blender 5.1 nodes_to_script converter port plus nested-group, menu-socket, and duplicate-key fixes needed by these translations.
-  next_action: Continue IRCSS French Houses with a behaviorally verifiable city-organ target from the atlas, preferring GenerateArc, Switch On Roof Type, Is Edge Manifold, or Generate Windows unless deliberately attacking repeat/foreach/gizmo support.
+  summary: VibeGeometry has an initial persistence scaffold plus verified Geometry Script translations for local math/utility samples, a first official Blender demo tranche, IRCSS French Houses city-scale graph doctrine, and a first from-scratch Aetheria Bloom whole-habitat build. The IRCSS pass verified MakeSpiral and PointyGothicCone, then mapped the 108-group town kit through a dependency map, all-node atlas, and node mechanism study. The Bloom pass used Aetheria lore plus Bruneton's Rama making-of to generate a layered cylindrical world study with shell anatomy, mapped interior regions, spokes, hub/light spine, roads/rivers, forests, city clusters, clouds, and service markers. The remaining large-system blockers are repeat-zone feedback, repeat Top outputs, foreach zones, and gizmo nodes.
+  next_action: Continue the Aetheria Bloom build by moving one whole-habitat repeated subsystem, preferably wrapped roads/rivers or region patches, into reusable Geometry Script groups and improving the whole-cylinder render evidence.
 remotes:
   vibegeometry: https://github.com/GameCult/VibeGeometry
   geometry_script_fork: https://github.com/GameCult/geometry-script

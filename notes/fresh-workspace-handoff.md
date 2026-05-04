@@ -56,6 +56,15 @@ structural atlas lives at
 mechanism study lives at
 `docs/research/translations/ircss-french-houses-node-mechanisms.md`.
 
+First from-scratch build test: `examples/geometry_script/aetheria_bloom_habitat.py`
+generates an Aetheria Bloom whole-habitat study using Bloom lore plus Eric
+Bruneton's Rama making-of as a cylindrical-world reference. It now emphasizes
+whole-cylinder mapped spaces: water band, plains, farms, forests, city clusters,
+roads, rivers, clouds, spokes, hub/spine, and shell layers. Kappa is only a
+small service marker. Build notes live at
+`docs/research/builds/aetheria-bloom-habitat.md`; verification lives at
+`tools/verify_aetheria_bloom_habitat.py`.
+
 Current authoring prior: use the full Python stack. Python structures intent,
 tables, loops, variants, cleanup, validation, docs, and scene/render
 orchestration; Geometry Script emits inspectable Geometry Nodes groups; `bpy`
@@ -75,10 +84,10 @@ The GameCult fork is intentionally pruned to `main` plus VibeGeometry-owned
 tooling branches. Do not copy upstream branch soup forward unless a future patch
 actually needs it.
 
-The current next action is to continue IRCSS French Houses with a behaviorally
-verifiable city-organ target from the atlas, preferring `GenerateArc`, `Switch
-On Roof Type`, `Is Edge Manifold`, or `Generate Windows` unless deliberately
-attacking repeat/foreach/gizmo support.
+The current next action is to continue the Aetheria Bloom build by moving one
+whole-habitat repeated subsystem, preferably wrapped roads/rivers or region
+patches, into reusable Geometry Script groups and improving the whole-cylinder
+render evidence.
 
 ## Important Invariants
 

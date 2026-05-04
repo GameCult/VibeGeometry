@@ -1,0 +1,94 @@
+# Aetheria Bloom Habitat Build Study
+
+## Source Lore Read
+
+Indexed AetheriaLore sources:
+
+- `Aetheria/Worldbuilding/Pre-Elysium/Technology/Bloom Habitat Anatomy.md`
+- `Aetheria/Brainstorming/Technology/Bloom Habitat Engineering Research Notes.md`
+- `Aetheria/Brainstorming/Technology/Bloom Habitat Systems Walkthroughs.md`
+- `Aetheria/Brainstorming/Technology/Bloom Habitat Open Questions And Red Team.md`
+
+External visual/procedural reference:
+
+- Eric Bruneton, `Modeling and Rendering Rama`, via
+  `http://ebruneton.free.fr/rama3/rama.html` and the mirrored text at
+  `https://doczz.net/doc/3617854/making-of---rama`
+
+Rama lessons used here:
+
+- sell the cylinder as a whole world, not just a tube
+- divide the inner surface into large readable axial/circumferential regions
+- generate terrain, roads, rivers, cities, fields, forests, clouds, and lighting
+  from layered map logic
+- adapt detail to the view instead of pretending a hand-modeled megastructure
+  is a sensible authoring target
+
+The build follows the current Bloom model:
+
+- rotating manufactured cylinder, not hollowed asteroid rock
+- broad open pressurized commons
+- high-radius civic surface with comfortable spin gravity
+- despun or partially despun axial hub and light/traffic spire
+- expensive spoke interfaces where transit, utilities, and authority concentrate
+- outward stack of utility mat, pressure/structural shell, and aggregate shielding
+- layered civic geography: central water band, plains, farms, forests, city
+  clusters, roads, rivers, cloud patches, and service routes
+- one small Service Ring Kappa marker among many maintenance systems, not the
+  compositional focus
+
+## Built Artifact
+
+Script:
+`examples/geometry_script/aetheria_bloom_habitat.py`
+
+Generated artifacts:
+
+- `experiments/generated/aetheria_bloom/aetheria_bloom_habitat.blend`
+- `experiments/generated/aetheria_bloom/aetheria_bloom_habitat.png`
+- `experiments/generated/aetheria_bloom/aetheria_bloom_interior_world.png`
+
+Verification:
+
+```powershell
+& 'C:\Program Files (x86)\Steam\steamapps\common\Blender\blender.exe' --background '.\experiments\generated\aetheria_bloom\aetheria_bloom_habitat.blend' --python '.\tools\verify_aetheria_bloom_habitat.py'
+```
+
+Result:
+
+```text
+AETHERIA_BLOOM_VERIFY ok
+AETHERIA_BLOOM_VERIFY group VG Bloom Light Spine 21 31
+AETHERIA_BLOOM_VERIFY objects 98
+```
+
+## Procedural Translation Notes
+
+This is intentionally hybrid:
+
+- Python structures the lore-derived coordinate system, layer tables, material
+  meanings, mapped civic regions, cameras, labels, and render paths.
+- Geometry Script emits `VG Bloom Light Spine`, an inspectable 21-node
+  geometry-node group used by a Nodes modifier in the scene.
+- bpy builds the cutaway shell surfaces, spokes, wrapped region patches, city
+  blocks, roads, rivers, clouds, utility lines, service markers, and cameras.
+
+The IRCSS pass paid off in three ways:
+
+- **Edge-first architecture:** the Bloom is built as shell layers, spoke lines,
+  region patches, utility routes, and service markers before local dressing.
+- **Curves as attachment rails:** roads, rivers, and utility routes are curves
+  wrapped onto the inner cylinder or service layers.
+- **Python as orchestration:** the cylinder layers, region maps, city blocks,
+  roads, rivers, forests, clouds, and spokes come from small tables and named
+  helpers rather than copied object placement.
+
+## Current Limits
+
+- The build is a spatial systems study, not final art.
+- The civic surface is a symbolic map-layer world, not a lived city.
+- The current whole-Bloom view is more diagrammatic than cinematic; it needs
+  atmospheric scale cues, denser horizon detail, and better light gradation.
+- Only the light spine is emitted through Geometry Script so far. The next pass
+  should move one repeated whole-Bloom subsystem, probably wrapped roads/rivers
+  or region patches, into a reusable Geometry Script group.
