@@ -22,98 +22,55 @@ git log --oneline -5
 
 ## Current State
 
-VibeGeometry is an initial scaffold. It has persistence machinery, project
-orientation docs, helper tools, and the first Geometry Nodes translation corpus
-entry, but no Blender builder library or artifact schemas yet.
+VibeGeometry is still an incubation scaffold: persistence, graph-translation
+corpus, repo-local Geometry Script tooling, verifiers, and doctrine exist; the
+builder library and artifact schemas do not.
 
-The first completed translation is
-`docs/research/translations/shriinivas-cartesian-helper.md`, backed by
-`examples/geometry_script/shriinivas_cartesian_helper.py`.
+Corpus inventory lives in `docs/research/geonodes-translation-corpus.md`.
+Graph-specific maps and verification notes live in `docs/research/translations/`.
+Spatial reasoning doctrine lives in `docs/research/procedural-doctrine.md`.
+Keep this handoff as a re-entry surface, not a second corpus ledger.
 
-The completed Cartesian function translation is
-`docs/research/translations/shriinivas-cartesian-function-graphs.md`. It covers
-`Geometry Nodes Line`, `Geometry Nodes Parabola`, and `Geometry Nodes Circle`
-from `cartesian.blend`.
+Accepted corpus families so far:
 
-The completed pie chart translation is
-`docs/research/translations/shriinivas-piechart.md`. It covers `NodeGroup` and
-`Pie Chart`, plus the numbered `getPie.*` family and `Extended Pie Chart` from
-`piechart.blend`.
+- Local math/display/utility graphs from Shriinivas samples: Cartesian helper
+  and function graphs, pie chart, field-value digit display, parametric/polar
+  equations.
+- Quellenform `CurveToMeshUV` utility sample.
+- Official Blender demo tranche: instance attributes, index-of-nearest,
+  shortest-path labyrinth, and raycast minigame helpers.
+- IRCSS French Houses foothold: `MakeSpiral -> VG Make Spiral`, verified with
+  200 ordered curve points matching source geometry at max delta `0.0`.
 
-The completed field-value translation is
-`docs/research/translations/shriinivas-fieldvalue-digit-at.md`. It covers
-`Create Decimal`, `Create Segment`, `Seven Segments`, `Delete Segments`,
-`Next Digit`, `Digit At`, and the full `Field Value` display graph from
-`fieldvalue.blend`. The full graph is verified on a default-route float-value
-case with matching evaluated geometry.
-
-The completed parametric/polar translation is
-`docs/research/translations/shriinivas-paramnpolareq.md`. It covers scalar
-equation helpers, chooser groups, `getxy.001`, `Archimedes Spiral`,
-`Epicycloid`, the main wrapper, and a mirrored root spiral from
-`paramnpolareq.blend`.
-
-The completed CurveToMeshUV utility sample is
-`docs/research/translations/quellenform-curve-to-mesh-uv.md`. It covers
-`Auto Smooth`, `Curve to Mesh UV`, `_258246`, and `_Title`.
-
-The completed official Blender demo tranche now includes:
-
-- `docs/research/translations/blender-instance-attributes.md`, covering
-  `Grass Tuft Generator`.
-- `docs/research/translations/blender-index-of-nearest.md`, covering
-  `boundary_step`, `update_velocity`, `collision_step`, and `collider_step`.
-- `docs/research/translations/blender-labyrinth-shortest-path.md`, covering
-  `Solvable Labyrinth Generator`.
-- `docs/research/translations/blender-raycast-minigame.md`, covering
-  `Initial Direction`, `Line to be Casted`, and `Cast Rays`.
-
-The first city-scale corpus target is
-`docs/research/translations/ircss-french-houses.md`, backed by
-`examples/geometry_script/ircss_french_houses.py`. The accepted foothold is
-`MakeSpiral -> VG Make Spiral`, verified with 200 ordered curve points matching
-source geometry at max delta `0.0`. The same pass mapped larger blockers:
-repeat-zone feedback state, repeat `Top` boolean outputs, foreach zones, gizmo
-nodes, `nodes_to_script` duplicate-key failures around axes-to-rotation, and a
-rejected empty-output harness for `WindowBeams`.
-
-Official demo files inspected but deferred are listed in
-`docs/research/geonodes-translation-corpus.md`: hexgrid, wavy wall, pebble
-scattering, gizmo array, jiggly pudding, and repeat-zone flower. They are not
-empty; they need legacy-node migration, gizmo-node, simulation-zone, or
-repeat-zone support before they are good doctrine targets.
-
-`docs/research/procedural-doctrine.md` now stores the current spatial reasoning
-playbook for mapping geometric ideas to Geometry Script. Doctrine entries should
-explain when a tool becomes salient for a visual form, the mental move that
-turns the form into graph structure, a small code sketch, and the verification
-cue.
+Current frontier: IRCSS French Houses city-scale graph work. The accepted
+foothold is `MakeSpiral`. Mapped blockers are repeat-zone feedback state,
+repeat `Top` boolean outputs, foreach zones, gizmo nodes, `nodes_to_script`
+duplicate-key failures around axes-to-rotation, and a rejected empty-output
+harness for `WindowBeams`.
 
 Current authoring prior: use the full Python stack. Python structures intent,
 tables, loops, variants, cleanup, validation, docs, and scene/render
 orchestration; Geometry Script emits inspectable Geometry Nodes groups; `bpy`
 handles Blender scene machinery and evaluated evidence.
 
-The repo-local Geometry Script clone has a Blender 5.1 patch for nested `@tree`
-group reuse, a ported `nodes_to_script` converter, and a menu-socket default
-tolerance patch needed by Blender 5 menu inputs. See
-`docs/research/geometry-script-fork-notes.md`.
-Run `.\tools\setup_geometry_script_clone.ps1` if `external/geometry-script` is
+The repo-local Geometry Script clone has Blender 5.1 work for nested `@tree`
+group reuse, a ported `nodes_to_script` converter, and menu-socket default
+tolerance. See `docs/research/geometry-script-fork-notes.md`. Run
+`.\tools\setup_geometry_script_clone.ps1` if `external/geometry-script` is
 missing in a fresh workspace.
+
 The local toolchain branch is `vibegeometry/blender-5-nodes-to-script`.
 The upstream PR branch is `vibegeometry/blender-5-nested-tree-groups`, and PR
 #69 is intentionally limited to the nested-group fix:
 https://github.com/carson-katri/geometry-script/pull/69.
 The GameCult fork is intentionally pruned to `main` plus VibeGeometry-owned
-tooling branches. Upstream branch clutter should not be copied forward unless a
-future patch actually needs it.
+tooling branches. Do not copy upstream branch soup forward unless a future patch
+actually needs it.
 
 The current next action is to continue IRCSS French Houses by choosing the next
 city-organ target after either fixing repeat-zone/foreach/gizmo toolchain
 blockers or selecting another non-zone architectural helper with a non-empty
-behavioral harness. Keep `docs/research/procedural-doctrine.md` compact; put
-sample-specific graph maps and verification details in
-`docs/research/translations/`.
+behavioral harness.
 
 ## Important Invariants
 
@@ -137,8 +94,6 @@ sample-specific graph maps and verification details in
 - What should the first node graph manifest schema require versus merely allow?
 - What node-group inspection JSON shape is most useful for translating public
   `.blend` examples into Geometry Script?
-- Should the Geometry Script nested-group patch be upstreamed, or should
-  VibeGeometry maintain a fork as its toolchain?
 - Which Blender 5.0+ APIs and node construction helpers should become the
   first stable builder layer?
 - What is the smallest useful render-review artifact?

@@ -177,6 +177,17 @@ def add_content_checks(findings: list[Finding]) -> tuple[list[dict[str, Any]], d
 
 def add_handoff_checks(findings: list[Finding]) -> None:
     text = read_text(HANDOFF_PATH)
+    handoff_size = HANDOFF_PATH.stat().st_size
+    if handoff_size > 6_000:
+        findings.append(
+            Finding(
+                "warn",
+                "handoff is larger than 6 KB; move corpus/detail into durable docs",
+            )
+        )
+    else:
+        findings.append(Finding("ok", "handoff is compact enough for re-entry"))
+
     stale_branch = re.search(r"Current branch before .*ahead \d+", text)
     stale_head = re.search(r"Current HEAD before .*\b[0-9a-f]{7,40}\b", text)
     if stale_branch or stale_head:
@@ -194,6 +205,19 @@ def add_handoff_checks(findings: list[Finding]) -> None:
             findings.append(Finding("ok", f"handoff contains: {phrase}"))
         else:
             findings.append(Finding("warn", f"handoff missing: {phrase}"))
+
+
+def add_plan_checks(findings: list[Finding]) -> None:
+    text = read_text(PLAN_PATH)
+    stale_phrases = [
+        "Build the first Geometry Nodes translation corpus entry",
+        "first Geometry Nodes translation corpus entry",
+    ]
+    stale = [phrase for phrase in stale_phrases if phrase in text]
+    if stale:
+        findings.append(Finding("warn", "implementation plan still describes the corpus as unstarted"))
+    else:
+        findings.append(Finding("ok", "implementation plan reflects post-corpus state"))
 
 
 def add_agents_checks(findings: list[Finding]) -> None:
@@ -310,6 +334,10 @@ def main() -> int:
         add_handoff_checks(findings)
     except OSError as exc:
         findings.append(Finding("error", f"handoff check failed: {exc}"))
+    try:
+        add_plan_checks(findings)
+    except OSError as exc:
+        findings.append(Finding("error", f"implementation plan check failed: {exc}"))
     try:
         add_agents_checks(findings)
     except OSError as exc:

@@ -2,25 +2,42 @@
 
 ## Current Phase
 
-Build the first reliable scaffold for agent-authored Blender geometry-node
-scenes. The immediate target is not a full procedural art factory. It is a
-clean artifact loop with enough structure that agents can generate, inspect,
-render, and revise graphs without losing the visual target.
+Turn the verified translation corpus into a small set of durable contracts and
+builder seams for agent-authored Blender geometry-node scenes.
+
+The goal is still not a procedural art factory. The goal is a clean artifact
+loop where agents can state a visual target, choose a geometry strategy, emit
+inspectable node graphs, render evidence, and revise one hypothesis at a time
+without piling clever junk into the machine.
 
 Planning belongs in this file and the handoff/map state surfaces. Architecture
-docs should describe durable contracts, boundaries, and data shapes; they
-should not carry live next-action clutter.
+docs should describe durable contracts, boundaries, and data shapes; they should
+not carry live next-action clutter.
+
+## Corpus Lessons
+
+- Python is the planning and orchestration layer: loops, tables, variants,
+  validation, cleanup, documentation, and Blender scene/render control.
+- Geometry Script is strongest as an inspectable graph emitter, especially when
+  the script keeps names, sockets, attribute flow, and reusable group boundaries
+  legible.
+- `bpy` remains necessary for Blender objects, modifiers, materials, cameras,
+  lights, files, renders, and evaluated-geometry comparison.
+- `nodes_to_script` is useful as a converter draft and source-graph probe. Its
+  output should inform the translation, not define good house style.
+- Accepted graph translations need behavioral verification, not just successful
+  script execution.
+- City-scale graphs expose the next toolchain pressure: repeat zones, foreach
+  zones, gizmo nodes, repeat `Top` outputs, and converter edge cases.
 
 ## Near-Term Sequence
 
-1. Build the first Geometry Nodes translation corpus entry.
-   - Start from a small public `.blend` with inspectable node groups.
-   - Use Blender to summarize group sockets, node types, links, modifiers, and
-     graph shape before translating.
-   - Write a plain-language map of one source graph before scripting.
-   - Recreate the graph with Geometry Script using the local Blender 5.1
-     generated Geometry Script docs for signatures.
-   - Smoke-test the generated node group in Blender before rendering.
+1. Choose the next IRCSS French Houses move.
+   - Either fix one repeat-zone/foreach/gizmo blocker in the Geometry Script
+     fork or select a non-zone architectural helper with a non-empty behavioral
+     harness.
+   - Keep the chosen target small enough to verify against evaluated geometry.
+   - Record rejected paths only when they change future decisions.
 
 2. Define the scene brief contract.
    - Capture references, text instructions, target visual traits, constraints,
@@ -30,7 +47,7 @@ should not carry live next-action clutter.
 
 3. Define the node graph manifest contract.
    - Describe node groups, sockets, exposed controls, modifiers, attribute
-     names, field flow, materials, and dependencies.
+     names, field flow, materials, dependencies, and verification expectations.
    - Require enough naming and rationale for future agents to inspect the graph.
    - Keep graph contracts Blender 5.0+ oriented.
 
@@ -45,12 +62,12 @@ should not carry live next-action clutter.
      version, review status, visual misses, graph issues, and next hypothesis.
    - Treat rendered output as the acceptance surface for visual claims.
 
-6. Add geometry-node idiom notes and examples.
-   - Document established patterns for distribution, instancing, curve/surface
-     generation, attributes, material variation, simulation zones, and exposed
-     parameters.
+6. Promote doctrine only after it survives use.
    - Keep examples small enough to inspect.
-   - Promote only graph patterns that survive review.
+   - Put sample-specific graph maps in `docs/research/translations/`.
+   - Keep `docs/research/procedural-doctrine.md` tight enough to fit in working
+     context when building a new scene from scratch. Nobody needs a sacred
+     haystack.
 
 7. Generalize after the loop works.
    - Add reference-image ingestion helpers.
