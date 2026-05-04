@@ -41,13 +41,14 @@ The completed pie chart translation is
 
 The completed field-value helper translation is
 `docs/research/translations/shriinivas-fieldvalue-digit-at.md`. It covers
-`Create Decimal`, `Create Segment`, `Seven Segments`, `Delete Segments`, and
+`Create Decimal`, `Create Segment`, `Seven Segments`, `Delete Segments`,
 `Next Digit`, and `Digit At` from `fieldvalue.blend`.
 
-`docs/research/procedural-doctrine.md` now stores the current intuitive model
-for mapping geometric ideas to Geometry Script: curves as rails, fields as
-weather, `Set Position` as the hinge, profiles as body, attributes as optional
-handles, and Python helpers as authoring stencils.
+`docs/research/procedural-doctrine.md` now stores the current spatial reasoning
+playbook for mapping geometric ideas to Geometry Script. Doctrine entries should
+explain when a tool becomes salient for a visual form, the mental move that
+turns the form into graph structure, a small code sketch, and the verification
+cue.
 
 The repo-local Geometry Script clone has a Blender 5.1 patch for nested `@tree`
 group reuse. See `docs/research/geometry-script-fork-notes.md`.
