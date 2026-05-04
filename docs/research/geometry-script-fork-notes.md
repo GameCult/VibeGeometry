@@ -112,13 +112,15 @@ Current acceptance:
 - Converter runs in Blender 5.1.1.
 - Generated drafts compile as Python for the tested groups.
 - The full 176-node `Field Value` source group emits a 179-line draft script.
-- Generated text is a bootstrap draft, not doctrine-quality final code.
+- Generated text is a bootstrap draft, not doctrine-quality final code or style
+  guidance.
 
 Known limits:
 
 - Nested source group calls are emitted by source group name, so dependency
   groups must be converted or replaced by hand-authored equivalents.
 - The generated script preserves node-level wiring and therefore can be noisy.
+- Generated names and ordering reflect extraction mechanics, not spatial intent.
 - Behavioral equivalence still needs the same evaluated-geometry or scalar
   harness verification used by the hand translations.
 

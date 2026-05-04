@@ -16,6 +16,11 @@ Code snippets are excerpts from the verified translation scripts unless noted.
 They may omit surrounding setup or sibling branches, but they should keep the
 same explicit Geometry Script call style that passed Blender verification.
 
+`nodes_to_script` output is evidence, not style guidance. Use generated drafts
+to recover wiring, defaults, socket order, and hidden graph structure. Do not
+copy their naming, ordering, or mechanical transcript shape into accepted
+Geometry Script. A useful draft can still be ugly enough to need supervision.
+
 ## Start With A Pipeline
 
 Reach for this when the form feels like it has stages: a seed shape, a sampling
