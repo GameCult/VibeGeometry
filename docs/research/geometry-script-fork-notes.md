@@ -12,6 +12,12 @@ The clone currently tracks upstream:
 https://github.com/carson-katri/geometry-script.git
 ```
 
+The GameCult fork remote is:
+
+```text
+https://github.com/GameCult/geometry-script.git
+```
+
 Patch work belongs in this clone first, then in a fork branch/PR. Do not patch
 the installed AppData add-on directly. That path is live installation state, not
 source control, and it will quietly become a stupid little archaeological layer
@@ -73,7 +79,7 @@ Verification:
 
 ## Fork/PR Todo
 
-- Add a remote for the maintained VibeGeometry fork once it exists.
-- Push `vibegeometry/blender-5-nested-tree-groups` to that fork.
-- Submit a focused upstream PR or keep the fork as the project toolchain if
-  upstream is inactive.
+- Upstream PR: https://github.com/carson-katri/geometry-script/pull/69
+- Keep `external/geometry-script` on
+  `vibegeometry/blender-5-nested-tree-groups` until that PR is merged or a
+  better maintained fork replaces it.

@@ -84,3 +84,7 @@ data_flow:
 current_status:
   summary: VibeGeometry has an initial persistence scaffold plus verified Geometry Script translations for inspected Shriinivas cartesian, pie chart, and field-value helper graph families.
   next_action: Continue fieldvalue.blend by translating the next composition helper, likely `Seven Segments` or `Delete Segments`, before attempting the full `Field Value` graph.
+remotes:
+  vibegeometry: https://github.com/GameCult/VibeGeometry
+  geometry_script_fork: https://github.com/GameCult/geometry-script
+  geometry_script_upstream_pr: https://github.com/carson-katri/geometry-script/pull/69

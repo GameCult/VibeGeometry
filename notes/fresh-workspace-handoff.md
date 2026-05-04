@@ -52,6 +52,8 @@ The repo-local Geometry Script clone has a Blender 5.1 patch for nested `@tree`
 group reuse. See `docs/research/geometry-script-fork-notes.md`.
 Run `.\tools\setup_geometry_script_clone.ps1` if `external/geometry-script` is
 missing in a fresh workspace.
+The patch branch is pushed to `GameCult/geometry-script`, and the upstream PR is
+https://github.com/carson-katri/geometry-script/pull/69.
 
 The current next action is to continue `fieldvalue.blend` by translating the
 next composition helper, likely `Seven Segments` or `Delete Segments`, before
