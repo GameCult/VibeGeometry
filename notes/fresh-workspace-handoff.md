@@ -39,6 +39,10 @@ The completed pie chart translation is
 `docs/research/translations/shriinivas-piechart.md`. It covers `NodeGroup` and
 `Pie Chart` from `piechart.blend`.
 
+The completed field-value helper translation is
+`docs/research/translations/shriinivas-fieldvalue-digit-at.md`. It covers
+`Digit At` from `fieldvalue.blend`.
+
 `docs/research/procedural-doctrine.md` now stores the current intuitive model
 for mapping geometric ideas to Geometry Script: curves as rails, fields as
 weather, `Set Position` as the hinge, profiles as body, attributes as optional
@@ -49,9 +53,9 @@ group reuse. See `docs/research/geometry-script-fork-notes.md`.
 Run `.\tools\setup_geometry_script_clone.ps1` if `external/geometry-script` is
 missing in a fresh workspace.
 
-The current next action is to select the next Tier 1 source graph from
-`Shriinivas/geometrynodes`, preferably `fieldvalue.blend`, inspect its node
-groups, and add the next doctrine-backed translation entry.
+The current next action is to continue `fieldvalue.blend` by translating the
+next bounded seven-segment display helper, likely `Create Decimal` or
+`Create Segment`, before attempting the full `Field Value` graph.
 
 ## Important Invariants
 

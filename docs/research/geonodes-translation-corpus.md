@@ -121,6 +121,13 @@ Completed pie chart entry:
 - Verification: translated segment and three-slice chart match evaluated source
   geometry with sorted max vertex delta `0.0` in Blender 5.1.1.
 
+Completed field value helper entry:
+
+- `docs/research/translations/shriinivas-fieldvalue-digit-at.md`
+- Source group: `Digit At`
+- Verification: translated scalar helper matches source behavior across four
+  number/position cases by driving `Mesh Line.Count` with the result.
+
 ## Extraction Workflow
 
 1. Download one source `.blend` into an ignored experiment folder.

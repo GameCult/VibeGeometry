@@ -114,6 +114,20 @@ the end angle forward. This is the pattern for cumulative structures: charts,
 stairs, chains, segmented shells, stacked floors, ribs, vertebrae, and anything
 where part N+1 depends on where part N stopped.
 
+## Values Need Harnesses
+
+Some node groups are value transducers rather than shape makers. They transform
+numbers, booleans, vectors, rotations, or strings so larger graph organs can use
+them later.
+
+The `Digit At` translation extracts a single digit from a number. To verify it,
+the value output is wired into `Mesh Line.Count`; the number of evaluated
+vertices becomes the observable behavior.
+
+Metaphor: if a graph only whispers a number, build a little megaphone around it.
+The verifier's job is not to be beautiful. It is to make the invisible output
+hard to lie about.
+
 ## Stack Abstractions Carefully
 
 There are two abstraction layers available:
