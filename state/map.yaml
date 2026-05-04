@@ -20,6 +20,7 @@ hard_boundaries:
   - Blender 5.0+ is the target runtime unless a task explicitly chooses another version.
   - Geometry nodes are the primary procedural modeling surface.
   - Python scripts should construct and orchestrate node graphs, not hide the design in uninspectable imperative mesh code.
+  - Python is the authoring and orchestration layer; Geometry Script is the inspectable node-graph emission surface, not the whole toolchain.
   - Visual targets must preserve reference-image evidence and explicit instructions.
   - A graph that runs is not accepted until rendered output is inspected against the target.
   - Node groups must be named, parameterized, and legible enough for future agents to modify.
@@ -37,6 +38,11 @@ live_architecture:
     - Generate Blender Python that builds the scene and node graphs from the manifest.
     - Run Blender headlessly or interactively to produce `.blend` files and render evidence.
     - Review renders against the visual target and record accepted, rejected, or revised hypotheses.
+  authoring_stack:
+    - Python structures intent, repetition, data tables, variants, cleanup, validation, documentation, and scene/render orchestration.
+    - Geometry Script emits inspectable reusable Geometry Nodes groups.
+    - bpy handles Blender objects, modifiers, materials, cameras, lights, files, renders, and evaluated-geometry checks.
+    - External Python tools inspect source blends, generate converter drafts, compare outputs, and maintain corpus evidence.
   persistence:
     - `state/map.yaml` stores canonical mission, boundaries, architecture, artifacts, and next action.
     - `state/scratch.md` stores one bounded active thought surface.

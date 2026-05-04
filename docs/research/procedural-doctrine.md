@@ -21,6 +21,48 @@ to recover wiring, defaults, socket order, and hidden graph structure. Do not
 copy their naming, ordering, or mechanical transcript shape into accepted
 Geometry Script. A useful draft can still be ugly enough to need supervision.
 
+## Python Is The Authoring Layer
+
+Do not treat Geometry Script as the whole toolchain. It is the graph-emission
+surface: the part that turns intent into inspectable Geometry Nodes groups.
+Python is where intent can be structured before it becomes nodes.
+
+Reach for ordinary Python when the design has repetition, tables, named parts,
+variants, cleanup rules, validation, generated docs, render orchestration, or
+scene setup. The goal is not to hide geometry in imperative mesh code. The goal
+is to use Python to organize the graph authoring problem so the emitted node
+groups stay legible.
+
+Useful split:
+
+```text
+Python data/functions -> Geometry Script node groups -> bpy scene orchestration -> Blender evaluation/render
+```
+
+Example: a seven-segment display is clearer as a Python table of named bar
+placements feeding repeated `vg_create_segment(...)` calls than as hand-copied
+node sprawl.
+
+```python
+SEGMENT_PLACEMENTS = [
+    ("top", True, (0.0, "vertical_segment_size")),
+    ("middle", True, (0.0, 0.0)),
+    ("bottom", True, (0.0, "negative_vertical_segment_size")),
+]
+
+for name, x_major, offset_terms in SEGMENT_PLACEMENTS:
+    # In accepted scripts, expand symbolic terms into Geometry Script values
+    # before calling the node group.
+    segment = vg_create_segment(x_major=x_major, offset=offset_vector)
+```
+
+Metaphor in use: Python is the drafting table. Geometry Script is the machine
+shop. `bpy` is the crane, paint booth, camera rig, and inspection station. Do
+not ask the machine shop to be the whole factory.
+
+Verification cue: if Python generates graph structure, verify the emitted node
+groups and evaluated behavior, not the Python loop by itself.
+
 ## Start With A Pipeline
 
 Reach for this when the form feels like it has stages: a seed shape, a sampling

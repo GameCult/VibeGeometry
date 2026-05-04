@@ -50,6 +50,11 @@ explain when a tool becomes salient for a visual form, the mental move that
 turns the form into graph structure, a small code sketch, and the verification
 cue.
 
+Current authoring prior: use the full Python stack. Python structures intent,
+tables, loops, variants, cleanup, validation, docs, and scene/render
+orchestration; Geometry Script emits inspectable Geometry Nodes groups; `bpy`
+handles Blender scene machinery and evaluated evidence.
+
 The repo-local Geometry Script clone has a Blender 5.1 patch for nested `@tree`
 group reuse plus a ported `nodes_to_script` converter. See
 `docs/research/geometry-script-fork-notes.md`.
@@ -72,6 +77,8 @@ wrapper around the full `Field Value` group rather than an independent helper.
 
 - Target Blender 5.0+ unless the task says otherwise.
 - Geometry nodes are the primary procedural geometry surface.
+- Python is the authoring/orchestration layer, not a fallback after Geometry
+  Script runs out of rope.
 - Python constructs and orchestrates graphs; it should not bury the design in
   opaque imperative mesh generation.
 - Visual target evidence must remain attached to scene briefs and render
