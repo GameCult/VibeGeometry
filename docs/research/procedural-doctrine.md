@@ -12,6 +12,10 @@ Each pattern should answer four questions:
 - What does the Geometry Script shape look like?
 - What evidence proves the translation kept its behavior?
 
+Code snippets are excerpts from the verified translation scripts unless noted.
+They may omit surrounding setup or sibling branches, but they should keep the
+same explicit Geometry Script call style that passed Blender verification.
+
 ## Start With A Pipeline
 
 Reach for this when the form feels like it has stages: a seed shape, a sampling
@@ -28,11 +32,17 @@ with evenly spaced stations, then a weather field that tells each station where
 to move.
 
 ```python
-curve = curve_line(mode=CurveLine.Mode.POINTS, start=(0.0, 0.0, 0.0), end=(length, 0.0, 0.0))
+end = combine_xyz(x=length, y=0.0, z=0.0)
+curve = curve_line(mode=CurveLine.Mode.POINTS, start=(0.0, 0.0, 0.0), end=end)
 parts = separate_xyz(vector=position())
-y = math(operation=Math.Operation.ADD, value=(parts.x * m, value))
-positioned = curve.set_position(position=combine_xyz(x=parts.x, y=y, z=parts.z))
-mesh = positioned.curve_to_mesh(profile_curve=curve_circle(radius=thickness))
+y = math(
+    operation=Math.Operation.ADD,
+    value=(math(operation=Math.Operation.MULTIPLY, value=(parts.x, m)), value),
+)
+vector = combine_xyz(x=parts.x, y=y, z=parts.z)
+positioned = curve.set_position(position=vector)
+profile = curve_circle(mode=CurveCircle.Mode.RADIUS, resolution=32, radius=thickness)
+mesh = positioned.curve_to_mesh(profile_curve=profile)
 ```
 
 Verification cue: evaluate the output geometry and compare vertices against the
@@ -99,16 +109,24 @@ be the hinge between math and form.
 
 ```python
 parts = separate_xyz(vector=position())
-new_y = math(operation=Math.Operation.ADD, value=(parts.x * slope, intercept))
-target = combine_xyz(x=parts.x, y=new_y, z=parts.z)
-positioned = source_geometry.set_position(position=target)
+y = math(
+    operation=Math.Operation.ADD,
+    value=(math(operation=Math.Operation.MULTIPLY, value=(parts.x, m)), value),
+)
+vector = combine_xyz(x=parts.x, y=y, z=parts.z)
+positioned = curve.set_position(position=vector)
 ```
 
 For local nudges, use `offset` instead of an absolute `position`:
 
 ```python
-offset = combine_xyz(x=0.0, y=vertical_shift, z=0.0)
-dot = mesh_circle(fill_type=MeshCircle.FillType.NGON, vertices=32, radius=radius).set_position(offset=offset)
+offset = combine_xyz(
+    x=0.0,
+    y=math(operation=Math.Operation.MULTIPLY, value=(-1.0, vertical_segment_size)),
+    z=0.0,
+)
+dot = mesh_circle(fill_type=MeshCircle.FillType.NGON, vertices=32, radius=radius)
+positioned_dot = dot.set_position(offset=offset)
 ```
 
 Metaphor in use: before `Set Position`, the graph is making promises. After it,
@@ -160,12 +178,32 @@ parts = separate_xyz(vector=position())
 major = switch(input_type=Switch.InputType.FLOAT, switch=x_major, false=parts.y, true=parts.x)
 secondary = switch(input_type=Switch.InputType.FLOAT, switch=x_major, false=parts.x, true=parts.y)
 
-tip_amount = 0.5 * sharpness * secondary_axis_segment_thickness
-tip_vector = combine_xyz(x=x_major * tip_amount, y=(1.0 - x_major) * tip_amount, z=0.0)
+not_x_major = math(operation=Math.Operation.SUBTRACT, value=(1.0, x_major))
+tip_amount = math(
+    operation=Math.Operation.MULTIPLY,
+    value=(math(operation=Math.Operation.MULTIPLY, value=(0.5, sharpness)), secondary_axis_segment_thickness),
+)
+tip_vector = combine_xyz(
+    x=math(operation=Math.Operation.MULTIPLY, value=(x_major, tip_amount)),
+    y=math(operation=Math.Operation.MULTIPLY, value=(not_x_major, tip_amount)),
+    z=0.0,
+)
 
-on_side = compare(operation=Compare.Operation.NOT_EQUAL, data_type=Compare.DataType.FLOAT, a=secondary, b=0.0)
-positive_end = math(operation=Math.Operation.GREATER_THAN, value=(major, 0.0)) * on_side
-negative_end = math(operation=Math.Operation.LESS_THAN, value=(major, 0.0)) * on_side
+on_side = compare(
+    operation=Compare.Operation.NOT_EQUAL,
+    data_type=Compare.DataType.FLOAT,
+    mode=Compare.Mode.ELEMENT,
+    a=secondary,
+    b=0.0,
+)
+positive_end = math(
+    operation=Math.Operation.MULTIPLY,
+    value=(math(operation=Math.Operation.GREATER_THAN, value=(major, 0.0)), on_side),
+)
+negative_end = math(
+    operation=Math.Operation.MULTIPLY,
+    value=(math(operation=Math.Operation.LESS_THAN, value=(major, 0.0)), on_side),
+)
 ```
 
 Metaphor in use: the mask is the stencil; `Set Position` is the chisel strike.
@@ -188,7 +226,11 @@ the visual idea.
 @tree("VG Create Decimal")
 def vg_create_decimal(vertical_segment_size: Float = 2.0, radius: Float = 0.0):
     dot = mesh_circle(fill_type=MeshCircle.FillType.NGON, vertices=32, radius=radius)
-    offset = combine_xyz(x=0.0, y=-1.0 * vertical_segment_size, z=0.0)
+    offset = combine_xyz(
+        x=0.0,
+        y=math(operation=Math.Operation.MULTIPLY, value=(-1.0, vertical_segment_size)),
+        z=0.0,
+    )
     return {"Dot": dot.set_position(offset=offset)}
 ```
 
@@ -209,13 +251,11 @@ part group repeatedly, and join the result. `Seven Segments` uses the tested
 bar and dot groups to build a digit scaffold.
 
 ```python
-half_x = horizontal_segment_size / 2.0
-half_y = vertical_segment_size / 2.0
-bar_length = horizontal_segment_size - x_separation
+horizontal_bar_length = math(operation=Math.Operation.SUBTRACT, value=(horizontal_segment_size, x_separation))
 
 top = vg_create_segment(
     x_major=True,
-    segment_length_along_x=bar_length,
+    segment_length_along_x=horizontal_bar_length,
     segment_length_along_y=horizontal_segment_thickness,
     secondary_axis_segment_thickness=vertical_segment_thickness,
     sharpness=tip_sharpness,
@@ -242,10 +282,18 @@ pie segment returns its wedge and the angle where the next wedge should begin.
 
 ```python
 @tree("VG Pie Segment")
-def vg_pie_segment(start: Float, value: Float, total: Float):
-    sweep = value / total * TAU
-    end = start + sweep
-    arc_curve = arc(mode=Arc.Mode.RADIUS, radius=1.0, start_angle=start, sweep_angle=sweep, connect_center=True)
+def vg_pie_segment(start: Float = TAU, value: Float = 0.5, total: Float = 0.5):
+    fraction = math(operation=Math.Operation.DIVIDE, value=(value, total))
+    sweep = math(operation=Math.Operation.MULTIPLY, value=(fraction, TAU))
+    end = math(operation=Math.Operation.ADD, value=(start, sweep))
+    arc_curve = arc(
+        mode=Arc.Mode.RADIUS,
+        resolution=64,
+        radius=1.0,
+        start_angle=start,
+        sweep_angle=sweep,
+        connect_center=True,
+    )
     return {"Curve": arc_curve.fill_curve(), "End": end}
 
 a_geometry, a_end = vg_pie_segment(start=0.0, value=a, total=total)
@@ -349,12 +397,37 @@ larger assembly -> nested @tree calls
 
 ```python
 def _int_equal(value, target: int):
-    return compare(operation=Compare.Operation.EQUAL, data_type=Compare.DataType.INT, a=value, b=target)
+    return compare(
+        operation=Compare.Operation.EQUAL,
+        data_type=Compare.DataType.INT,
+        mode=Compare.Mode.ELEMENT,
+        a=value,
+        b=target,
+    )
 
 @tree("VG Seven Segments")
-def vg_seven_segments(...):
-    top = vg_create_segment(...)
-    dot = vg_create_decimal(...)
+def vg_seven_segments(
+    horizontal_segment_size: Float = 2.0,
+    horizontal_segment_thickness: Float = 0.5,
+    vertical_segment_size: Float = 2.0,
+    vertical_segment_thickness: Float = 0.5,
+    x_separation: Float = 0.1,
+    y_seperation: Float = 0.1,
+    tip_sharpness: Float = 1.0,
+):
+    horizontal_bar_length = math(operation=Math.Operation.SUBTRACT, value=(horizontal_segment_size, x_separation))
+    top = vg_create_segment(
+        x_major=True,
+        segment_length_along_x=horizontal_bar_length,
+        segment_length_along_y=horizontal_segment_thickness,
+        secondary_axis_segment_thickness=vertical_segment_thickness,
+        sharpness=tip_sharpness,
+        offset=combine_xyz(x=0.0, y=vertical_segment_size, z=0.0),
+    )
+    dot = vg_create_decimal(
+        vertical_segment_size=vertical_segment_size,
+        radius=math(operation=Math.Operation.DIVIDE, value=(horizontal_segment_thickness, 2.0)),
+    )
     return {"bars": join_geometry(geometry=[top, dot])}
 ```
 
