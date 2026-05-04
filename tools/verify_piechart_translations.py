@@ -44,11 +44,14 @@ def _new_geometry_group(name: str) -> bpy.types.GeometryNodeTree:
 
 def _set_inputs(group_node: bpy.types.GeometryNode, values: dict[str, object]) -> None:
     lower_values = {name.lower(): value for name, value in values.items()}
+    normalized_values = {name.lower().replace(" ", ""): value for name, value in values.items()}
     for socket in group_node.inputs:
         if socket.name in values:
             socket.default_value = values[socket.name]
         elif socket.name.lower() in lower_values:
             socket.default_value = lower_values[socket.name.lower()]
+        elif socket.name.lower().replace(" ", "") in normalized_values:
+            socket.default_value = normalized_values[socket.name.lower().replace(" ", "")]
 
 
 def _build_segment_wrapper(name: str, group: bpy.types.GeometryNodeTree, inputs: dict[str, object]):
@@ -75,6 +78,18 @@ def _build_chart_wrapper(name: str, group: bpy.types.GeometryNodeTree, inputs: d
     if any(socket.name == "Geometry" for socket in group_node.inputs):
         links.new(_socket_by_name(group_input.outputs, "Geometry"), _socket_by_name(group_node.inputs, "Geometry"))
     links.new(_socket_by_name(group_node.outputs, "Geometry"), _socket_by_name(group_output.inputs, "Geometry"))
+    return wrapper
+
+
+def _build_extended_segment_wrapper(name: str, group: bpy.types.GeometryNodeTree, inputs: dict[str, object]):
+    wrapper = _new_geometry_group(name)
+    nodes = wrapper.nodes
+    links = wrapper.links
+    group_node = nodes.new("GeometryNodeGroup")
+    group_node.node_tree = group
+    _set_inputs(group_node, inputs)
+    group_output = nodes.new("NodeGroupOutput")
+    links.new(_socket_by_name(group_node.outputs, "Pie"), _socket_by_name(group_output.inputs, "Geometry"))
     return wrapper
 
 
@@ -131,6 +146,10 @@ def main() -> int:
     mat1 = bpy.data.materials.get("Material 1") or bpy.data.materials.new("Material 1")
     mat2 = bpy.data.materials.get("Material 2") or bpy.data.materials.new("Material 2")
     mat3 = bpy.data.materials.get("Material 3") or bpy.data.materials.new("Material 3")
+    materials = {
+        f"Material {index}": bpy.data.materials.get(f"Material {index}") or bpy.data.materials.new(f"Material {index}")
+        for index in range(1, 11)
+    }
 
     segment_inputs = {
         "Start": 0.35,
@@ -152,6 +171,67 @@ def main() -> int:
         "C Material": mat3,
         "Text Material": text_material,
     }
+    extended_segment_inputs = {
+        "Radius": 1.0,
+        "Pie Height": 0.1,
+        "Text Height": 0.005,
+        "Text Size": 0.08,
+        "Text Material": text_material,
+        "Text Offset": 0.7,
+        "Pie Material": mat1,
+        "Include Percentage": True,
+        "Value": 20.0,
+        "Total": 120.0,
+        "Start Angle": 0.25,
+        "Shift": 0.15,
+        "Text": "Lorem",
+    }
+    extended_chart_inputs = {
+        "Title": "Extended Pie Chart",
+        "Title Size": 0.2,
+        "Title Material": mat2,
+        "Title Offset": 0.18,
+        "Segment Count": 10,
+        "Radius": 1.0,
+        "Pie Height": 0.1,
+        "Text Height": 0.005,
+        "Text Size": 0.08,
+        "Text Material": text_material,
+        "Text Offset": 0.7,
+        "Include Percentage": True,
+        "Value 1": 20.0,
+        "Label 1": "Lorem",
+        "Shift 1": 0.2,
+        "Value 2": 30.0,
+        "Label 2": "Ipsum",
+        "Shift 2": 0.0,
+        "Value 3": 27.0,
+        "Label 3": "Dolor",
+        "Shift 3": 0.0,
+        "Value 4": 25.0,
+        "Label 4": "Sit",
+        "Shift 4": 0.0,
+        "Value 5": 55.0,
+        "Label 5": "Amet",
+        "Shift 5": 0.0,
+        "Value 6": 45.0,
+        "Label 6": "Consectetur",
+        "Shift 6": 0.0,
+        "Value 7": 25.0,
+        "Label 7": "Adipiscing",
+        "Shift 7": 0.0,
+        "Value 8": 35.0,
+        "Label 8": "Elit",
+        "Shift 8": 0.0,
+        "Value 9": 58.0,
+        "Label 9": "Sed",
+        "Shift 9": 0.0,
+        "Value 10": 32.0,
+        "Label 10": "Do",
+        "Shift 10": 0.0,
+    }
+    for index in range(1, 11):
+        extended_chart_inputs[f"Material {index}"] = materials[f"Material {index}"]
 
     cases = [
         (
@@ -163,6 +243,24 @@ def main() -> int:
             "chart",
             _build_chart_wrapper("VG Verify Source Pie Chart", bpy.data.node_groups["Pie Chart"], chart_inputs),
             _build_chart_wrapper("VG Verify Translated Pie Chart", bpy.data.node_groups["VG Pie Chart"], chart_inputs),
+        ),
+        (
+            "extended_segment",
+            _build_extended_segment_wrapper("VG Verify Source Extended Segment", bpy.data.node_groups["getPie.012"], extended_segment_inputs),
+            _build_extended_segment_wrapper(
+                "VG Verify Translated Extended Segment",
+                bpy.data.node_groups["VG Extended Pie Segment"],
+                extended_segment_inputs,
+            ),
+        ),
+        (
+            "extended_chart",
+            _build_chart_wrapper("VG Verify Source Extended Pie Chart", bpy.data.node_groups["Extended Pie Chart"], extended_chart_inputs),
+            _build_chart_wrapper(
+                "VG Verify Translated Extended Pie Chart",
+                bpy.data.node_groups["VG Extended Pie Chart"],
+                extended_chart_inputs,
+            ),
         ),
     ]
     results = [_compare(case, _evaluated_vertices(source), _evaluated_vertices(translated)) for case, source, translated in cases]

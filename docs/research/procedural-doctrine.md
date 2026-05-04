@@ -484,6 +484,38 @@ there looking employed.
 
 Verification cue: choose cases on both sides of the branch boundary.
 
+## Clone Families Want Tables
+
+Reach for Python tables when a source file contains numbered near-clones:
+`getPie.002`, `getPie.003`, `getPie.004`, and so on.
+
+Mental move: identify the stable contract once, then express each clone as a
+row of values feeding the same group. Do not preserve source duplication as
+though repetition itself were insight.
+
+```python
+values = [value_1, value_2, value_3, value_4]
+labels = [label_1, label_2, label_3, label_4]
+start_angle = 0.0
+segments = []
+
+for index, (segment_value, label) in enumerate(zip(values, labels), start=1):
+    end_angle, geometry = vg_extended_pie_segment(
+        value=segment_value,
+        total=total,
+        start_angle=start_angle,
+        text=label,
+    )
+    segments.append(geometry)
+    start_angle = end_angle
+```
+
+Metaphor in use: clone families are form letters. Python fills the blanks;
+Geometry Script emits the one reusable machine.
+
+Verification cue: verify at least one member alone and the composed family.
+The contract can be correct while baton order in the compositor is wrong.
+
 ## Boolean Thickets Are Often Tables
 
 Reach for table translation when a dense boolean region is mostly comparisons

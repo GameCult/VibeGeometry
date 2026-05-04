@@ -7,6 +7,9 @@
   `Curve to Mesh UV v1.7.02.230213-FREE - Blender 3.4+.blend`
 - Source group translated in this pass:
   - `Auto Smooth`
+  - `Curve to Mesh UV`
+  - `_258246`
+  - `_Title`
 - Geometry Script recreation:
   `examples/geometry_script/quellenform_curve_to_mesh_uv.py`
 
@@ -17,8 +20,9 @@ resampling, spline parameters, UV fields, capture attributes, endpoint masks,
 domain-size accounting, and named attribute outputs. That is useful quarry, but
 not a single-pass snack.
 
-`Auto Smooth` is the small utility attached to that system. It teaches how a
-graph can be a surface-finishing gate instead of a shape generator.
+`Auto Smooth` is the small utility attached to that system. The main
+`Curve to Mesh UV` group teaches how a utility can output geometry plus fields
+that only make sense when sampled on that geometry.
 
 ## Auto Smooth Map
 
@@ -53,6 +57,41 @@ Results from Blender 5.1.1:
 | --- | ---: | ---: | ---: | --- |
 | Auto Smooth cube vertices | 8 | 8 | 0.0 | accepted |
 | Auto Smooth smooth faces | 6 | 6 | exact flags | accepted |
+| Curve To Mesh UV mesh | 192 | 192 | 0.0 | accepted |
+| Curve To Mesh UV UV-field harness | 192 | 192 | 0.0 | accepted |
+| Curve To Mesh UV caps-mask harness | 192 | 192 | 0.0 | accepted |
+| Demo geometry | 512 | 512 | 0.0 | accepted |
+| Title geometry | 12 | 12 | 0.0 | accepted |
+
+## Curve To Mesh UV Map
+
+Source group: `Curve to Mesh UV`
+
+Geometry Script group: `VG Curve To Mesh UV`
+
+Mechanism:
+
+- Resample the source curve and profile curve.
+- Capture point triplets and curve indices before converting the curves to a
+  mesh.
+- Convert the curve/profile pair with `Curve to Mesh`.
+- Use corner-domain accumulation to identify cap regions.
+- Build side UVs from captured curve/profile point positions.
+- Build cap UVs by remapping profile source positions through a bounding box.
+- Switch between side UVs and cap UVs with the cap mask.
+
+Metaphor: the curve and profile are two rulers crossing. The mesh is the cloth
+stretched across them; the captured indices are the ruler marks that survive
+after the cloth exists.
+
+## Demo And Title
+
+`VG Curve To Mesh UV Demo` recreates `_258246` as a simple closed curve/profile
+example that calls `VG Curve To Mesh UV`.
+
+`VG Curve To Mesh UV Title` recreates `_Title` as decorative text, plinth, and
+backdrop geometry. It is useful mostly because it exercises text curves,
+stored UV attributes, face flipping, and map-range UV generation.
 
 ## Lessons
 
@@ -62,3 +101,8 @@ Results from Blender 5.1.1:
   edge continuity, then stamp final face smoothness.
 - Utility mega-graphs should be entered through their small helpers first.
   They expose the local contracts the main group relies on.
+- Field outputs need field-shaped verification. The UV output was checked by
+  driving vertex position with the UV vector; the caps mask was checked by
+  using it as a deletion selection.
+- Utility graphs often return several contracts at once. Verify geometry,
+  fields, and masks separately so one passing output does not launder the rest.

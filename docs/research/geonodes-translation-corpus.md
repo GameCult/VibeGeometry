@@ -117,9 +117,12 @@ Completed Cartesian function graph entry:
 Completed pie chart entry:
 
 - `docs/research/translations/shriinivas-piechart.md`
-- Source groups: `NodeGroup`, `Pie Chart`
+- Source groups: `NodeGroup`, `Pie Chart`, `getPie.002` through
+  `getPie.012`, `Extended Pie Chart`
 - Verification: translated segment and three-slice chart match evaluated source
-  geometry with sorted max vertex delta `0.0` in Blender 5.1.1.
+  geometry with sorted max vertex delta `0.0` in Blender 5.1.1; extended
+  segment and extended ten-slice chart also match source geometry with sorted
+  max vertex delta `0.0`.
 
 Completed field value helper entry:
 
@@ -142,24 +145,24 @@ Completed field value helper entry:
 Completed parametric/polar equation entry:
 
 - `docs/research/translations/shriinivas-paramnpolareq.md`
-- Source groups: `NodeGroup`, `NodeGroup.001`, `NodeGroup.002`,
-  `NodeGroup.003`, `Archimedes Spiral`, `Epicycloid`,
-  `Geometry Nodes Group.002`
+- Source groups: `chooseFloatVal`, `chooseFloatVal.001`, `chooseStrVal`,
+  `chooseStrVal.001`, `NodeGroup`, `NodeGroup.001`, `NodeGroup.002`,
+  `NodeGroup.003`, `getxy.001`, `Archimedes Spiral`, `Epicycloid`,
+  `Geometry Nodes Group`, `Geometry Nodes Group.002`
 - Verification: scalar equation helpers match by placing outputs into a single
   vertex position; Archimedes, epicycloid, and mirrored root spiral evaluated
   vertices match source geometry with max sorted deltas at or near `0.0`.
 - Translation value: accumulated parameter ramps, parametric equations, polar
   conversion, mirrored curve streams, and scalar-harness design.
 
-Started CurveToMeshUV utility entry:
+Completed CurveToMeshUV utility entry:
 
 - `docs/research/translations/quellenform-curve-to-mesh-uv.md`
-- Source group translated so far: `Auto Smooth`
+- Source groups: `Auto Smooth`, `Curve to Mesh UV`, `_258246`, `_Title`
 - Verification: source and translated `Auto Smooth` preserve cube geometry and
-  match smooth-face flags in Blender 5.1.1.
-- Boundary: the main `Curve to Mesh UV` group is a 126-node utility graph and
-  should be approached through staged subcontracts: curve resampling, spline
-  parameter UVs, cap masks, named attributes, then final mesh output.
+  match smooth-face flags in Blender 5.1.1; main utility mesh, UV-field
+  harness, caps-mask harness, demo geometry, and title geometry all match
+  source evaluated geometry.
 
 ## Extraction Workflow
 

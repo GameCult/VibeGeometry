@@ -7,6 +7,8 @@
 - Source groups:
   - `NodeGroup`
   - `Pie Chart`
+  - `getPie.002` through `getPie.012`
+  - `Extended Pie Chart`
 - Geometry Script recreation:
   `examples/geometry_script/shriinivas_piechart.py`
 
@@ -92,6 +94,30 @@ Metaphor: the chart group is not a shape maker. It is an accountant-conductor:
 it totals the values, cues each segment in order, and makes sure every slice
 starts where the previous one ended.
 
+## Extended Chart Map
+
+Source groups: `getPie.002` through `getPie.012`, `Extended Pie Chart`
+
+Geometry Script groups: `VG Extended Pie Segment`, `VG Extended Pie Chart`
+
+Mechanism:
+
+- Collapse the numbered `getPie.*` clones into one parameterized extended
+  segment helper.
+- Add radius, pie height, text height, text size, text offset, label text, and
+  percentage toggle controls.
+- Generate the segment label as either `Text` or percentage-plus-text.
+- Place label geometry along the segment midpoint at `Text Offset * Radius`.
+- Build a filled/extruded wedge at `Radius` and `Pie Height`.
+- Compose up to ten slices by passing each segment's `End Angle` into the next
+  segment.
+- Gate slices 2-10 with `Segment Count`.
+- Add title text below the chart.
+
+Metaphor: the small chart is a three-slice accountant. The extended chart is a
+ten-slot serving line: each station can be open or closed, but the serving
+angle still passes down the line.
+
 ## Verification
 
 Run:
@@ -106,11 +132,15 @@ Results from Blender 5.1.1:
 | --- | ---: | ---: | --- |
 | Segment | 319 | 0.0 | accepted |
 | Chart | 957 | 0.0 | accepted |
+| Extended Segment | 319 | 0.0 | accepted |
+| Extended Chart | 3190 | 0.0 | accepted |
 
 Generated groups saved and reinspected:
 
-- `VG Pie Segment`: 30 nodes, 48 links.
-- `VG Pie Chart`: 8 nodes, 25 links.
+- `VG Pie Segment`
+- `VG Pie Chart`
+- `VG Extended Pie Segment`
+- `VG Extended Pie Chart`
 
 ## Lessons
 
@@ -125,3 +155,9 @@ Generated groups saved and reinspected:
 - Charts and other sequential structures often need cumulative scalar flow.
   In Geometry Script, nested `@tree` calls make that flow readable as ordinary
   Python variable passing.
+- Numbered source clones are not doctrine. Translate the stable contract once,
+  then use Python lists and loops to express the repeated composition.
+- Output order matters when a group returns both state and geometry. The
+  extended segment preserves the source order `End Angle`, then `Pie`; grabbing
+  those in the wrong order made the whole chart disappear until verification
+  caught it.

@@ -112,11 +112,256 @@ def vg_pie_chart(
     return join_geometry(geometry=[a_geometry, b_geometry, c_geometry])
 
 
+def _empty_geometry():
+    return mesh_line(
+        mode=MeshLine.Mode.OFFSET,
+        count_mode=MeshLine.CountMode.TOTAL,
+        count=0,
+        offset=(0.0, 0.0, 1.0),
+    )
+
+
+@tree("VG Extended Pie Segment")
+def vg_extended_pie_segment(
+    radius: Float = 0.0,
+    pie_height: Float = 0.0,
+    text_height: Float = 0.0,
+    text_size: Float = 0.0,
+    text_material: Material = None,
+    text_offset: Float = 0.0,
+    pie_material: Material = None,
+    include_percentage: Bool = True,
+    value: Float = 0.0,
+    total: Float = 0.0,
+    start_angle: Float = 0.0,
+    shift: Float = 0.0,
+    text: String = "",
+):
+    fraction = math(operation=Math.Operation.DIVIDE, value=(value, total))
+    sweep = math(operation=Math.Operation.MULTIPLY, value=(fraction, TAU))
+    end_angle = math(operation=Math.Operation.ADD, value=(start_angle, sweep))
+    mid_angle = math(operation=Math.Operation.ADD, value=(start_angle, math(operation=Math.Operation.DIVIDE, value=(sweep, 2.0))))
+
+    percentage = value_to_string(
+        data_type=ValueToString.DataType.FLOAT,
+        value=math(operation=Math.Operation.MULTIPLY, value=(fraction, 100.0)),
+        decimals=2,
+    )
+    percentage_line = join_strings(delimiter="", strings=[string(string="%"), percentage])
+    label_with_percentage = join_strings(delimiter=special_characters().line_break, strings=[percentage_line, text])
+    label = switch(input_type=Switch.InputType.STRING, switch=include_percentage, false=text, true=label_with_percentage)
+
+    shift_vector = combine_xyz(
+        x=math(operation=Math.Operation.MULTIPLY, value=(shift, math(operation=Math.Operation.COSINE, value=mid_angle))),
+        y=math(operation=Math.Operation.MULTIPLY, value=(shift, math(operation=Math.Operation.SINE, value=mid_angle))),
+        z=0.0,
+    )
+    label_radius = math(operation=Math.Operation.MULTIPLY, value=(text_offset, radius))
+    label_offset = vector_math(
+        operation=VectorMath.Operation.ADD,
+        vector=(
+            shift_vector,
+            combine_xyz(
+                x=math(operation=Math.Operation.MULTIPLY, value=(label_radius, math(operation=Math.Operation.COSINE, value=mid_angle))),
+                y=math(operation=Math.Operation.MULTIPLY, value=(label_radius, math(operation=Math.Operation.SINE, value=mid_angle))),
+                z=0.0,
+            ),
+        ),
+    )
+
+    text_curves = string_to_curves(
+        string=label,
+        size=text_size,
+        align_x="Center",
+        align_y="Middle",
+        pivot_point="Bottom Left",
+    ).curve_instances
+    text_face = fill_curve(curve=text_curves, mode="Triangles", fill_rule="Even-Odd")
+    placed_text = set_position(geometry=text_face.set_material(material=text_material), offset=label_offset)
+    extruded_text = extrude_mesh(
+        mode=ExtrudeMesh.Mode.FACES,
+        mesh=placed_text,
+        offset=combine_xyz(x=0.0, y=0.0, z=math(operation=Math.Operation.ADD, value=(text_height, pie_height))),
+        offset_scale=1.0,
+        individual=True,
+    ).mesh.set_material(material=text_material)
+
+    arc_curve = arc(
+        mode=Arc.Mode.RADIUS,
+        resolution=64,
+        radius=radius,
+        start_angle=start_angle,
+        sweep_angle=sweep,
+        connect_center=True,
+    )
+    shifted_arc = transform_geometry(geometry=arc_curve, translation=shift_vector)
+    pie_face = fill_curve(curve=shifted_arc, mode="Triangles", fill_rule="Even-Odd").set_material(
+        material=pie_material
+    )
+    extruded_pie = extrude_mesh(
+        mode=ExtrudeMesh.Mode.FACES,
+        mesh=pie_face,
+        offset=combine_xyz(x=0.0, y=0.0, z=pie_height),
+        offset_scale=1.0,
+        individual=True,
+    ).mesh.set_material(material=pie_material)
+
+    return {"End Angle": end_angle, "Pie": join_geometry(geometry=[extruded_text, extruded_pie, placed_text, pie_face])}
+
+
+@tree("VG Extended Pie Chart")
+def vg_extended_pie_chart(
+    title: String = "Extended Pie Chart",
+    title_size: Float = 0.20000000298023224,
+    title_material: Material = None,
+    title_offset: Float = 0.18000000715255737,
+    segment_count: Int = 10,
+    radius: Float = 1.0,
+    pie_height: Float = 0.10000000149011612,
+    text_height: Float = 0.004999999888241291,
+    text_size: Float = 0.07999999821186066,
+    text_material: Material = None,
+    text_offset: Float = 0.699999988079071,
+    include_percentage: Bool = True,
+    value_1: Float = 20.0,
+    label_1: String = "Lorem",
+    shift_1: Float = 0.20000000298023224,
+    material_1: Material = None,
+    value_2: Float = 30.0,
+    label_2: String = "Ipsum",
+    shift_2: Float = 0.0,
+    material_2: Material = None,
+    value_3: Float = 27.0,
+    label_3: String = "Dolor",
+    shift_3: Float = 0.0,
+    material_3: Material = None,
+    value_4: Float = 25.0,
+    label_4: String = "Sit",
+    shift_4: Float = 0.0,
+    material_4: Material = None,
+    value_5: Float = 55.0,
+    label_5: String = "Amet",
+    shift_5: Float = 0.0,
+    material_5: Material = None,
+    value_6: Float = 45.0,
+    label_6: String = "Consectetur",
+    shift_6: Float = 0.0,
+    material_6: Material = None,
+    value_7: Float = 25.0,
+    label_7: String = "Adipiscing",
+    shift_7: Float = 0.0,
+    material_7: Material = None,
+    value_8: Float = 35.0,
+    label_8: String = "Elit",
+    shift_8: Float = 0.0,
+    material_8: Material = None,
+    value_9: Float = 58.0,
+    label_9: String = "Sed",
+    shift_9: Float = 0.0,
+    material_9: Material = None,
+    value_10: Float = 32.0,
+    label_10: String = "Do",
+    shift_10: Float = 0.0,
+    material_10: Material = None,
+):
+    values = [value_1, value_2, value_3, value_4, value_5, value_6, value_7, value_8, value_9, value_10]
+    labels = [label_1, label_2, label_3, label_4, label_5, label_6, label_7, label_8, label_9, label_10]
+    shifts = [shift_1, shift_2, shift_3, shift_4, shift_5, shift_6, shift_7, shift_8, shift_9, shift_10]
+    materials = [
+        material_1,
+        material_2,
+        material_3,
+        material_4,
+        material_5,
+        material_6,
+        material_7,
+        material_8,
+        material_9,
+        material_10,
+    ]
+
+    total = value_1
+    for index, segment_value in enumerate(values[1:], start=2):
+        total = math(
+            operation=Math.Operation.ADD,
+            value=(
+                total,
+                switch(
+                    input_type=Switch.InputType.FLOAT,
+                    switch=math(operation=Math.Operation.GREATER_THAN, value=(segment_count, index - 1.0)),
+                    false=0.0,
+                    true=segment_value,
+                ),
+            ),
+        )
+
+    empty = _empty_geometry()
+    start_angle = 0.0
+    segments = []
+    for index, (segment_value, label, segment_shift, segment_material) in enumerate(
+        zip(values, labels, shifts, materials),
+        start=1,
+    ):
+        end_angle, segment_geometry = vg_extended_pie_segment(
+            radius=radius,
+            pie_height=pie_height,
+            text_height=text_height,
+            text_size=text_size,
+            text_material=text_material,
+            text_offset=text_offset,
+            pie_material=segment_material,
+            include_percentage=include_percentage,
+            value=segment_value,
+            total=total,
+            start_angle=start_angle,
+            shift=segment_shift,
+            text=label,
+        )
+        if index == 1:
+            segments.append(segment_geometry)
+        else:
+            segments.append(
+                switch(
+                    input_type=Switch.InputType.GEOMETRY,
+                    switch=math(operation=Math.Operation.GREATER_THAN, value=(segment_count, index - 1.0)),
+                    false=empty,
+                    true=segment_geometry,
+                )
+            )
+        start_angle = end_angle
+
+    title_curves = string_to_curves(
+        string=title,
+        size=title_size,
+        align_x="Center",
+        align_y="Middle",
+        pivot_point="Bottom Left",
+    ).curve_instances
+    title_face = fill_curve(curve=title_curves, mode="Triangles", fill_rule="Even-Odd")
+    title_position = combine_xyz(
+        x=0.0,
+        y=math(
+            operation=Math.Operation.SUBTRACT,
+            value=(math(operation=Math.Operation.MULTIPLY, value=(-1.0, math(operation=Math.Operation.ADD, value=(radius, title_size)))), title_offset),
+        ),
+        z=0.0,
+    )
+    placed_title = transform_geometry(geometry=title_face, translation=title_position).set_material(material=title_material)
+    extruded_title = extrude_mesh(
+        mode=ExtrudeMesh.Mode.FACES,
+        mesh=placed_title,
+        offset=combine_xyz(x=0.0, y=0.0, z=text_height),
+        offset_scale=1.0,
+        individual=True,
+    ).mesh.set_material(material=title_material)
+    return {"Geometry": join_geometry(geometry=[*segments, placed_title, extruded_title])}
+
+
 def _finalize_groups():
     import bpy
 
     groups = []
-    for name in ("VG Pie Segment", "VG Pie Chart"):
+    for name in ("VG Pie Segment", "VG Pie Chart", "VG Extended Pie Segment", "VG Extended Pie Chart"):
         group = bpy.data.node_groups.get(name)
         if not group:
             continue

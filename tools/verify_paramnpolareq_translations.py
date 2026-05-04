@@ -18,6 +18,17 @@ SCALAR_CASE = {"a": 0.8, "b": 0.35, "t": 1.25, "theta": 1.25}
 ARCHIMEDES_CASE = {"Resolution": 64, "No of Rounds": 2.5, "a": 0.25, "b": 0.15}
 EPICYCLOID_CASE = {"Resolution": 80, "maxT": 12.0, "a": 0.8, "b": 0.3}
 ROOT_SPIRAL_CASE = {"a": 0.2, "Round Count": 4.0, "Resolution": 96.0}
+PARAM_CURVE_CASE = {
+    "Curve Type": 3,
+    "a": 0.8,
+    "b": 0.5,
+    "c": 1.0,
+    "z": 0.125,
+    "maxT": 12.0,
+    "Resolution": 64.0,
+    "showlabel": False,
+    "thickness": 0.01,
+}
 
 
 def _load_translation() -> None:
@@ -74,6 +85,41 @@ def _build_scalar_position_wrapper(name: str, source_group: bpy.types.GeometryNo
 
     vector = nodes.new("ShaderNodeCombineXYZ")
     links.new(_socket_by_name(group_node.outputs, output), _socket_by_name(vector.inputs, "X"))
+
+    set_position_node = nodes.new("GeometryNodeSetPosition")
+    links.new(_socket_by_name(line.outputs, "Mesh"), _socket_by_name(set_position_node.inputs, "Geometry"))
+    links.new(_socket_by_name(vector.outputs, "Vector"), _socket_by_name(set_position_node.inputs, "Position"))
+
+    group_output = nodes.new("NodeGroupOutput")
+    links.new(_socket_by_name(set_position_node.outputs, "Geometry"), _socket_by_name(group_output.inputs, "Geometry"))
+    return wrapper
+
+
+def _build_xy_position_wrapper(name: str, source_group: bpy.types.GeometryNodeTree, inputs: dict[str, object]):
+    wrapper = _new_geometry_group(name)
+    nodes = wrapper.nodes
+    links = wrapper.links
+    group_node = nodes.new("GeometryNodeGroup")
+    group_node.node_tree = source_group
+    lower_inputs = {key.lower(): value for key, value in inputs.items()}
+    normalized_inputs = {_normalized_key(key): value for key, value in inputs.items()}
+    for socket in group_node.inputs:
+        if socket.name in inputs:
+            socket.default_value = inputs[socket.name]
+        elif socket.name.lower() in lower_inputs:
+            socket.default_value = lower_inputs[socket.name.lower()]
+        elif _normalized_key(socket.name) in normalized_inputs:
+            socket.default_value = normalized_inputs[_normalized_key(socket.name)]
+
+    line = nodes.new("GeometryNodeMeshLine")
+    line.mode = "OFFSET"
+    line.count_mode = "TOTAL"
+    _socket_by_name(line.inputs, "Count").default_value = 1
+    _socket_by_name(line.inputs, "Offset").default_value = (1.0, 0.0, 0.0)
+
+    vector = nodes.new("ShaderNodeCombineXYZ")
+    links.new(_socket_by_name(group_node.outputs, "x"), _socket_by_name(vector.inputs, "X"))
+    links.new(_socket_by_name(group_node.outputs, "y"), _socket_by_name(vector.inputs, "Y"))
 
     set_position_node = nodes.new("GeometryNodeSetPosition")
     links.new(_socket_by_name(line.outputs, "Mesh"), _socket_by_name(set_position_node.inputs, "Geometry"))
@@ -172,6 +218,28 @@ def main() -> int:
     results.append(_compare_vertices("archimedes_spiral", "Archimedes Spiral", "VG Archimedes Spiral", ARCHIMEDES_CASE))
     results.append(_compare_vertices("epicycloid", "Epicycloid", "VG Epicycloid", EPICYCLOID_CASE))
     results.append(_compare_vertices("mirrored_root_spiral", "Geometry Nodes Group.002", "VG Mirrored Root Spiral", ROOT_SPIRAL_CASE))
+    for curve_type in range(5):
+        inputs = {"a": 0.8, "b": 0.35, "c": 1.1, "t": 1.25, "Curve Type": curve_type}
+        source_vertices = _evaluated_vertices(
+            _build_xy_position_wrapper(f"VG Verify Source Param XY {curve_type}", bpy.data.node_groups["getxy.001"], inputs)
+        )
+        translated_vertices = _evaluated_vertices(
+            _build_xy_position_wrapper(f"VG Verify Translated Param XY {curve_type}", bpy.data.node_groups["VG Param XY"], inputs)
+        )
+        max_delta = max(
+            (math.dist(a, b) for a, b in zip(sorted(source_vertices), sorted(translated_vertices))),
+            default=0.0,
+        )
+        results.append(
+            {
+                "case": {"param_xy_curve_type": curve_type},
+                "source_vertex": source_vertices[0] if source_vertices else None,
+                "translated_vertex": translated_vertices[0] if translated_vertices else None,
+                "max_sorted_vertex_delta": max_delta,
+                "ok": len(source_vertices) == len(translated_vertices) and max_delta <= 1e-6,
+            }
+        )
+    results.append(_compare_vertices("param_curve_wrapper", "Geometry Nodes Group", "VG Param Curve", PARAM_CURVE_CASE))
 
     ok = all(result["ok"] for result in results)
     print("VG_PARAMNPOLAREQ_TRANSLATION_BEHAVIOR " + json.dumps({"ok": ok, "results": results}, sort_keys=True))

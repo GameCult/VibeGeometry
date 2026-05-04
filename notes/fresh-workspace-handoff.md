@@ -37,7 +37,8 @@ from `cartesian.blend`.
 
 The completed pie chart translation is
 `docs/research/translations/shriinivas-piechart.md`. It covers `NodeGroup` and
-`Pie Chart` from `piechart.blend`.
+`Pie Chart`, plus the numbered `getPie.*` family and `Extended Pie Chart` from
+`piechart.blend`.
 
 The completed field-value translation is
 `docs/research/translations/shriinivas-fieldvalue-digit-at.md`. It covers
@@ -48,14 +49,13 @@ case with matching evaluated geometry.
 
 The completed parametric/polar translation is
 `docs/research/translations/shriinivas-paramnpolareq.md`. It covers scalar
-equation helpers, `Archimedes Spiral`, `Epicycloid`, and a mirrored root spiral
-from `paramnpolareq.blend`.
+equation helpers, chooser groups, `getxy.001`, `Archimedes Spiral`,
+`Epicycloid`, the main wrapper, and a mirrored root spiral from
+`paramnpolareq.blend`.
 
-The CurveToMeshUV utility sample has started at
-`docs/research/translations/quellenform-curve-to-mesh-uv.md`. So far it covers
-the small `Auto Smooth` helper from the quellenform file. The main
-`Curve to Mesh UV` group is a 126-node utility quarry and should be staged into
-subcontracts rather than translated as one heroic wall.
+The completed CurveToMeshUV utility sample is
+`docs/research/translations/quellenform-curve-to-mesh-uv.md`. It covers
+`Auto Smooth`, `Curve to Mesh UV`, `_258246`, and `_Title`.
 
 `docs/research/procedural-doctrine.md` now stores the current spatial reasoning
 playbook for mapping geometric ideas to Geometry Script. Doctrine entries should
@@ -82,11 +82,10 @@ The GameCult fork is intentionally pruned to `main` plus VibeGeometry-owned
 tooling branches. Upstream branch clutter should not be copied forward unless a
 future patch actually needs it.
 
-The current next action is to continue the translation corpus with either the
-main CurveToMeshUV utility staged into subcontracts or a scattering/instancing
-sample. Keep `docs/research/procedural-doctrine.md` compact; put
-sample-specific graph maps and verification details in
-`docs/research/translations/`.
+The current next action is to add a new source sample focused on scattering,
+instancing, and attribute distribution. Keep
+`docs/research/procedural-doctrine.md` compact; put sample-specific graph maps
+and verification details in `docs/research/translations/`.
 
 ## Important Invariants
 
