@@ -23,12 +23,16 @@ git log --oneline -5
 ## Current State
 
 VibeGeometry is an initial scaffold. It has persistence machinery, project
-orientation docs, helper tools, and an initial Geometry Nodes translation corpus
-note, but no Blender builder library or artifact schemas yet.
+orientation docs, helper tools, and the first Geometry Nodes translation corpus
+entry, but no Blender builder library or artifact schemas yet.
 
-The current next action is to build the first Geometry Nodes translation corpus
-entry by inspecting a small public `.blend` node group, mapping its graph in
-prose, and recreating it with Geometry Script.
+The first completed translation is
+`docs/research/translations/shriinivas-cartesian-helper.md`, backed by
+`examples/geometry_script/shriinivas_cartesian_helper.py`.
+
+The current next action is to translate the source `Geometry Nodes Line` group
+from `cartesian.blend` using the completed helper as the first reusable
+subgraph, then render or visually inspect the generated line output.
 
 ## Important Invariants
 

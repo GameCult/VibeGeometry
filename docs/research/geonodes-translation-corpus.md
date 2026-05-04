@@ -96,6 +96,13 @@ licensed, and contains several bounded `.blend` examples. The first useful
 translation is a tiny graph from `cartesian.blend` or `piechart.blend`, chosen
 after node group inspection.
 
+First completed translation entry:
+
+- `docs/research/translations/shriinivas-cartesian-helper.md`
+- Source group: `NodeGroup.001` from `cartesian.blend`
+- Geometry Script recreation:
+  `examples/geometry_script/shriinivas_cartesian_helper.py`
+
 ## Extraction Workflow
 
 1. Download one source `.blend` into an ignored experiment folder.
@@ -113,6 +120,10 @@ after node group inspection.
 
 ## Known Tooling Need
 
-We need a small Blender inspection script that can summarize node groups from a
-`.blend` file into JSON. Without that, every example becomes manual archaeology
-with better branding.
+`tools/inspect_blend_node_groups.py` can summarize geometry node groups from an
+opened `.blend` file into JSON. It records group interfaces, nodes, simple node
+properties, sockets, links, and modifier users.
+
+Generated node groups must be referenced by an object/modifier or marked with
+`use_fake_user = True` before saving a `.blend`; otherwise Blender discards the
+orphaned group on save. Very normal behavior, if your filing cabinet hates you.

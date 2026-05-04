@@ -5,5 +5,7 @@ node_modules/
 state/scratch-compaction-*.md
 experiments/renders/
 experiments/blender-cache/
+experiments/source-blends/
+experiments/inspection/
 *.blend1
 *.blend2

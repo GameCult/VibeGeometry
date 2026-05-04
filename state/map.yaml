@@ -47,7 +47,8 @@ live_architecture:
 
 active_subgoals:
   - Keep the pipeline legible from visual target to graph strategy to Python builder to render review.
-  - Define artifact schemas before generating many example scenes.
+  - Build a graded Geometry Nodes translation corpus before hardening schemas or builder abstractions.
+  - Define artifact schemas after enough translated examples expose the real contract pressure.
   - Build a minimal Blender runner only after the scene brief and graph manifest contracts are clear.
   - Collect Blender 5.0+ geometry-node API and best-practice evidence before hardening graph builders.
   - Preserve one-hypothesis iteration when visual results miss the target.
@@ -62,6 +63,7 @@ current_artifacts:
   tools:
     - tools/vibegeometry_state.py
     - tools/vibegeometry_prepare_compaction.py
+    - tools/inspect_blend_node_groups.py
   pending_contracts:
     - schemas/scene-brief.schema.json
     - schemas/node-graph-manifest.schema.json
@@ -76,5 +78,5 @@ data_flow:
   - If state grows faster than understanding, cut it back.
 
 current_status:
-  summary: VibeGeometry has an initial Epiphany-style persistence scaffold adapted for Blender geometry-node scene generation, with project-neutral state, handoff, architecture notes, and helper tools.
-  next_action: Build the first Geometry Nodes translation corpus entry by inspecting a small public `.blend` node group, mapping its graph in prose, and recreating it with Geometry Script.
+  summary: VibeGeometry has an initial persistence scaffold plus the first Geometry Nodes translation corpus entry: a small helper group from Shriinivas/cartesian.blend recreated with Geometry Script and smoke-tested in Blender 5.1.1.
+  next_action: Translate the source `Geometry Nodes Line` group from `cartesian.blend` using the completed helper as the first reusable subgraph, then render or visually inspect the generated line output.
