@@ -54,6 +54,9 @@ Run `.\tools\setup_geometry_script_clone.ps1` if `external/geometry-script` is
 missing in a fresh workspace.
 The patch branch is pushed to `GameCult/geometry-script`, and the upstream PR is
 https://github.com/carson-katri/geometry-script/pull/69.
+The GameCult fork is intentionally pruned to `main` plus the active
+`vibegeometry/blender-5-nested-tree-groups` branch. Upstream branch clutter
+should not be copied forward unless a future patch actually needs it.
 
 The current next action is to continue `fieldvalue.blend` by translating the
 next composition helper, likely `Seven Segments` or `Delete Segments`, before

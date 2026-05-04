@@ -18,6 +18,16 @@ The GameCult fork remote is:
 https://github.com/GameCult/geometry-script.git
 ```
 
+The fork is intentionally kept small. As of 2026-05-04, its live branches are:
+
+```text
+main
+vibegeometry/blender-5-nested-tree-groups
+```
+
+Upstream may still have historical branches such as `gh-pages` or
+`nodes_to_script`; those are upstream history, not GameCult fork policy.
+
 Patch work belongs in this clone first, then in a fork branch/PR. Do not patch
 the installed AppData add-on directly. That path is live installation state, not
 source control, and it will quietly become a stupid little archaeological layer
