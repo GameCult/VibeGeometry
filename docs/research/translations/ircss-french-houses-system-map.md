@@ -14,7 +14,8 @@ Generated with Blender 5.1.1 after extending
 
 ## High-Level Shape
 
-This `.blend` is a procedural town kit, not one scene graph. The file contains:
+This `.blend` is a procedural town-kit showcase, not one continuous generated
+city graph. The file contains:
 
 - 108 geometry node groups, 107 unique names.
 - One duplicate group name: `Is Edge Manifold`.
@@ -34,6 +35,60 @@ The useful mental split:
 Metaphor in use: the town is not poured from one mold. It is an assembly yard.
 Composers bolt together organs; organs lean on utilities; utilities are the
 measuring jigs and clamps.
+
+## Final Scene Assembly
+
+The authored scene is a showcase board. Visible collections place generated
+systems near each other: houses and roads, church/cathedral parts, towers,
+walls/gate/bridge, farms, terrain/cliffs/river, and set-dressing examples.
+
+A low-cost Workbench render was generated at:
+
+```text
+experiments/inspection/ircss-french-houses-workbench.png
+```
+
+The render shows the final composition as a display yard: cathedral and church
+complex on the right, houses and towers across the middle, gate/walls/bridge
+and standalone facade examples to the left, terrain/cliffs/trees/river and farm
+pieces around the front and sides.
+
+Evaluated visible modifier roots by collection:
+
+| Collection | Visible modifier roots | Evaluated vertices | Evaluated polygons | Main role |
+| --- | ---: | ---: | ---: | --- |
+| `Houses` | 6 | 565006 | 488310 | repeated houses plus house-on-curve system |
+| `Church` | 6 | 405499 | 288479 | cathedral, church body/front, dome, towers |
+| `WallsAndBridgets` | 5 | 86803 | 101470 | gate, walls, wall tower, bridge |
+| `Farms` | 7 | 49005 | 37123 | windmill, crops, bridge, fence |
+| `SetDressing` | 20 | 48061 | 68502 | stairs, terraces, covers, windows, doors, stalls |
+| `landscape` | 5 | 45078 | 24745 | tree, bush, scatter tree, rocks, waterfall |
+| `Towers` | 3 | 33055 | 35141 | standalone round/square towers |
+| `Cliffs` | 2 | 24685 | 18628 | terrain/cliff systems |
+| `Resources` | 11 | 24567 | 17353 | reusable examples and source handles |
+| `RiverBank` | 2 | 9772 | 6982 | riverbank cliffs |
+| `Paths` | 1 | 1258 | 940 | dirt road |
+| `Collection` | 1 | 530 | 420 | river |
+
+Largest evaluated roots:
+
+| Object | Root group | Collection | Vertices | Polygons |
+| --- | --- | --- | ---: | ---: |
+| `HousesOnCurve` | `HousesOnCurves` | `Houses` | 385472 | 360845 |
+| `Catehdral` | `Geometry Nodes.002` | `Church` | 255516 | 183189 |
+| `HouseFour` | `GenerateHouse` | `Houses` | 61312 | 44326 |
+| `Tower-Doma` | `DomaTower` | `Church` | 59960 | 41607 |
+| `HouseThree` | `GenerateHouse` | `Houses` | 52567 | 38223 |
+| `Gate` | `CreateGate` | `WallsAndBridgets` | 43642 | 40323 |
+| `BuildingB-sides` | `GenerateChurchBuildingB` | `Church` | 36136 | 26336 |
+| `Tree` | `MakeTree` | `landscape` | 32706 | 15081 |
+| `BuildA-Front` | `ChurchA-Front` | `Church` | 31127 | 22010 |
+| `HouseOne` | `GenerateHouse` | `Houses` | 27919 | 20003 |
+
+Interpretation: the final result is built by scene-object composition. Each
+visible object owns a Geometry Nodes modifier whose root group generates that
+object's piece. The final town image is the union of those generated objects,
+not the output of a single master town node group.
 
 ## Modifier Entrypoints
 
