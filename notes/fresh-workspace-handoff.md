@@ -41,7 +41,7 @@ The completed pie chart translation is
 
 The completed field-value helper translation is
 `docs/research/translations/shriinivas-fieldvalue-digit-at.md`. It covers
-`Create Decimal` and `Digit At` from `fieldvalue.blend`.
+`Create Decimal`, `Create Segment`, and `Digit At` from `fieldvalue.blend`.
 
 `docs/research/procedural-doctrine.md` now stores the current intuitive model
 for mapping geometric ideas to Geometry Script: curves as rails, fields as
@@ -54,8 +54,8 @@ Run `.\tools\setup_geometry_script_clone.ps1` if `external/geometry-script` is
 missing in a fresh workspace.
 
 The current next action is to continue `fieldvalue.blend` by translating the
-next bounded seven-segment display helper, `Create Segment`, before attempting
-the full `Field Value` graph.
+next composition helper, likely `Seven Segments` or `Delete Segments`, before
+attempting the full `Field Value` graph.
 
 ## Important Invariants
 

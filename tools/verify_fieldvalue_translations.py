@@ -22,6 +22,24 @@ CASES = [
 ]
 
 DECIMAL_CASE = {"Vertical Segment Size": 2.4, "radius": 0.18}
+SEGMENT_CASES = [
+    {
+        "X Major": True,
+        "Segment Length Along X": 2.0,
+        "Segment Length Along Y": 0.45,
+        "Secondary Axis Segment Thickness": 0.45,
+        "Sharpness": 0.75,
+        "offset": (0.2, -0.1, 0.0),
+    },
+    {
+        "X Major": False,
+        "Segment Length Along X": 0.4,
+        "Segment Length Along Y": 1.8,
+        "Secondary Axis Segment Thickness": 0.4,
+        "Sharpness": 1.0,
+        "offset": (-0.3, 0.25, 0.0),
+    },
+]
 
 
 def _load_translation() -> None:
@@ -144,6 +162,36 @@ def main() -> int:
         results[-1]["source_vertex_count"] == results[-1]["translated_vertex_count"]
         and results[-1]["max_sorted_vertex_delta"] <= 1e-6
     )
+    for index, inputs in enumerate(SEGMENT_CASES):
+        source_segment = _evaluated_vertices(
+            _build_geometry_wrapper(
+                f"VG Verify Source Segment {index}",
+                bpy.data.node_groups["Create Segment"],
+                inputs,
+                "Segment",
+            )
+        )
+        translated_segment = _evaluated_vertices(
+            _build_geometry_wrapper(
+                f"VG Verify Translated Segment {index}",
+                bpy.data.node_groups["VG Create Segment"],
+                inputs,
+                "Segment",
+            )
+        )
+        max_delta = max(
+            (math.dist(a, b) for a, b in zip(sorted(source_segment), sorted(translated_segment))),
+            default=0.0,
+        )
+        results.append(
+            {
+                "case": {"create_segment": index, **inputs},
+                "source_vertex_count": len(source_segment),
+                "translated_vertex_count": len(translated_segment),
+                "max_sorted_vertex_delta": max_delta,
+                "ok": len(source_segment) == len(translated_segment) and max_delta <= 1e-6,
+            }
+        )
     for index, inputs in enumerate(CASES):
         source_count = _evaluated_vertex_count(_build_count_wrapper(f"VG Verify Source Digit {index}", source, inputs))
         translated_count = _evaluated_vertex_count(

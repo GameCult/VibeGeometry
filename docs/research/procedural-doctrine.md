@@ -137,6 +137,22 @@ part instead of another anonymous mesh primitive.
 
 Tiny named parts are not overengineering when they carry stable intent.
 
+## Field Masks Are Chisels
+
+You can sculpt simple meshes by combining a regular seed mesh with field masks.
+`Create Segment` starts with a tiny grid, reads each vertex position, and uses
+comparisons to decide which corners receive a tip offset.
+
+The useful pattern is:
+
+```text
+regular mesh -> position field -> boolean/math masks -> gated offset -> set position
+```
+
+This is how a rectangle becomes a seven-segment bar with pointed ends. No custom
+mesh coordinates need to be hard-coded; the graph says which local conditions
+cause movement.
+
 ## Stack Abstractions Carefully
 
 There are two abstraction layers available:

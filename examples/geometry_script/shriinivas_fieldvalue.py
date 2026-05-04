@@ -55,15 +55,93 @@ def vg_digit_at(number: Float = 0.0, position: Int = 0):
     )
 
 
+@tree("VG Create Segment")
+def vg_create_segment(
+    x_major: Bool = False,
+    segment_length_along_x: Float = 0.0,
+    segment_length_along_y: Float = 0.0,
+    secondary_axis_segment_thickness: Float = 0.0,
+    sharpness: Float = 0.0,
+    offset: Vector = (0.0, 0.0, 0.0),
+):
+    position_parts = separate_xyz(vector=position())
+    major_axis = switch(input_type=Switch.InputType.FLOAT, switch=x_major, false=position_parts.y, true=position_parts.x)
+    secondary_axis = switch(
+        input_type=Switch.InputType.FLOAT,
+        switch=x_major,
+        false=position_parts.x,
+        true=position_parts.y,
+    )
+
+    not_x_major = math(operation=Math.Operation.SUBTRACT, value=(1.0, x_major))
+    vertices_x = math(operation=Math.Operation.ADD, value=(2.0, not_x_major))
+    vertices_y = math(operation=Math.Operation.ADD, value=(2.0, x_major))
+
+    tip_amount = math(
+        operation=Math.Operation.MULTIPLY,
+        value=(
+            math(operation=Math.Operation.MULTIPLY, value=(0.5, sharpness)),
+            secondary_axis_segment_thickness,
+        ),
+    )
+    tip_vector = combine_xyz(
+        x=math(operation=Math.Operation.MULTIPLY, value=(x_major, tip_amount)),
+        y=math(operation=Math.Operation.MULTIPLY, value=(not_x_major, tip_amount)),
+        z=0.0,
+    )
+
+    has_secondary_axis = compare(
+        operation=Compare.Operation.NOT_EQUAL,
+        data_type=Compare.DataType.FLOAT,
+        mode=Compare.Mode.ELEMENT,
+        a=secondary_axis,
+        b=0.0,
+    )
+    negative_tip_gate = math(
+        operation=Math.Operation.MULTIPLY,
+        value=(math(operation=Math.Operation.LESS_THAN, value=(major_axis, 0.0)), has_secondary_axis),
+    )
+    positive_tip_gate = math(
+        operation=Math.Operation.MULTIPLY,
+        value=(math(operation=Math.Operation.GREATER_THAN, value=(major_axis, 0.0)), has_secondary_axis),
+    )
+    negative_tip = vector_math(operation=VectorMath.Operation.MULTIPLY, vector=(-1.0, tip_vector))
+    positive_gate_vector = combine_xyz(x=positive_tip_gate, y=positive_tip_gate, z=positive_tip_gate)
+    negative_gate_vector = combine_xyz(x=negative_tip_gate, y=negative_tip_gate, z=negative_tip_gate)
+    positive_end_offset = vector_math(operation=VectorMath.Operation.MULTIPLY, vector=(negative_tip, positive_gate_vector))
+    negative_end_offset = vector_math(operation=VectorMath.Operation.MULTIPLY, vector=(tip_vector, negative_gate_vector))
+    total_offset = vector_math(
+        operation=VectorMath.Operation.ADD,
+        vector=(
+            vector_math(operation=VectorMath.Operation.ADD, vector=(offset, positive_end_offset)),
+            negative_end_offset,
+        ),
+    )
+
+    segment = grid(
+        size_x=segment_length_along_x,
+        size_y=segment_length_along_y,
+        vertices_x=vertices_x,
+        vertices_y=vertices_y,
+    ).mesh
+    return {"Segment": segment.set_position(offset=total_offset)}
+
+
 def _finalize_groups():
     import bpy
 
     groups = []
-    for name in ("VG Create Decimal", "VG Digit At"):
+    for name in ("VG Create Decimal", "VG Digit At", "VG Create Segment"):
         group = bpy.data.node_groups.get(name)
         if not group:
             continue
         group.use_fake_user = True
+        if hasattr(group, "interface"):
+            for item in group.interface.items_tree:
+                if item.item_type == "SOCKET" and item.in_out == "INPUT" and item.name == "X Major":
+                    item.name = "X Major"
+                if item.item_type == "SOCKET" and item.in_out == "INPUT" and item.name in {"Radius", "Offset"}:
+                    item.name = item.name.lower()
         groups.append(group)
     return groups
 
