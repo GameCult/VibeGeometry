@@ -28,6 +28,32 @@ vibegeometry/blender-5-nested-tree-groups
 Upstream may still have historical branches such as `gh-pages` or
 `nodes_to_script`; those are upstream history, not GameCult fork policy.
 
+## Upstream `nodes_to_script` Branch
+
+Upstream's historical `nodes_to_script` branch is real and potentially useful,
+but should be treated as prototype material rather than a drop-in dependency.
+
+Observed on 2026-05-04:
+
+- Branch head: `b78ec37` (`Improve dot access handling`, 2023-03-01).
+- Merge base with current `main`: `5fbc7d1`.
+- Main has substantial later work not present on the branch, including Blender
+  4 `NodeTree.interface` migration, nested tree checks, repeat-zone support,
+  and Blender 3/4 compatibility fixes.
+- The branch adds `operators/convert_tree.py` and registers a
+  `geometry_script.convert_tree` node editor operator.
+
+The operator walks the active node tree, creates one assignment per node, reads
+enabled input defaults and node-specific properties, follows links into
+arguments, topologically sorts from `Group Output`, then writes a generated
+`@tree(...)` script into a Blender text datablock.
+
+That makes it useful as a translation assistant or bootstrap oracle. It does
+not replace manual doctrine-building yet: output quality, Blender 5.1
+compatibility, interface sockets, zones, nested groups, multi-input sockets,
+and current Geometry Script API drift all need testing before VibeGeometry
+leans on it.
+
 Patch work belongs in this clone first, then in a fork branch/PR. Do not patch
 the installed AppData add-on directly. That path is live installation state, not
 source control, and it will quietly become a stupid little archaeological layer
