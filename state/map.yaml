@@ -1,0 +1,80 @@
+experiment:
+  name: VibeGeometry
+  status: incubation
+  phase: phase_0_scaffold
+  premise: >
+    Build a durable research and implementation home for agent-authored
+    Blender 5.0+ scenes that use Python to construct complex geometry-node
+    graphs for procedural geometry matching reference images and instructions.
+
+mission:
+  primary: >
+    Enable Codex and other agents to generate inspectable, reusable Blender
+    geometry-node graphs that produce specific visual results from reference
+    images, text instructions, and iterative render review.
+  near_term: >
+    Define the scene brief, node graph manifest, Python builder, render runner,
+    and review loop before building a large library of graph idioms.
+
+hard_boundaries:
+  - Blender 5.0+ is the target runtime unless a task explicitly chooses another version.
+  - Geometry nodes are the primary procedural modeling surface.
+  - Python scripts should construct and orchestrate node graphs, not hide the design in uninspectable imperative mesh code.
+  - Visual targets must preserve reference-image evidence and explicit instructions.
+  - A graph that runs is not accepted until rendered output is inspected against the target.
+  - Node groups must be named, parameterized, and legible enough for future agents to modify.
+  - Attribute creation, transformation, and consumption must be explicit.
+  - Prefer established Blender node idioms and current API guidance over bespoke graph inventions.
+  - Keep failed experiments only when they change future belief.
+  - Do not let proxy checks replace visual review.
+
+live_architecture:
+  pipeline:
+    - Ingest reference images and instructions into a scene brief.
+    - Extract target visual traits: silhouette, repetition, distribution, material response, surface breakup, camera, lighting, palette, and scale cues.
+    - Plan a geometry strategy in plain language before scripting.
+    - Emit a node graph manifest describing groups, sockets, attributes, fields, modifiers, materials, and exposed controls.
+    - Generate Blender Python that builds the scene and node graphs from the manifest.
+    - Run Blender headlessly or interactively to produce `.blend` files and render evidence.
+    - Review renders against the visual target and record accepted, rejected, or revised hypotheses.
+  persistence:
+    - `state/map.yaml` stores canonical mission, boundaries, architecture, artifacts, and next action.
+    - `state/scratch.md` stores one bounded active thought surface.
+    - `state/evidence.jsonl` stores distilled belief-changing records.
+    - `notes/fresh-workspace-handoff.md` stores compact re-entry instructions.
+    - `notes/vibegeometry-current-system-map.md` explains the live repo machinery.
+    - `notes/vibegeometry-implementation-plan.md` stores the near-term build sequence.
+
+active_subgoals:
+  - Keep the pipeline legible from visual target to graph strategy to Python builder to render review.
+  - Define artifact schemas before generating many example scenes.
+  - Build a minimal Blender runner only after the scene brief and graph manifest contracts are clear.
+  - Collect Blender 5.0+ geometry-node API and best-practice evidence before hardening graph builders.
+  - Preserve one-hypothesis iteration when visual results miss the target.
+
+current_artifacts:
+  canonical_docs:
+    - notes/architecture-rationale.md
+    - notes/fresh-workspace-handoff.md
+    - notes/vibegeometry-current-system-map.md
+    - notes/vibegeometry-implementation-plan.md
+    - docs/architecture/pipeline-overview.md
+  tools:
+    - tools/vibegeometry_state.py
+    - tools/vibegeometry_prepare_compaction.py
+  pending_contracts:
+    - schemas/scene-brief.schema.json
+    - schemas/node-graph-manifest.schema.json
+    - schemas/render-review.schema.json
+
+data_flow:
+  - Rehydrate from map, handoff, system map, implementation plan, and `npm run state:status`.
+  - Work one bounded pipeline organ.
+  - Verify the seam that matters.
+  - Add distilled evidence only when future belief changes.
+  - Commit completed work.
+  - If state grows faster than understanding, cut it back.
+
+current_status:
+  summary: VibeGeometry has an initial Epiphany-style persistence scaffold adapted for Blender geometry-node scene generation, with project-neutral state, handoff, architecture notes, and helper tools.
+  next_action: Draft the scene brief and node graph manifest schemas, then validate them against one tiny reference-driven example.

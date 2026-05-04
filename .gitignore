@@ -1,0 +1,9 @@
+__pycache__/
+*.pyc
+.venv/
+node_modules/
+state/scratch-compaction-*.md
+experiments/renders/
+experiments/blender-cache/
+*.blend1
+*.blend2
