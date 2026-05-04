@@ -547,6 +547,49 @@ copies and become individual geometry you can bend, cut, or shade.
 Verification cue: test more than one seed/control set. Scatter graphs can match
 counts at one setting while density, scale, or captured-root behavior is wrong.
 
+## Ornament Grows On Structure
+
+Reach for this when a form has a big readable architectural body plus smaller
+detail that should cling to that body: gothic caps, roof ribs, crenellations,
+trim, bolts, vines, scales, and surface greebles.
+
+Mental move: build the host silhouette first, capture the host features that
+detail needs, then sample or convert those features into stations for the
+ornament. Do not scatter decorative pieces in empty space and hope they look
+attached.
+
+```python
+point_positions = _capture_attribute_item("VECTOR", "POINT", geometry, position(), "source position")
+cone_seed = cylinder(fill_type="NGON", vertices=6, side_segments=1, fill_segments=1, radius=1.0, depth=1.0)
+tapered_cone = scale_elements(
+    domain="FACE",
+    geometry=set_position(geometry=cone_seed.mesh, offset=(0.0, 0.0, 0.5)),
+    selection=cone_seed.top,
+    scale=0.10000002384185791,
+    scale_mode="Uniform",
+)
+edge_flags = _capture_attribute_item("BOOLEAN", "EDGE", tapered_cone, cap_or_body_edge, "edge trim")
+cone_instances = instance_on_points(points=point_positions.geometry, instance=cone_with_skirt.mesh, scale=cone_scale)
+realized_cones = realize_instances(geometry=cone_instances, realize_all=True, depth=0)
+
+detail_edges = delete_geometry(mode="ALL", domain="EDGE", geometry=realized_cones, selection=edge_flags.edge_trim)
+detail_points = resample_curve(
+    keep_last_segment=True,
+    curve=mesh_to_curve(mode="EDGES", mesh=detail_edges),
+    mode="Length",
+    length=gothic_detail_density,
+)
+details = instance_on_points(points=detail_points, instance=stretched_detail, rotation=detail_rotation, scale=detail_scale)
+```
+
+Metaphor in use: the big form is scaffolding, and ornament is ivy on that
+scaffolding. If the scaffold is not built first, the ivy floats there looking
+confident and wrong.
+
+Verification cue: test the plain host and the ornamented host separately. The
+IRCSS `PointyGothicCone` translation verifies both `SpawnDetails=False` and
+`SpawnDetails=True` against evaluated source geometry.
+
 ## Constraint Helpers Are Bumpers
 
 Reach for constraint helpers when a procedural system has a small physical rule

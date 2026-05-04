@@ -39,14 +39,15 @@ Accepted corpus families so far:
 - Quellenform `CurveToMeshUV` utility sample.
 - Official Blender demo tranche: instance attributes, index-of-nearest,
   shortest-path labyrinth, and raycast minigame helpers.
-- IRCSS French Houses foothold: `MakeSpiral -> VG Make Spiral`, verified with
-  200 ordered curve points matching source geometry at max delta `0.0`.
+- IRCSS French Houses footholds: `MakeSpiral -> VG Make Spiral` and
+  `PointyGothicCone -> VG Pointy Gothic Cone`, verified against source
+  evaluated geometry with max delta `0.0`.
 
 Current frontier: IRCSS French Houses city-scale graph work. The accepted
-foothold is `MakeSpiral`. Mapped blockers are repeat-zone feedback state,
-repeat `Top` boolean outputs, foreach zones, gizmo nodes, `nodes_to_script`
-duplicate-key failures around axes-to-rotation, and a rejected empty-output
-harness for `WindowBeams`.
+footholds are `MakeSpiral` and `PointyGothicCone`. Mapped blockers are
+repeat-zone feedback state, repeat `Top` boolean outputs, foreach zones, gizmo
+nodes, `nodes_to_script` duplicate-key failures around axes-to-rotation, and a
+rejected empty-output harness for `WindowBeams`.
 
 Current authoring prior: use the full Python stack. Python structures intent,
 tables, loops, variants, cleanup, validation, docs, and scene/render

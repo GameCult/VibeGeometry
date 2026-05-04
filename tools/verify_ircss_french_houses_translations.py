@@ -19,6 +19,32 @@ CASE = {
     "Height": 3.0,
     "HeightRadiusGain": 0.25,
 }
+CONE_CASES = [
+    {
+        "case": "pointy_gothic_cone_plain",
+        "inputs": {
+            "ColumnRadius": 0.45,
+            "PeakHeight": 1.4,
+            "GothicDetailDensity": 0.6,
+            "DetailScale": 0.1,
+            "SpawnDetails": False,
+        },
+        "point_count": 2,
+        "offset": (1.25, 0.0, 0.0),
+    },
+    {
+        "case": "pointy_gothic_cone_with_details",
+        "inputs": {
+            "ColumnRadius": 0.35,
+            "PeakHeight": 1.2,
+            "GothicDetailDensity": 0.55,
+            "DetailScale": 0.08,
+            "SpawnDetails": True,
+        },
+        "point_count": 1,
+        "offset": (0.0, 0.0, 0.0),
+    },
+]
 
 
 def _load_translation() -> None:
@@ -78,6 +104,31 @@ def _build_spiral_wrapper(name: str, group: bpy.types.GeometryNodeTree):
     return wrapper
 
 
+def _add_mesh_line(nodes, *, count: int, offset):
+    line = nodes.new("GeometryNodeMeshLine")
+    line.mode = "OFFSET"
+    line.count_mode = "TOTAL"
+    _socket_by_name(line.inputs, "Count").default_value = count
+    _socket_by_name(line.inputs, "Offset").default_value = offset
+    return line
+
+
+def _build_pointy_cone_wrapper(name: str, group: bpy.types.GeometryNodeTree, inputs: dict[str, object], point_count: int, offset):
+    wrapper = _new_geometry_group(name)
+    nodes = wrapper.nodes
+    links = wrapper.links
+    line = _add_mesh_line(nodes, count=point_count, offset=offset)
+
+    group_node = nodes.new("GeometryNodeGroup")
+    group_node.node_tree = group
+    _set_inputs(group_node, inputs)
+    links.new(_socket_by_name(line.outputs, "Mesh"), _socket_by_name(group_node.inputs, "Geometry"))
+
+    group_output = nodes.new("NodeGroupOutput")
+    links.new(_socket_by_name(group_node.outputs, "Geometry"), _socket_by_name(group_output.inputs, "Geometry"))
+    return wrapper
+
+
 def _evaluated_vertices(group: bpy.types.GeometryNodeTree):
     mesh = bpy.data.meshes.new(group.name + " Input Mesh")
     obj = bpy.data.objects.new(group.name + " Object", mesh)
@@ -111,7 +162,43 @@ def main() -> int:
         "max_ordered_vertex_delta": max_delta,
     }
     result["ok"] = len(source) == len(translated) and max_delta <= 1e-6
-    payload = {"ok": result["ok"], "results": [result]}
+    results = [result]
+
+    for case in CONE_CASES:
+        source = _evaluated_vertices(
+            _build_pointy_cone_wrapper(
+                f"VG Verify Source {case['case']}",
+                bpy.data.node_groups["PointyGothicCone"],
+                case["inputs"],
+                case["point_count"],
+                case["offset"],
+            )
+        )
+        translated = _evaluated_vertices(
+            _build_pointy_cone_wrapper(
+                f"VG Verify Translated {case['case']}",
+                bpy.data.node_groups["VG Pointy Gothic Cone"],
+                case["inputs"],
+                case["point_count"],
+                case["offset"],
+            )
+        )
+        max_delta = (
+            max((math.dist(a, b) for a, b in zip(sorted(source), sorted(translated))), default=0.0)
+            if len(source) == len(translated)
+            else math.inf
+        )
+        results.append(
+            {
+                "case": case["case"],
+                "source_vertex_count": len(source),
+                "translated_vertex_count": len(translated),
+                "max_sorted_vertex_delta": max_delta,
+                "ok": len(source) == len(translated) and max_delta <= 1e-6,
+            }
+        )
+
+    payload = {"ok": all(item["ok"] for item in results), "results": results}
     print("VG_IRCSS_FRENCH_HOUSES_TRANSLATION_BEHAVIOR " + json.dumps(payload, sort_keys=True))
     return 0 if payload["ok"] else 1
 

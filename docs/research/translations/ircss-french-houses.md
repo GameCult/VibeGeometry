@@ -1,12 +1,13 @@
-# Translation: IRCSS French Houses Foothold
+# Translation: IRCSS French Houses Footholds
 
 ## Source
 
 - Repository: https://github.com/IRCSS/Blender-Geometry-Node-French-Houses
 - Source file:
   `GeometryNodesFrenchHous.blend`
-- Source group translated in this pass:
+- Source groups translated so far:
   - `MakeSpiral`
+  - `PointyGothicCone`
 - Geometry Script recreation:
   `examples/geometry_script/ircss_french_houses.py`
 
@@ -28,7 +29,7 @@ parts, stalls, cliffs, roads, rivers, vegetation, banners, windows, doors, and
 roof systems. This is the right quarry for procedural-city doctrine, but the
 first accepted bite has to be small enough to verify.
 
-## First Accepted Graph
+## Accepted Graph: MakeSpiral
 
 Source group: `MakeSpiral`
 
@@ -63,9 +64,35 @@ Results from Blender 5.1.1:
 | Case | Source vertices | Translated vertices | Delta | Status |
 | --- | ---: | ---: | ---: | --- |
 | MakeSpiral curve points | 200 | 200 | 0.0 | accepted |
+| PointyGothicCone plain | 36 | 36 | 0.0 | accepted |
+| PointyGothicCone with details | 138 | 138 | 0.0 | accepted |
 
-The verifier converts the output curve to evaluated points and compares ordered
-vertex positions.
+## Accepted Graph: PointyGothicCone
+
+Source group: `PointyGothicCone`
+
+Geometry Script group: `VG Pointy Gothic Cone`
+
+Mechanism:
+
+- Capture each input point position before instancing starts.
+- Build a tapered six-sided cone seed from a cylinder.
+- Capture an edge-domain trim mask that marks cone cap/body edges.
+- Instance one scaled cone at each input point.
+- When `SpawnDetails` is enabled, delete the marked cone edges, convert the
+  remaining ribs to curves, resample them into detail stations, and instance
+  small tapered five-sided spikes along those ribs.
+- Orient each detail spike toward the horizontal direction from the source
+  point to the current rib point.
+
+Metaphor: the input points are roof pegs. The main cone is the roof cap hung on
+each peg; the optional details grow from the cap ribs after the cap is already
+real enough to have edges. Build the big readable silhouette first, then let
+ornament use that structure.
+
+The spiral case converts the output curve to evaluated points and compares
+ordered vertex positions. Cone cases feed identical synthetic point meshes into
+the source and translation, then compare sorted evaluated vertices.
 
 ## Blockers Exposed
 
@@ -90,6 +117,11 @@ vertex positions.
 - City-scale graphs are hierarchies of organs. Start with reusable spines,
   tiles, rails, façade parts, and topology generators before translating a
   thousand-node composer.
+- Ornament often needs a structural host. `PointyGothicCone` first creates the
+  readable cap silhouette, then derives detail placement from the cap's own
+  realized ribs.
+- Captures are not optional bookkeeping when instancing starts. The original
+  point position and cone edge mask both have to survive later domain changes.
 - Converter drafts are still useful for triage: they quickly separate clean
   helpers, repeat-zone blockers, foreach-zone blockers, gizmo-specific groups,
   and false symbol names.

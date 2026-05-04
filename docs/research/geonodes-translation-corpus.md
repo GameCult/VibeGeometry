@@ -258,12 +258,15 @@ Completed Blender raycast minigame foothold:
 Completed IRCSS French Houses foothold:
 
 - `docs/research/translations/ircss-french-houses.md`
-- Source group: `MakeSpiral`
-- Verification: output curve converted to points matches source with ordered
-  max vertex delta `0.0`.
+- Source groups: `MakeSpiral`, `PointyGothicCone`
+- Verification: spiral output curve converted to points matches source with
+  ordered max vertex delta `0.0`; plain and ornamented gothic cone cases match
+  source evaluated mesh vertices with sorted max vertex delta `0.0`.
 - Translation value: procedural-city corpus triage, spiral architectural
-  spines, and explicit blockers for repeat-zone feedback, repeat `Top` outputs,
-  foreach zones, gizmo nodes, and converter duplicate-key failures.
+  spines, roof-cap ornament grown from structural ribs, captured source points
+  through instancing, and explicit blockers for repeat-zone feedback, repeat
+  `Top` outputs, foreach zones, gizmo nodes, and converter duplicate-key
+  failures.
 
 Inspected but deferred official demo files:
 
