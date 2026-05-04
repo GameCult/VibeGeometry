@@ -7,6 +7,7 @@ state/scratch-compaction-*.md
 experiments/renders/
 experiments/blender-cache/
 experiments/source-blends/
+experiments/source-repos/
 experiments/inspection/
 *.blend1
 *.blend2

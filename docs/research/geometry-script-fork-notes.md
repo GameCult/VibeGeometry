@@ -74,6 +74,7 @@ current VibeGeometry toolchain branch, and applies the patches stored in:
 ```text
 patches/geometry-script/0001-fix-nested-tree-group-references-on-blender-4.patch
 patches/geometry-script/0002-Port-node-tree-conversion-operator.patch
+patches/geometry-script/0003-Tolerate-Blender-menu-socket-defaults.patch
 ```
 
 `external/` is intentionally ignored by the VibeGeometry repository. The clone
@@ -93,6 +94,8 @@ This is the branch VibeGeometry should use locally. It contains:
 - the nested `@tree` group fix from
   `vibegeometry/blender-5-nested-tree-groups`
 - a Blender 5.1 port of the historical `nodes_to_script` converter prototype
+- a Blender 5.1 menu-socket default tolerance fix so group construction does
+  not fail when `NodeSocketMenu` enum items are not populated yet
 
 The converter adds:
 
@@ -123,6 +126,10 @@ Known limits:
 - Generated names and ordering reflect extraction mechanics, not spatial intent.
 - Behavioral equivalence still needs the same evaluated-geometry or scalar
   harness verification used by the hand translations.
+- Blender 5 capture items are still a live gap in Geometry Script's generic
+  node builder. The accepted `VG Field Value` translation creates typed capture
+  items explicitly in script instead of relying on the generated
+  `capture_attribute(...)` wrapper.
 
 ## Upstream PR Branch
 

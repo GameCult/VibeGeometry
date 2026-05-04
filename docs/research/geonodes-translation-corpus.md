@@ -134,13 +134,32 @@ Completed field value helper entry:
   `Mesh Line.Count` with the result; next-digit branch helper matches source
   across four cases spanning both sides of `Max Precision`; delete-mask scalar
   helper matches source across 195 digit/segment-position cases with zero
-  mismatches.
+  mismatches; full `Field Value` default-route geometry matches source with
+  256 vertices and sorted max vertex delta `0.0`.
+- Toolchain note: full `Field Value` required explicit Blender 5 capture-item
+  creation and a Geometry Script fork fix for menu socket defaults.
 
-Boundary note: the full `Field Value` graph is a 176-node composition involving
-menu switches, capture attributes, sample-index reads, instances, transforms,
-and delete geometry. Before translating it by hand, test or port upstream's
-historical `nodes_to_script` converter so VibeGeometry gets a generated first
-draft to inspect.
+Completed parametric/polar equation entry:
+
+- `docs/research/translations/shriinivas-paramnpolareq.md`
+- Source groups: `NodeGroup`, `NodeGroup.001`, `NodeGroup.002`,
+  `NodeGroup.003`, `Archimedes Spiral`, `Epicycloid`,
+  `Geometry Nodes Group.002`
+- Verification: scalar equation helpers match by placing outputs into a single
+  vertex position; Archimedes, epicycloid, and mirrored root spiral evaluated
+  vertices match source geometry with max sorted deltas at or near `0.0`.
+- Translation value: accumulated parameter ramps, parametric equations, polar
+  conversion, mirrored curve streams, and scalar-harness design.
+
+Started CurveToMeshUV utility entry:
+
+- `docs/research/translations/quellenform-curve-to-mesh-uv.md`
+- Source group translated so far: `Auto Smooth`
+- Verification: source and translated `Auto Smooth` preserve cube geometry and
+  match smooth-face flags in Blender 5.1.1.
+- Boundary: the main `Curve to Mesh UV` group is a 126-node utility graph and
+  should be approached through staged subcontracts: curve resampling, spline
+  parameter UVs, cap masks, named attributes, then final mesh output.
 
 ## Extraction Workflow
 

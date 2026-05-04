@@ -11,6 +11,7 @@
   - `Delete Segments`
   - `Next Digit`
   - `Digit At`
+  - `Field Value`
 - Geometry Script recreation:
   `examples/geometry_script/shriinivas_fieldvalue.py`
 
@@ -23,18 +24,6 @@ build the digit chassis before the full display logic is attempted.
 Together they show the first display-system layers: tiny glyph geometry,
 field-sculpted segment geometry, segment composition, segment visibility masks,
 and value-only digit extraction.
-
-## Current Boundary
-
-The remaining full `Field Value` group has 176 nodes and combines menu switches,
-capture attributes across multiple domains, sampled fields, instancing,
-instance transforms, delete-geometry selection, material assignment, and the
-helpers translated here.
-
-That graph should not be translated manually as one heroic sweep. The next
-right move is to port or test the upstream `nodes_to_script` prototype against
-this graph so the first draft can be generated, inspected, and then cleaned
-with doctrine instead of hand-copied node by node.
 
 ## Create Decimal Map
 
@@ -183,6 +172,43 @@ Metaphor: `Next Digit` is the read head for the display tape. Before the decimal
 boundary it reads the fractional reel; after that boundary it reads the whole
 number reel.
 
+## Field Value Map
+
+Source group: `Field Value`
+
+Geometry Script group: `VG Field Value`
+
+Mechanism:
+
+- Use menu switches to route three control choices:
+  input type (`Float` or `Vector`), source domain (`Point`, `Edge`, or `Face`),
+  and text alignment (`Center`, `Right`, or `Left`).
+- Capture the requested float or vector field on point, edge, and face domains,
+  then choose the captured geometry and captured value stream for the active
+  domain.
+- Convert edge or face domains to points so the display can instance one value
+  readout per source element.
+- Build one seven-segment glyph, capture each glyph face index, then instance
+  that glyph across digit slots, vector component slots, and source elements.
+- Sample source position and normal by domain index so each readout can be
+  placed and oriented back onto the element that produced it.
+- Compute the active scalar value for the current component, split it into
+  whole/fractional parts, decide visible slots, negative sign, decimal point,
+  overflow, and leading-zero behavior.
+- Call `VG Next Digit` for digit extraction and `VG Delete Segments` to delete
+  the dark faces from each glyph.
+- Realize instances and assign the requested material.
+
+Metaphor: the full graph is a label printer mounted on the mesh. It reads a
+value from each element, assembles a small digit rack, swings the rack onto the
+element normal, then punches out the unlit segments.
+
+Implementation note: Blender 5 capture items and menu sockets exposed two
+Geometry Script drift points. `VG Field Value` uses a local
+`_capture_attribute_item(...)` helper to create typed capture items explicitly,
+and the VibeGeometry Geometry Script fork tolerates menu socket defaults whose
+enum items do not exist at group-interface construction time.
+
 ## Verification
 
 Run:
@@ -207,6 +233,7 @@ Results from Blender 5.1.1:
 | Digit At `1234.0`, position `1` | 3 | 3 | 0 | accepted |
 | Digit At `98765.0`, position `2` | 7 | 7 | 0 | accepted |
 | Digit At `120305.0`, position `3` | 0 | 0 | 0 | accepted |
+| Field Value default-route vertices | 256 | 256 | 0.0 | accepted |
 | Next Digit branch cases | 4 cases | 4 cases | 0 mismatches | accepted |
 | Delete Segments grid | 195 cases | 195 cases | 0 mismatches | accepted |
 
@@ -236,3 +263,8 @@ Results from Blender 5.1.1:
   verifies positions before and after `Max Precision`, because the interesting
   behavior is not digit extraction itself but choosing which number part feeds
   extraction.
+- Capture attributes are a loading dock for fields. Once a graph crosses into
+  instancing, capture the values and indices that later stages must still know.
+- Full display graphs are stacked assemblies: source element points carry
+  value racks; value racks carry component stacks; component stacks carry digit
+  slots; digit slots carry segment faces. Preserve each layer's index baton.

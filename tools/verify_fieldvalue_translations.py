@@ -55,6 +55,22 @@ SEVEN_SEGMENTS_CASE = {
     "Y Seperation": 0.17,
     "Tip Sharpness": 0.8,
 }
+FIELD_VALUE_CASE = {
+    "Float Value": 12.34,
+    "Digits Before Decimal": 3,
+    "Precision": 2,
+    "Scale": 0.05,
+    "Digit Separation": 0.2,
+    "Element Separation": 1.0,
+    "X Offset": 0.0,
+    "Y Offset": 0.0,
+    "Z Offset": 0.001,
+    "Rotation": 0,
+    "Segment Width Factor": 0.5,
+    "Segment Separation Factor": 0.1,
+    "Tip Sharpness": 1.0,
+    "Leading Zeros": False,
+}
 DELETE_DIGITS = range(0, 13)
 DELETE_SEGMENT_POSITIONS = range(0, 15)
 
@@ -147,6 +163,35 @@ def _build_geometry_wrapper(name: str, source_group: bpy.types.GeometryNodeTree,
             socket.default_value = lower_inputs[socket.name.lower()]
     group_output = nodes.new("NodeGroupOutput")
     links.new(_socket_by_name(group_node.outputs, output), _socket_by_name(group_output.inputs, "Geometry"))
+    return wrapper
+
+
+def _build_field_value_wrapper(name: str, source_group: bpy.types.GeometryNodeTree, inputs: dict[str, object]):
+    wrapper = _new_geometry_group(name)
+    nodes = wrapper.nodes
+    links = wrapper.links
+
+    line = nodes.new("GeometryNodeMeshLine")
+    line.mode = "OFFSET"
+    line.count_mode = "TOTAL"
+    _socket_by_name(line.inputs, "Count").default_value = 2
+    _socket_by_name(line.inputs, "Offset").default_value = (1.0, 0.0, 0.0)
+
+    group_node = nodes.new("GeometryNodeGroup")
+    group_node.node_tree = source_group
+    links.new(_socket_by_name(line.outputs, "Mesh"), _socket_by_name(group_node.inputs, "Geometry"))
+    for socket in group_node.inputs:
+        if socket.name not in inputs:
+            continue
+        try:
+            socket.default_value = inputs[socket.name]
+        except TypeError:
+            # Menu sockets without copied enum metadata can still use the
+            # source graph's default route for this baseline comparison.
+            pass
+
+    group_output = nodes.new("NodeGroupOutput")
+    links.new(_socket_by_name(group_node.outputs, "Value"), _socket_by_name(group_output.inputs, "Geometry"))
     return wrapper
 
 
@@ -263,6 +308,25 @@ def main() -> int:
             "translated_vertex_count": len(translated_seven_segments),
             "max_sorted_vertex_delta": seven_segments_delta,
             "ok": len(source_seven_segments) == len(translated_seven_segments) and seven_segments_delta <= 1e-6,
+        }
+    )
+    source_field_value = _evaluated_vertices(
+        _build_field_value_wrapper("VG Verify Source Field Value", bpy.data.node_groups["Field Value"], FIELD_VALUE_CASE)
+    )
+    translated_field_value = _evaluated_vertices(
+        _build_field_value_wrapper("VG Verify Translated Field Value", bpy.data.node_groups["VG Field Value"], FIELD_VALUE_CASE)
+    )
+    field_value_delta = max(
+        (math.dist(a, b) for a, b in zip(sorted(source_field_value), sorted(translated_field_value))),
+        default=0.0,
+    )
+    results.append(
+        {
+            "case": {"field_value": FIELD_VALUE_CASE},
+            "source_vertex_count": len(source_field_value),
+            "translated_vertex_count": len(translated_field_value),
+            "max_sorted_vertex_delta": field_value_delta,
+            "ok": len(source_field_value) == len(translated_field_value) and field_value_delta <= 1e-6,
         }
     )
     for index, inputs in enumerate(CASES):

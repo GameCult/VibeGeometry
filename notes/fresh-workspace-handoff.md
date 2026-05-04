@@ -39,10 +39,23 @@ The completed pie chart translation is
 `docs/research/translations/shriinivas-piechart.md`. It covers `NodeGroup` and
 `Pie Chart` from `piechart.blend`.
 
-The completed field-value helper translation is
+The completed field-value translation is
 `docs/research/translations/shriinivas-fieldvalue-digit-at.md`. It covers
 `Create Decimal`, `Create Segment`, `Seven Segments`, `Delete Segments`,
-`Next Digit`, and `Digit At` from `fieldvalue.blend`.
+`Next Digit`, `Digit At`, and the full `Field Value` display graph from
+`fieldvalue.blend`. The full graph is verified on a default-route float-value
+case with matching evaluated geometry.
+
+The completed parametric/polar translation is
+`docs/research/translations/shriinivas-paramnpolareq.md`. It covers scalar
+equation helpers, `Archimedes Spiral`, `Epicycloid`, and a mirrored root spiral
+from `paramnpolareq.blend`.
+
+The CurveToMeshUV utility sample has started at
+`docs/research/translations/quellenform-curve-to-mesh-uv.md`. So far it covers
+the small `Auto Smooth` helper from the quellenform file. The main
+`Curve to Mesh UV` group is a 126-node utility quarry and should be staged into
+subcontracts rather than translated as one heroic wall.
 
 `docs/research/procedural-doctrine.md` now stores the current spatial reasoning
 playbook for mapping geometric ideas to Geometry Script. Doctrine entries should
@@ -56,7 +69,8 @@ orchestration; Geometry Script emits inspectable Geometry Nodes groups; `bpy`
 handles Blender scene machinery and evaluated evidence.
 
 The repo-local Geometry Script clone has a Blender 5.1 patch for nested `@tree`
-group reuse plus a ported `nodes_to_script` converter. See
+group reuse, a ported `nodes_to_script` converter, and a menu-socket default
+tolerance patch needed by Blender 5 menu inputs. See
 `docs/research/geometry-script-fork-notes.md`.
 Run `.\tools\setup_geometry_script_clone.ps1` if `external/geometry-script` is
 missing in a fresh workspace.
@@ -68,10 +82,11 @@ The GameCult fork is intentionally pruned to `main` plus VibeGeometry-owned
 tooling branches. Upstream branch clutter should not be copied forward unless a
 future patch actually needs it.
 
-The current next action is to use the generated
-`experiments/inspection/nodes-to-script-output/field_value.py` draft as a map
-for a cleaned `VG Field Value` translation. `Geometry Nodes Group.002` is a
-wrapper around the full `Field Value` group rather than an independent helper.
+The current next action is to continue the translation corpus with either the
+main CurveToMeshUV utility staged into subcontracts or a scattering/instancing
+sample. Keep `docs/research/procedural-doctrine.md` compact; put
+sample-specific graph maps and verification details in
+`docs/research/translations/`.
 
 ## Important Invariants
 

@@ -91,8 +91,8 @@ data_flow:
   - If state grows faster than understanding, cut it back.
 
 current_status:
-  summary: VibeGeometry has an initial persistence scaffold plus verified Geometry Script translations for inspected Shriinivas cartesian, pie chart, and field-value helper/chassis/mask/branch graph families. The repo-local Geometry Script fork now includes a Blender 5.1 nodes_to_script converter port that emits compiling drafts for tested source groups.
-  next_action: Use the generated `experiments/inspection/nodes-to-script-output/field_value.py` draft as a map for a cleaned `VG Field Value` translation.
+  summary: VibeGeometry has an initial persistence scaffold plus verified Geometry Script translations for inspected Shriinivas cartesian, pie chart, field-value full display, parametric/polar equation graphs, and the first CurveToMeshUV utility helper. The repo-local Geometry Script fork includes a Blender 5.1 nodes_to_script converter port plus nested-group and menu-socket fixes needed by these translations.
+  next_action: Continue the translation corpus with the main CurveToMeshUV utility staged into subcontracts, or pivot to a scattering/instancing sample; keep doctrine compact and put graph-specific autopsies under `docs/research/translations/`.
 remotes:
   vibegeometry: https://github.com/GameCult/VibeGeometry
   geometry_script_fork: https://github.com/GameCult/geometry-script

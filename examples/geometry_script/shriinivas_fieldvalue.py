@@ -12,6 +12,21 @@ except ModuleNotFoundError:
 load_repo_geometry_script()
 
 from geometry_script import *  # noqa: F403 - Geometry Script exposes node functions as DSL globals.
+from geometry_script.api.node_mapper import OutputsList, set_or_create_link
+from geometry_script.api.state import State
+from geometry_script.api.types import Type
+
+
+def _capture_attribute_item(data_type: str, domain: str, geometry, value, name: str):
+    node = State.current_node_tree.nodes.new("GeometryNodeCaptureAttribute")
+    node.capture_items.new(data_type, name)
+    node.active_index = 0
+    node.domain = domain
+    set_or_create_link(geometry, node.inputs[0])
+    set_or_create_link(value, node.inputs[1])
+
+    key = name.lower().replace(" ", "_")
+    return OutputsList({"geometry": Type(node.outputs[0]), key: Type(node.outputs[1])})
 
 
 def _int_equal(value, target: int):
@@ -319,6 +334,533 @@ def vg_delete_segments(digit: Int = 0, segment_position: Int = 0):
     )
 
 
+@tree("VG Field Value")
+def vg_field_value(
+    geometry: Geometry,
+    input_type: Menu = "Float",
+    float_value: Float = 0.0,
+    vector_value: Vector = (0.0, 0.0, 0.0),
+    digits_before_decimal: Int = 4,
+    precision: Int = 2,
+    domain: Menu = "Point",
+    alignment: Menu = "Center",
+    align_to_global: Bool = True,
+    scale: Float = 0.019999999552965164,
+    digit_separation: Float = 0.30000001192092896,
+    element_separation: Float = 1.0,
+    x_offset: Float = 0.0,
+    y_offset: Float = 0.0,
+    z_offset: Float = 0.0010000000474974513,
+    rotation: Int = 0,
+    segment_width_factor: Float = 0.5,
+    segment_separation_factor: Float = 0.10000000149011612,
+    tip_sharpness: Float = 1.0,
+    leading_zeros: Bool = False,
+    material: Material = None,
+):
+    domain_name = menu_switch(
+        active_index=2,
+        data_type="STRING",
+        menu=domain,
+        point="Point",
+        face="Face",
+        edge="Edge",
+    )
+    use_face_domain = compare(
+        operation=Compare.Operation.EQUAL,
+        data_type=Compare.DataType.STRING,
+        mode=Compare.Mode.ELEMENT,
+        a=domain_name.output,
+        b="Face",
+    )
+    use_edge_domain = compare(
+        operation=Compare.Operation.EQUAL,
+        data_type=Compare.DataType.STRING,
+        mode=Compare.Mode.ELEMENT,
+        a=domain_name.output,
+        b="Edge",
+    )
+    value_kind = menu_switch(
+        active_index=1,
+        data_type="STRING",
+        menu=input_type,
+        float="Float",
+        vector="Vector",
+    )
+    use_vector_value = compare(
+        operation=Compare.Operation.EQUAL,
+        data_type=Compare.DataType.STRING,
+        mode=Compare.Mode.ELEMENT,
+        a=value_kind.output,
+        b="Vector",
+    )
+
+    point_float = _capture_attribute_item("FLOAT", "POINT", geometry, float_value, "float field")
+    edge_float = _capture_attribute_item("FLOAT", "EDGE", geometry, float_value, "float field")
+    face_float = _capture_attribute_item("FLOAT", "FACE", geometry, float_value, "float field")
+    point_vector = _capture_attribute_item("VECTOR", "POINT", geometry, vector_value, "vector field")
+    edge_vector = _capture_attribute_item("VECTOR", "EDGE", geometry, vector_value, "vector field")
+    face_vector = _capture_attribute_item("VECTOR", "FACE", geometry, vector_value, "vector field")
+
+    captured_float_geometry = switch(
+        input_type=Switch.InputType.GEOMETRY,
+        switch=use_face_domain,
+        false=switch(
+            input_type=Switch.InputType.GEOMETRY,
+            switch=use_edge_domain,
+            false=point_float.geometry,
+            true=edge_float.geometry,
+        ),
+        true=face_float.geometry,
+    )
+    captured_vector_geometry = switch(
+        input_type=Switch.InputType.GEOMETRY,
+        switch=use_face_domain,
+        false=switch(
+            input_type=Switch.InputType.GEOMETRY,
+            switch=use_edge_domain,
+            false=point_vector.geometry,
+            true=edge_vector.geometry,
+        ),
+        true=face_vector.geometry,
+    )
+    sampled_source = switch(
+        input_type=Switch.InputType.GEOMETRY,
+        switch=use_vector_value,
+        false=captured_float_geometry,
+        true=captured_vector_geometry,
+    )
+    source_points = switch(
+        input_type=Switch.InputType.GEOMETRY,
+        switch=use_face_domain,
+        false=switch(
+            input_type=Switch.InputType.GEOMETRY,
+            switch=use_edge_domain,
+            false=sampled_source,
+            true=mesh_to_points(mode="EDGES", mesh=sampled_source, radius=0.05000000074505806),
+        ),
+        true=mesh_to_points(mode="FACES", mesh=sampled_source, radius=0.05000000074505806),
+    )
+
+    component_count = switch(input_type=Switch.InputType.INT, switch=use_vector_value, false=1, true=3)
+
+    segment_glyph = vg_seven_segments(
+        horizontal_segment_size=2.0,
+        horizontal_segment_thickness=segment_width_factor,
+        vertical_segment_size=2.0,
+        vertical_segment_thickness=segment_width_factor,
+        x_separation=segment_separation_factor,
+        y_seperation=segment_separation_factor,
+        tip_sharpness=tip_sharpness,
+    )
+    glyph_faces = _capture_attribute_item("INT", "FACE", segment_glyph, index(), "int field")
+    glyph_position = separate_xyz(vector=position())
+    glyph_y_stats = attribute_statistic(
+        data_type=AttributeStatistic.DataType.FLOAT,
+        domain=AttributeStatistic.Domain.POINT,
+        geometry=glyph_faces.geometry,
+        attribute=glyph_position.y,
+    )
+    glyph_height = math(operation=Math.Operation.SUBTRACT, value=(glyph_y_stats.max, glyph_y_stats.min))
+    component_spacing = math(operation=Math.Operation.ADD, value=(glyph_height, element_separation))
+    vector_component_step = switch(input_type=Switch.InputType.FLOAT, switch=use_vector_value, false=0.0, true=component_spacing)
+    component_points = mesh_line(
+        mode=MeshLine.Mode.OFFSET,
+        count_mode=MeshLine.CountMode.TOTAL,
+        count=component_count,
+        start_location=combine_xyz(x=0.0, y=vector_component_step, z=0.0),
+        offset=combine_xyz(
+            x=0.0,
+            y=math(operation=Math.Operation.MULTIPLY, value=(-1.0, vector_component_step)),
+            z=0.0,
+        ),
+    )
+
+    digit_count_without_decimal = math(operation=Math.Operation.ADD, value=(digits_before_decimal, precision))
+    digit_count_with_decimal = math(operation=Math.Operation.ADD, value=(digit_count_without_decimal, 1.0))
+    has_precision = math(operation=Math.Operation.GREATER_THAN, value=(precision, 0.0))
+    display_digit_slots = math(operation=Math.Operation.ADD, value=(digit_count_with_decimal, has_precision))
+
+    glyph_x_stats = attribute_statistic(
+        data_type=AttributeStatistic.DataType.FLOAT,
+        domain=AttributeStatistic.Domain.POINT,
+        geometry=glyph_faces.geometry,
+        attribute=glyph_position.x,
+    )
+    glyph_width = math(operation=Math.Operation.SUBTRACT, value=(glyph_x_stats.max, glyph_x_stats.min))
+    digit_pitch = math(
+        operation=Math.Operation.MULTIPLY,
+        value=(math(operation=Math.Operation.ADD, value=(1.0, digit_separation)), glyph_width),
+    )
+    negative_digit_pitch = math(operation=Math.Operation.MULTIPLY, value=(-1.0, digit_pitch))
+    digit_step = combine_xyz(x=negative_digit_pitch, y=0.0, z=0.0)
+    digit_points = mesh_line(
+        mode=MeshLine.Mode.OFFSET,
+        count_mode=MeshLine.CountMode.TOTAL,
+        count=display_digit_slots,
+        start_location=vector_math(operation=VectorMath.Operation.DIVIDE, vector=(digit_step, (2.0, 0.0, 0.0))),
+        offset=digit_step,
+    )
+    digit_instances = instance_on_points(
+        points=digit_points,
+        instance=glyph_faces.geometry,
+        pick_instance=False,
+        rotation=(0.0, 0.0, 0.0),
+        scale=(1.0, 1.0, 1.0),
+    )
+    decimal_slot = math(
+        operation=Math.Operation.SUBTRACT,
+        value=(math(operation=Math.Operation.SUBTRACT, value=(display_digit_slots, precision)), 0.5),
+    )
+    decimal_offset = math(operation=Math.Operation.MULTIPLY, value=(decimal_slot, digit_pitch))
+    final_digit_index = math(operation=Math.Operation.SUBTRACT, value=(display_digit_slots, 1.0))
+    is_final_digit_slot = compare(
+        operation=Compare.Operation.EQUAL,
+        data_type=Compare.DataType.FLOAT,
+        mode=Compare.Mode.ELEMENT,
+        a=index(),
+        b=final_digit_index,
+        epsilon=0.0010000000474974513,
+    )
+    decimal_shifted_digits = set_position(
+        geometry=digit_instances,
+        offset=combine_xyz(
+            x=math(operation=Math.Operation.MULTIPLY, value=(decimal_offset, is_final_digit_slot)),
+            y=0.0,
+            z=math(operation=Math.Operation.MULTIPLY, value=(-0.0010000000474974513, is_final_digit_slot)),
+        ),
+    )
+    digit_indexed = _capture_attribute_item("INT", "INSTANCE", decimal_shifted_digits, index(), "int field")
+    component_instances = instance_on_points(
+        points=component_points,
+        instance=digit_indexed.geometry,
+        pick_instance=False,
+        rotation=(0.0, 0.0, 0.0),
+        scale=(1.0, 1.0, 1.0),
+    )
+    component_indexed = _capture_attribute_item("INT", "INSTANCE", component_instances, index(), "int field")
+    value_instances = instance_on_points(
+        points=source_points,
+        instance=component_indexed.geometry,
+        pick_instance=False,
+        rotation=(0.0, 0.0, 0.0),
+        scale=(1.0, 1.0, 1.0),
+    )
+
+    point_position = sample_index(
+        data_type=SampleIndex.DataType.FLOAT_VECTOR,
+        domain=SampleIndex.Domain.POINT,
+        clamp=False,
+        geometry=sampled_source,
+        value=position(),
+        index=index(),
+    )
+    edge_position = sample_index(
+        data_type=SampleIndex.DataType.FLOAT_VECTOR,
+        domain=SampleIndex.Domain.EDGE,
+        clamp=False,
+        geometry=sampled_source,
+        value=position(),
+        index=index(),
+    )
+    face_position = sample_index(
+        data_type=SampleIndex.DataType.FLOAT_VECTOR,
+        domain=SampleIndex.Domain.FACE,
+        clamp=False,
+        geometry=sampled_source,
+        value=position(),
+        index=index(),
+    )
+    source_position = switch(
+        input_type=Switch.InputType.VECTOR,
+        switch=use_face_domain,
+        false=switch(input_type=Switch.InputType.VECTOR, switch=use_edge_domain, false=point_position, true=edge_position),
+        true=face_position,
+    )
+
+    alignment_name = menu_switch(
+        active_index=2,
+        data_type="STRING",
+        menu=alignment,
+        center="Center",
+        right="Right",
+        left="Left",
+    )
+    align_left = compare(
+        operation=Compare.Operation.EQUAL,
+        data_type=Compare.DataType.STRING,
+        mode=Compare.Mode.ELEMENT,
+        a=alignment_name.output,
+        b="Left",
+    )
+    align_right = compare(
+        operation=Compare.Operation.EQUAL,
+        data_type=Compare.DataType.STRING,
+        mode=Compare.Mode.ELEMENT,
+        a=alignment_name.output,
+        b="Right",
+    )
+    scaled_digit_pitch = math(operation=Math.Operation.MULTIPLY, value=(scale, digit_pitch))
+
+    captured_float = switch(
+        input_type=Switch.InputType.FLOAT,
+        switch=use_face_domain,
+        false=switch(
+            input_type=Switch.InputType.FLOAT,
+            switch=use_edge_domain,
+            false=point_float.float_field,
+            true=edge_float.float_field,
+        ),
+        true=face_float.float_field,
+    )
+    captured_vector = switch(
+        input_type=Switch.InputType.VECTOR,
+        switch=use_face_domain,
+        false=switch(
+            input_type=Switch.InputType.VECTOR,
+            switch=use_edge_domain,
+            false=point_vector.vector_field,
+            true=edge_vector.vector_field,
+        ),
+        true=face_vector.vector_field,
+    )
+    vector_parts = separate_xyz(vector=captured_vector)
+    component_value = index_switch(
+        data_type=IndexSwitch.DataType.FLOAT,
+        index=component_indexed.int_field,
+        _0=vector_parts.x,
+        _1=vector_parts.y,
+        _2=vector_parts.z,
+    )
+    displayed_value = switch(input_type=Switch.InputType.FLOAT, switch=use_vector_value, false=captured_float, true=component_value)
+    absolute_value = math(operation=Math.Operation.ABSOLUTE, value=displayed_value)
+    whole_part = math(operation=Math.Operation.TRUNC, value=absolute_value)
+    whole_part_digits = math(
+        operation=Math.Operation.MAXIMUM,
+        value=(
+            math(
+                operation=Math.Operation.FLOOR,
+                value=math(
+                    operation=Math.Operation.LOGARITHM,
+                    value=(math(operation=Math.Operation.MULTIPLY, value=(whole_part, 10.0)), 10.0),
+                ),
+            ),
+            1.0,
+        ),
+    )
+    natural_digit_count = math(operation=Math.Operation.ADD, value=(whole_part_digits, precision))
+    is_negative = math(operation=Math.Operation.LESS_THAN, value=(displayed_value, 0.0))
+    natural_slot_count = math(operation=Math.Operation.ADD, value=(natural_digit_count, is_negative))
+    half_text_width = math(
+        operation=Math.Operation.DIVIDE,
+        value=(math(operation=Math.Operation.MULTIPLY, value=(scaled_digit_pitch, natural_slot_count)), 2.0),
+    )
+    alignment_offset = switch(
+        input_type=Switch.InputType.FLOAT,
+        switch=align_left,
+        false=switch(input_type=Switch.InputType.FLOAT, switch=align_right, false=half_text_width, true=0),
+        true=math(operation=Math.Operation.MULTIPLY, value=(half_text_width, 2.0)),
+    )
+    placed_position = vector_math(
+        operation=VectorMath.Operation.ADD,
+        vector=(source_position, combine_xyz(x=math(operation=Math.Operation.ADD, value=(x_offset, alignment_offset)), y=y_offset, z=z_offset)),
+    )
+
+    point_normal = sample_index(
+        data_type=SampleIndex.DataType.FLOAT_VECTOR,
+        domain=SampleIndex.Domain.POINT,
+        clamp=False,
+        geometry=sampled_source,
+        value=normal(legacy_corner_normals=True).normal,
+        index=index(),
+    )
+    edge_normal = sample_index(
+        data_type=SampleIndex.DataType.FLOAT_VECTOR,
+        domain=SampleIndex.Domain.EDGE,
+        clamp=False,
+        geometry=sampled_source,
+        value=normal(legacy_corner_normals=True).normal,
+        index=index(),
+    )
+    face_normal = sample_index(
+        data_type=SampleIndex.DataType.FLOAT_VECTOR,
+        domain=SampleIndex.Domain.FACE,
+        clamp=False,
+        geometry=sampled_source,
+        value=normal(legacy_corner_normals=True).normal,
+        index=index(),
+    )
+    source_normal = switch(
+        input_type=Switch.InputType.VECTOR,
+        switch=use_face_domain,
+        false=switch(input_type=Switch.InputType.VECTOR, switch=use_edge_domain, false=point_normal, true=edge_normal),
+        true=face_normal,
+    )
+    normal_aligned_rotation = align_rotation_to_vector(axis="Z", pivot_axis="AUTO", factor=1.0, vector=source_normal)
+    normal_parts = separate_xyz(vector=source_normal)
+    global_reference_nudge = switch(
+        input_type=Switch.InputType.VECTOR,
+        switch=math(operation=Math.Operation.GREATER_THAN, value=(normal_parts.y, 0.5)),
+        false=(0.0, 0.0, 0.0),
+        true=(9.999999747378752e-06, 0.0, 0.0),
+    )
+    global_reference = combine_xyz(x=global_reference_nudge, y=0.0, z=-1.0)
+    self_info = object_info(transform_space="ORIGINAL", object=self_object(), as_instance=False)
+    object_space_reference = transform_point(vector=global_reference, transform=invert_matrix(matrix=self_info.transform).matrix)
+    reference_vector = switch(input_type=Switch.InputType.VECTOR, switch=align_to_global, false=global_reference, true=object_space_reference)
+    tangent_vector = vector_math(operation=VectorMath.Operation.CROSS_PRODUCT, vector=(source_normal, reference_vector))
+    tangent_aligned_rotation = align_rotation_to_vector(
+        axis="X",
+        pivot_axis="AUTO",
+        rotation=normal_aligned_rotation,
+        factor=1.0,
+        vector=tangent_vector,
+    )
+    local_spin = combine_xyz(x=0.0, y=0.0, z=math(operation=Math.Operation.RADIANS, value=rotation))
+    instance_rotation = rotate_rotation(rotation_space="LOCAL", rotation=tangent_aligned_rotation, rotate_by=local_spin)
+    rotated_position = vector_rotate(
+        rotation_type="EULER_XYZ",
+        invert=False,
+        vector=placed_position,
+        center=source_position,
+        rotation=instance_rotation,
+    )
+    transformed_instances = set_instance_transform(
+        instances=value_instances,
+        transform=combine_transform(
+            translation=rotated_position,
+            rotation=instance_rotation,
+            scale=combine_xyz(x=scale, y=scale, z=scale),
+        ),
+    )
+    realized_digits = realize_instances(realize_to_point_domain=True, geometry=transformed_instances, realize_all=True, depth=0)
+
+    last_display_slot = math(operation=Math.Operation.SUBTRACT, value=(display_digit_slots, 1.0))
+    is_decimal_slot = boolean_math(
+        operation=BooleanMath.Operation.AND,
+        boolean=(
+            compare(
+                operation=Compare.Operation.EQUAL,
+                data_type=Compare.DataType.FLOAT,
+                mode=Compare.Mode.ELEMENT,
+                a=digit_indexed.int_field,
+                b=last_display_slot,
+                epsilon=0.0010000000474974513,
+            ),
+            math(operation=Math.Operation.GREATER_THAN, value=(precision, 0.0)),
+        ),
+    )
+    is_negative_slot = boolean_math(
+        operation=BooleanMath.Operation.AND,
+        boolean=(
+            is_negative,
+            compare(
+                operation=Compare.Operation.EQUAL,
+                data_type=Compare.DataType.FLOAT,
+                mode=Compare.Mode.ELEMENT,
+                a=digit_indexed.int_field,
+                b=natural_digit_count,
+                epsilon=0.0010000000474974513,
+            ),
+        ),
+    )
+    forced_visible_digit = boolean_math(
+        operation=BooleanMath.Operation.OR,
+        boolean=(
+            boolean_math(
+                operation=BooleanMath.Operation.OR,
+                boolean=(
+                    math(operation=Math.Operation.LESS_THAN, value=(digit_indexed.int_field, precision)),
+                    math(
+                        operation=Math.Operation.GREATER_THAN,
+                        value=(
+                            whole_part,
+                            math(
+                                operation=Math.Operation.SUBTRACT,
+                                value=(
+                                    math(
+                                        operation=Math.Operation.POWER,
+                                        value=(10.0, math(operation=Math.Operation.SUBTRACT, value=(digit_indexed.int_field, precision))),
+                                    ),
+                                    1.0,
+                                ),
+                            ),
+                        ),
+                    ),
+                ),
+            ),
+            boolean_math(
+                operation=BooleanMath.Operation.AND,
+                boolean=(
+                    compare(
+                        operation=Compare.Operation.EQUAL,
+                        data_type=Compare.DataType.FLOAT,
+                        mode=Compare.Mode.ELEMENT,
+                        a=whole_part,
+                        b=0.0,
+                        epsilon=0.0010000000474974513,
+                    ),
+                    compare(
+                        operation=Compare.Operation.EQUAL,
+                        data_type=Compare.DataType.INT,
+                        mode=Compare.Mode.ELEMENT,
+                        a=digit_indexed.int_field,
+                        b=precision,
+                    ),
+                ),
+            ),
+        ),
+    )
+    leading_zero_slot = boolean_math(
+        operation=BooleanMath.Operation.AND,
+        boolean=(
+            boolean_math(
+                operation=BooleanMath.Operation.AND,
+                boolean=(boolean_math(operation=BooleanMath.Operation.NOT, boolean=is_negative), leading_zeros),
+            ),
+            math(
+                operation=Math.Operation.LESS_THAN,
+                value=(math(operation=Math.Operation.SUBTRACT, value=(digit_indexed.int_field, precision)), digits_before_decimal),
+            ),
+        ),
+    )
+    digit_visible = boolean_math(operation=BooleanMath.Operation.OR, boolean=(forced_visible_digit, leading_zero_slot))
+    display_capacity_exceeded = math(
+        operation=Math.Operation.GREATER_THAN,
+        value=(natural_digit_count, math(operation=Math.Operation.ADD, value=(digits_before_decimal, precision))),
+    )
+    fraction_part = math(
+        operation=Math.Operation.ROUND,
+        value=(
+            math(
+                operation=Math.Operation.MULTIPLY,
+                value=(
+                    math(operation=Math.Operation.FRACT, value=absolute_value),
+                    math(operation=Math.Operation.POWER, value=(10.0, precision)),
+                ),
+            )
+        ),
+    )
+    next_digit = vg_next_digit(
+        whole_part=whole_part,
+        fraction_part=fraction_part,
+        max_precision=precision,
+        position=digit_indexed.int_field,
+    )
+    digit_code = switch(input_type=Switch.InputType.FLOAT, switch=display_capacity_exceeded, false=next_digit, true=10.0)
+    visible_digit_code = switch(
+        input_type=Switch.InputType.INT,
+        switch=digit_visible,
+        false=0,
+        true=math(operation=Math.Operation.ADD, value=(digit_code, 1.0)),
+    )
+    negative_digit_code = switch(input_type=Switch.InputType.INT, switch=is_negative_slot, false=visible_digit_code, true=11)
+    final_digit_code = switch(input_type=Switch.InputType.INT, switch=is_decimal_slot, false=negative_digit_code, true=12)
+    hidden_segments = vg_delete_segments(digit=final_digit_code, segment_position=glyph_faces.int_field)
+    visible_segments = delete_geometry(mode=DeleteGeometry.Mode.ALL, domain=DeleteGeometry.Domain.FACE, geometry=realized_digits, selection=hidden_segments)
+    return {"Value": set_material(geometry=visible_segments, material=material)}
+
+
 def _finalize_groups():
     import bpy
 
@@ -330,6 +872,7 @@ def _finalize_groups():
         "VG Create Segment",
         "VG Seven Segments",
         "VG Delete Segments",
+        "VG Field Value",
     ):
         group = bpy.data.node_groups.get(name)
         if not group:

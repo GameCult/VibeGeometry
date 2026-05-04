@@ -145,6 +145,42 @@ Verification cue: test more than one parameter value. Field graphs often look
 right at one value and reveal swapped axes or stale constants when controls
 move.
 
+## Parameters Are Conveyors
+
+Reach for `Accumulate Field` when a curve or repeated structure needs a steady
+parameter ramp: `t`, `theta`, distance, age, row number, phase, growth amount.
+
+Mental move: make a boring sequence of stations first, compute the step between
+stations, then let the graph stamp each station with the accumulated parameter.
+The equation or deformation reads that parameter downstream.
+
+```python
+step = math(
+    operation=Math.Operation.DIVIDE,
+    value=(max_value, math(operation=Math.Operation.SUBTRACT, value=(resolution, 1.0))),
+)
+theta = accumulate_field(
+    data_type=AccumulateField.DataType.FLOAT,
+    domain=AccumulateField.Domain.POINT,
+    value=step,
+).trailing
+
+mesh = mesh_line(
+    mode=MeshLine.Mode.OFFSET,
+    count_mode=MeshLine.CountMode.TOTAL,
+    count=resolution,
+    offset=(0.0, 0.0, 1.0),
+)
+geometry = mesh.set_position(position=combine_xyz(x=x_from_theta, y=y_from_theta, z=0.0))
+```
+
+Metaphor in use: the mesh line is a conveyor belt. `Accumulate Field` stamps
+each station with a larger number, and the curve equation tells that station
+where to stand.
+
+Verification cue: compare evaluated vertices at a non-default resolution and
+range. Off-by-one errors hide at endpoints.
+
 ## Set Position Is The Hinge
 
 Reach for `set_position` when your graph has built an invisible spatial rule
@@ -210,6 +246,44 @@ attribute lets some stations use a wider bit without changing the rail.
 
 Verification cue: inspect mesh vertex counts and bounding dimensions, not just
 the existence of a `Curve to Mesh` node.
+
+## Surface Passes Are Polish Gates
+
+Reach for surface-state utilities when geometry already exists but needs
+controlled smoothing, normals, material assignment, UVs, or attributes before
+it is usable downstream.
+
+Mental move: keep shape generation separate from finishing state. In `VG Auto
+Smooth`, the mesh enters unchanged, edge angle and existing smooth flags decide
+edge smoothing, then the face domain is stamped smooth.
+
+```python
+shallow_enough = compare(
+    operation=Compare.Operation.LESS_EQUAL,
+    data_type=Compare.DataType.FLOAT,
+    mode=Compare.Mode.ELEMENT,
+    a=edge_angle().unsigned_angle,
+    b=angle,
+)
+edge_pass = set_shade_smooth(
+    domain=SetShadeSmooth.Domain.EDGE,
+    mesh=geometry,
+    selection=is_edge_smooth(),
+    shade_smooth=shallow_enough & is_face_smooth(),
+)
+geometry = set_shade_smooth(
+    domain=SetShadeSmooth.Domain.FACE,
+    mesh=edge_pass,
+    selection=True,
+    shade_smooth=True,
+)
+```
+
+Metaphor in use: this is a polishing gate, not a forge. The form passes
+through; the gate decides which surface state is allowed to survive.
+
+Verification cue: compare surface flags as well as vertices. A finishing graph
+can preserve shape perfectly while changing the thing it was built to control.
 
 ## Field Masks Are Chisels
 
@@ -353,6 +427,38 @@ anything cumulative.
 
 Verification cue: test the composed graph, not only the segment. A baton can be
 correct locally but passed to the wrong next socket.
+
+## Capture Before The Crowd
+
+Reach for `Capture Attribute` when a value or index must survive a domain
+change, instancing layer, or later deletion pass.
+
+Mental move: before geometry enters a crowd of instances, pin a name and domain
+to the value that later stages still need. In `VG Field Value`, the source
+value, glyph face index, digit-slot index, and vector-component index each have
+to ride through different instancing layers.
+
+```python
+glyph_faces = _capture_attribute_item("INT", "FACE", segment_glyph, index(), "int field")
+digit_indexed = _capture_attribute_item("INT", "INSTANCE", digit_instances, index(), "int field")
+
+hidden_segments = vg_delete_segments(
+    digit=final_digit_code,
+    segment_position=glyph_faces.int_field,
+)
+visible = delete_geometry(
+    mode=DeleteGeometry.Mode.ALL,
+    domain=DeleteGeometry.Domain.FACE,
+    geometry=realized_digits,
+    selection=hidden_segments,
+)
+```
+
+Metaphor in use: capture is a luggage tag. Once geometry moves through airports
+of instances and domains, untagged values are gone in the baggage system.
+
+Verification cue: test the full composed graph after realization or deletion,
+not just the captured helper. The point of capture is later survival.
 
 ## Branch Helpers Are Switchboards
 
