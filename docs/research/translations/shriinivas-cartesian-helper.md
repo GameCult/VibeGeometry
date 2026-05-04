@@ -123,6 +123,41 @@ The generated group has fewer nodes than the source because it omits three
 `NodeReroute` layout nodes and one reroute link. The computational nodes match
 the source mechanism.
 
+Behavior verification:
+
+```powershell
+& 'C:\Program Files (x86)\Steam\steamapps\common\Blender\blender.exe' --background '.\experiments\source-blends\shriinivas-cartesian.blend' --python '.\tools\verify_cartesian_helper_behavior.py'
+```
+
+The verification harness wraps both the source helper and the Geometry Script
+helper in the same graph:
+
+```text
+helper Curve + helper Vector -> Set Position -> Curve to Mesh
+```
+
+It evaluates both generated meshes with:
+
+```text
+Count = 25
+Start = (-0.45, 0.0, 0.0)
+End = (0.45, 0.0, 0.0)
+r = 0.6
+Value = 1.25
+```
+
+Result:
+
+```text
+source_vertex_count = 200
+translated_vertex_count = 200
+max_vertex_delta = 0.0
+mean_vertex_delta = 0.0
+```
+
+This verifies that the translated helper retained the source helper's evaluated
+behavior for the tested parameter set, not merely its rough node vocabulary.
+
 ## Lessons
 
 - The local generated Geometry Script docs should be checked before writing each

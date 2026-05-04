@@ -124,6 +124,10 @@ First completed translation entry:
 opened `.blend` file into JSON. It records group interfaces, nodes, simple node
 properties, sockets, links, and modifier users.
 
+`tools/verify_cartesian_helper_behavior.py` verifies the first translated helper
+against its source group by wrapping both graphs in the same evaluator graph and
+comparing evaluated mesh vertices.
+
 Generated node groups must be referenced by an object/modifier or marked with
 `use_fake_user = True` before saving a `.blend`; otherwise Blender discards the
 orphaned group on save. Very normal behavior, if your filing cabinet hates you.
