@@ -96,6 +96,24 @@ This is a good control pattern. A graph can expose a broad global control like
 Use this when a graph should work plainly by default but become more expressive
 when upstream geometry brings richer attributes.
 
+## Groups Can Pass Batons
+
+Reusable node groups do not have to output geometry alone. They can output
+state: an angle, count, bound, accumulated offset, or any other value the next
+group needs.
+
+The pie chart segment returns:
+
+```text
+Curve: visible wedge geometry
+End: the angle where the next wedge should begin
+```
+
+That makes the chart group a relay. Each segment runs its stretch, then passes
+the end angle forward. This is the pattern for cumulative structures: charts,
+stairs, chains, segmented shells, stacked floors, ribs, vertebrae, and anything
+where part N+1 depends on where part N stopped.
+
 ## Stack Abstractions Carefully
 
 There are two abstraction layers available:

@@ -82,5 +82,5 @@ data_flow:
   - If state grows faster than understanding, cut it back.
 
 current_status:
-  summary: VibeGeometry has an initial persistence scaffold plus verified Geometry Script translations for all four inspected Shriinivas/cartesian.blend groups: helper, line, parabola, and circle.
-  next_action: Select the next Tier 1 source graph from Shriinivas/geometrynodes, preferably `piechart.blend` or `fieldvalue.blend`, inspect its node groups, and add the next doctrine-backed translation entry.
+  summary: VibeGeometry has an initial persistence scaffold plus verified Geometry Script translations for the inspected Shriinivas cartesian and pie chart graph families.
+  next_action: Select the next Tier 1 source graph from Shriinivas/geometrynodes, preferably `fieldvalue.blend`, inspect its node groups, and add the next doctrine-backed translation entry.

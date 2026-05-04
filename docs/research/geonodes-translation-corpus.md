@@ -114,6 +114,13 @@ Completed Cartesian function graph entry:
 - Toolchain note: `external/geometry-script` is patched so nested `@tree` calls
   create `GeometryNodeGroup` nodes under Blender 5.1.
 
+Completed pie chart entry:
+
+- `docs/research/translations/shriinivas-piechart.md`
+- Source groups: `NodeGroup`, `Pie Chart`
+- Verification: translated segment and three-slice chart match evaluated source
+  geometry with sorted max vertex delta `0.0` in Blender 5.1.1.
+
 ## Extraction Workflow
 
 1. Download one source `.blend` into an ignored experiment folder.

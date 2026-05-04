@@ -35,6 +35,10 @@ The completed Cartesian function translation is
 `Geometry Nodes Line`, `Geometry Nodes Parabola`, and `Geometry Nodes Circle`
 from `cartesian.blend`.
 
+The completed pie chart translation is
+`docs/research/translations/shriinivas-piechart.md`. It covers `NodeGroup` and
+`Pie Chart` from `piechart.blend`.
+
 `docs/research/procedural-doctrine.md` now stores the current intuitive model
 for mapping geometric ideas to Geometry Script: curves as rails, fields as
 weather, `Set Position` as the hinge, profiles as body, attributes as optional
@@ -46,8 +50,8 @@ Run `.\tools\setup_geometry_script_clone.ps1` if `external/geometry-script` is
 missing in a fresh workspace.
 
 The current next action is to select the next Tier 1 source graph from
-`Shriinivas/geometrynodes`, preferably `piechart.blend` or `fieldvalue.blend`,
-inspect its node groups, and add the next doctrine-backed translation entry.
+`Shriinivas/geometrynodes`, preferably `fieldvalue.blend`, inspect its node
+groups, and add the next doctrine-backed translation entry.
 
 ## Important Invariants
 
