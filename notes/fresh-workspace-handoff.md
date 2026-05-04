@@ -30,9 +30,24 @@ The first completed translation is
 `docs/research/translations/shriinivas-cartesian-helper.md`, backed by
 `examples/geometry_script/shriinivas_cartesian_helper.py`.
 
-The current next action is to translate the source `Geometry Nodes Line` group
-from `cartesian.blend` using the completed helper as the first reusable
-subgraph, then render or visually inspect the generated line output.
+The completed Cartesian function translation is
+`docs/research/translations/shriinivas-cartesian-function-graphs.md`. It covers
+`Geometry Nodes Line`, `Geometry Nodes Parabola`, and `Geometry Nodes Circle`
+from `cartesian.blend`.
+
+`docs/research/procedural-doctrine.md` now stores the current intuitive model
+for mapping geometric ideas to Geometry Script: curves as rails, fields as
+weather, `Set Position` as the hinge, profiles as body, attributes as optional
+handles, and Python helpers as authoring stencils.
+
+The repo-local Geometry Script clone has a Blender 5.1 patch for nested `@tree`
+group reuse. See `docs/research/geometry-script-fork-notes.md`.
+Run `.\tools\setup_geometry_script_clone.ps1` if `external/geometry-script` is
+missing in a fresh workspace.
+
+The current next action is to select the next Tier 1 source graph from
+`Shriinivas/geometrynodes`, preferably `piechart.blend` or `fieldvalue.blend`,
+inspect its node groups, and add the next doctrine-backed translation entry.
 
 ## Important Invariants
 
@@ -54,6 +69,8 @@ subgraph, then render or visually inspect the generated line output.
 - What should the first node graph manifest schema require versus merely allow?
 - What node-group inspection JSON shape is most useful for translating public
   `.blend` examples into Geometry Script?
+- Should the Geometry Script nested-group patch be upstreamed, or should
+  VibeGeometry maintain a fork as its toolchain?
 - Which Blender 5.0+ APIs and node construction helpers should become the
   first stable builder layer?
 - What is the smallest useful render-review artifact?

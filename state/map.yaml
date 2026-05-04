@@ -60,10 +60,14 @@ current_artifacts:
     - notes/vibegeometry-current-system-map.md
     - notes/vibegeometry-implementation-plan.md
     - docs/architecture/pipeline-overview.md
+    - docs/research/procedural-doctrine.md
+    - docs/research/geometry-script-fork-notes.md
   tools:
     - tools/vibegeometry_state.py
     - tools/vibegeometry_prepare_compaction.py
     - tools/inspect_blend_node_groups.py
+    - tools/verify_cartesian_translations.py
+    - tools/geometry_script_loader.py
   pending_contracts:
     - schemas/scene-brief.schema.json
     - schemas/node-graph-manifest.schema.json
@@ -78,5 +82,5 @@ data_flow:
   - If state grows faster than understanding, cut it back.
 
 current_status:
-  summary: VibeGeometry has an initial persistence scaffold plus the first Geometry Nodes translation corpus entry: a small helper group from Shriinivas/cartesian.blend recreated with Geometry Script and smoke-tested in Blender 5.1.1.
-  next_action: Translate the source `Geometry Nodes Line` group from `cartesian.blend` using the completed helper as the first reusable subgraph, then render or visually inspect the generated line output.
+  summary: VibeGeometry has an initial persistence scaffold plus verified Geometry Script translations for all four inspected Shriinivas/cartesian.blend groups: helper, line, parabola, and circle.
+  next_action: Select the next Tier 1 source graph from Shriinivas/geometrynodes, preferably `piechart.blend` or `fieldvalue.blend`, inspect its node groups, and add the next doctrine-backed translation entry.

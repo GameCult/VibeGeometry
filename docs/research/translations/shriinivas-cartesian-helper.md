@@ -126,7 +126,7 @@ the source mechanism.
 Behavior verification:
 
 ```powershell
-& 'C:\Program Files (x86)\Steam\steamapps\common\Blender\blender.exe' --background '.\experiments\source-blends\shriinivas-cartesian.blend' --python '.\tools\verify_cartesian_helper_behavior.py'
+& 'C:\Program Files (x86)\Steam\steamapps\common\Blender\blender.exe' --background '.\experiments\source-blends\shriinivas-cartesian.blend' --python '.\tools\verify_cartesian_translations.py'
 ```
 
 The verification harness wraps both the source helper and the Geometry Script

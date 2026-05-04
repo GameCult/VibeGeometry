@@ -103,6 +103,17 @@ First completed translation entry:
 - Geometry Script recreation:
   `examples/geometry_script/shriinivas_cartesian_helper.py`
 
+Completed Cartesian function graph entry:
+
+- `docs/research/translations/shriinivas-cartesian-function-graphs.md`
+- Source groups: `Geometry Nodes Line`, `Geometry Nodes Parabola`,
+  `Geometry Nodes Circle`
+- Verification: all translated graphs match evaluated source geometry in
+  Blender 5.1.1. Circle matches as a sorted vertex set because node expansion
+  changes vertex order while preserving shape.
+- Toolchain note: `external/geometry-script` is patched so nested `@tree` calls
+  create `GeometryNodeGroup` nodes under Blender 5.1.
+
 ## Extraction Workflow
 
 1. Download one source `.blend` into an ignored experiment folder.
@@ -124,9 +135,10 @@ First completed translation entry:
 opened `.blend` file into JSON. It records group interfaces, nodes, simple node
 properties, sockets, links, and modifier users.
 
-`tools/verify_cartesian_helper_behavior.py` verifies the first translated helper
-against its source group by wrapping both graphs in the same evaluator graph and
-comparing evaluated mesh vertices.
+`tools/verify_cartesian_translations.py` verifies the translated Cartesian
+helper, line, parabola, and circle groups against their source groups by
+wrapping each graph in the same evaluator graph and comparing evaluated mesh
+vertices.
 
 Generated node groups must be referenced by an object/modifier or marked with
 `use_fake_user = True` before saving a `.blend`; otherwise Blender discards the
