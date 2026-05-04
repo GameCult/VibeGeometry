@@ -8,6 +8,9 @@ Source file:
 Inspection cache:
 `experiments/inspection/ircss-french-houses-node-groups.json`
 
+All-node atlas:
+`docs/research/translations/ircss-french-houses-node-atlas.md`
+
 Generated with Blender 5.1.1 after extending
 `tools/inspect_blend_node_groups.py` to record nested `GeometryNodeGroup`
 `node_tree` references.
@@ -347,10 +350,12 @@ Avoid as first next targets:
   support.
 - Empty-output harnesses such as the rejected `WindowBeams` case.
 
-## What Is Still Not Understood
+## Remaining Unknowns
 
+- Behavioral equivalence for most groups. The atlas accounts for every graph
+  structurally; only accepted translations have evaluated-geometry proof.
 - Exact visual appearance of every modifier root under render lighting.
-- Runtime behavior of all converter drafts; compile success is only the first
+- Runtime behavior of all converter drafts. Compile success is only the first
   gate.
 - Repeat-zone state semantics for topology accumulators.
 - Foreach-zone semantics for edge/window/wall systems.
@@ -358,5 +363,6 @@ Avoid as first next targets:
 - How unset object/collection inputs are meant to be supplied by modifier users
   in every root object.
 
-This is enough understanding to choose translation targets intelligently. It is
-not enough to claim the whole town can be regenerated from script.
+This is enough structural understanding to choose translation targets without
+pretending the town has been regenerated from script. The next proof must be
+behavioral: pick a target, script it, and compare evaluated geometry.

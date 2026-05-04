@@ -50,7 +50,9 @@ nodes, and a rejected empty-output harness for `WindowBeams`. The previous
 `nodes_to_script` duplicate-key failure around axes-to-rotation is fixed in the
 Geometry Script fork, so `GenerateArc` and `MakeStairs` now have compiling
 converter drafts. The file-level dependency map lives at
-`docs/research/translations/ircss-french-houses-system-map.md`.
+`docs/research/translations/ircss-french-houses-system-map.md`; the all-node
+structural atlas lives at
+`docs/research/translations/ircss-french-houses-node-atlas.md`.
 
 Current authoring prior: use the full Python stack. Python structures intent,
 tables, loops, variants, cleanup, validation, docs, and scene/render
@@ -71,10 +73,10 @@ The GameCult fork is intentionally pruned to `main` plus VibeGeometry-owned
 tooling branches. Do not copy upstream branch soup forward unless a future patch
 actually needs it.
 
-The current next action is to continue IRCSS French Houses by choosing the next
-city-organ target after either fixing repeat-zone/foreach/gizmo toolchain
-blockers or selecting another non-zone architectural helper with a non-empty
-behavioral harness.
+The current next action is to continue IRCSS French Houses with a behaviorally
+verifiable city-organ target from the atlas, preferring `GenerateArc`, `Switch
+On Roof Type`, `Is Edge Manifold`, or `Generate Windows` unless deliberately
+attacking repeat/foreach/gizmo support.
 
 ## Important Invariants
 

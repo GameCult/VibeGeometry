@@ -134,6 +134,9 @@ Use these only after the smaller idioms are reliable.
   - Source: https://github.com/IRCSS/Blender-Geometry-Node-French-Houses
   - Completed foothold:
     `docs/research/translations/ircss-french-houses.md`
+  - Structural maps:
+    `docs/research/translations/ircss-french-houses-system-map.md` and
+    `docs/research/translations/ircss-french-houses-node-atlas.md`
   - Why it matters: city-scale architectural kit with houses, gates, towers,
     walls, bridges, church parts, stalls, terrain, roads, vegetation, banners,
     windows, doors, and roofs.
@@ -259,6 +262,8 @@ Completed IRCSS French Houses foothold:
 
 - `docs/research/translations/ircss-french-houses.md`
 - File-level map: `docs/research/translations/ircss-french-houses-system-map.md`
+- All-node atlas:
+  `docs/research/translations/ircss-french-houses-node-atlas.md`
 - Source groups: `MakeSpiral`, `PointyGothicCone`
 - Verification: spiral output curve converted to points matches source with
   ordered max vertex delta `0.0`; plain and ornamented gothic cone cases match
