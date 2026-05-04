@@ -70,6 +70,7 @@ current_artifacts:
     - tools/verify_piechart_translations.py
     - tools/verify_fieldvalue_translations.py
     - tools/geometry_script_loader.py
+    - tools/smoke_nodes_to_script_converter.py
   pending_contracts:
     - schemas/scene-brief.schema.json
     - schemas/node-graph-manifest.schema.json
@@ -84,8 +85,8 @@ data_flow:
   - If state grows faster than understanding, cut it back.
 
 current_status:
-  summary: VibeGeometry has an initial persistence scaffold plus verified Geometry Script translations for inspected Shriinivas cartesian, pie chart, and field-value helper/chassis/mask/branch graph families.
-  next_action: Test or port upstream Geometry Script's `nodes_to_script` prototype before attempting the full 176-node `Field Value` translation.
+  summary: VibeGeometry has an initial persistence scaffold plus verified Geometry Script translations for inspected Shriinivas cartesian, pie chart, and field-value helper/chassis/mask/branch graph families. The repo-local Geometry Script fork now includes a Blender 5.1 nodes_to_script converter port that emits compiling drafts for tested source groups.
+  next_action: Use the generated `experiments/inspection/nodes-to-script-output/field_value.py` draft as a map for a cleaned `VG Field Value` translation.
 remotes:
   vibegeometry: https://github.com/GameCult/VibeGeometry
   geometry_script_fork: https://github.com/GameCult/geometry-script

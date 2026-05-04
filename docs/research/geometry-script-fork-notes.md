@@ -23,6 +23,7 @@ The fork is intentionally kept small. As of 2026-05-04, its live branches are:
 ```text
 main
 vibegeometry/blender-5-nested-tree-groups
+vibegeometry/blender-5-nodes-to-script
 ```
 
 Upstream may still have historical branches such as `gh-pages` or
@@ -68,17 +69,60 @@ Run from the VibeGeometry repo root:
 ```
 
 This clones upstream into `external/geometry-script`, creates or switches to the
-patch branch, and applies the patch stored in:
+current VibeGeometry toolchain branch, and applies the patches stored in:
 
 ```text
 patches/geometry-script/0001-fix-nested-tree-group-references-on-blender-4.patch
+patches/geometry-script/0002-Port-node-tree-conversion-operator.patch
 ```
 
 `external/` is intentionally ignored by the VibeGeometry repository. The clone
 is source-controlled as its own repo, not smuggled into this repo as a pile of
 vendor files.
 
-## Active Patch Branch
+## Toolchain Branch
+
+Branch:
+
+```text
+vibegeometry/blender-5-nodes-to-script
+```
+
+This is the branch VibeGeometry should use locally. It contains:
+
+- the nested `@tree` group fix from
+  `vibegeometry/blender-5-nested-tree-groups`
+- a Blender 5.1 port of the historical `nodes_to_script` converter prototype
+
+The converter adds:
+
+- `operators/convert_tree.py`
+- a callable `convert_node_tree(tree)` function for headless tests
+- a `geometry_script.convert_tree` node editor operator that writes a generated
+  script into a Blender text datablock
+
+Smoke test:
+
+```powershell
+& 'C:\Program Files (x86)\Steam\steamapps\common\Blender\blender.exe' --background '.\experiments\source-blends\shriinivas-fieldvalue.blend' --python '.\tools\smoke_nodes_to_script_converter.py' -- --groups 'Create Decimal' 'Digit At' 'Next Digit' 'Seven Segments' 'Delete Segments' 'Field Value' --json '.\experiments\inspection\nodes-to-script-smoke.json' --out-dir '.\experiments\inspection\nodes-to-script-output'
+```
+
+Current acceptance:
+
+- Converter runs in Blender 5.1.1.
+- Generated drafts compile as Python for the tested groups.
+- The full 176-node `Field Value` source group emits a 179-line draft script.
+- Generated text is a bootstrap draft, not doctrine-quality final code.
+
+Known limits:
+
+- Nested source group calls are emitted by source group name, so dependency
+  groups must be converted or replaced by hand-authored equivalents.
+- The generated script preserves node-level wiring and therefore can be noisy.
+- Behavioral equivalence still needs the same evaluated-geometry or scalar
+  harness verification used by the hand translations.
+
+## Upstream PR Branch
 
 Branch:
 
@@ -116,6 +160,6 @@ Verification:
 ## Fork/PR Todo
 
 - Upstream PR: https://github.com/carson-katri/geometry-script/pull/69
-- Keep `external/geometry-script` on
-  `vibegeometry/blender-5-nested-tree-groups` until that PR is merged or a
-  better maintained fork replaces it.
+- Keep PR #69 limited to the nested `@tree` fix. Converter work belongs on
+  `vibegeometry/blender-5-nodes-to-script` unless it is intentionally prepared
+  as a separate upstream PR.

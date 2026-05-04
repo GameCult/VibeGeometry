@@ -51,19 +51,22 @@ turns the form into graph structure, a small code sketch, and the verification
 cue.
 
 The repo-local Geometry Script clone has a Blender 5.1 patch for nested `@tree`
-group reuse. See `docs/research/geometry-script-fork-notes.md`.
+group reuse plus a ported `nodes_to_script` converter. See
+`docs/research/geometry-script-fork-notes.md`.
 Run `.\tools\setup_geometry_script_clone.ps1` if `external/geometry-script` is
 missing in a fresh workspace.
-The patch branch is pushed to `GameCult/geometry-script`, and the upstream PR is
+The local toolchain branch is `vibegeometry/blender-5-nodes-to-script`.
+The upstream PR branch is `vibegeometry/blender-5-nested-tree-groups`, and PR
+#69 is intentionally limited to the nested-group fix:
 https://github.com/carson-katri/geometry-script/pull/69.
-The GameCult fork is intentionally pruned to `main` plus the active
-`vibegeometry/blender-5-nested-tree-groups` branch. Upstream branch clutter
-should not be copied forward unless a future patch actually needs it.
+The GameCult fork is intentionally pruned to `main` plus VibeGeometry-owned
+tooling branches. Upstream branch clutter should not be copied forward unless a
+future patch actually needs it.
 
-The current next action is to test or port upstream Geometry Script's
-`nodes_to_script` prototype before attempting the full 176-node `Field Value`
-translation. `Geometry Nodes Group.002` is a wrapper around the full `Field
-Value` group rather than an independent helper.
+The current next action is to use the generated
+`experiments/inspection/nodes-to-script-output/field_value.py` draft as a map
+for a cleaned `VG Field Value` translation. `Geometry Nodes Group.002` is a
+wrapper around the full `Field Value` group rather than an independent helper.
 
 ## Important Invariants
 
