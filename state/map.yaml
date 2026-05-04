@@ -91,8 +91,8 @@ data_flow:
   - If state grows faster than understanding, cut it back.
 
 current_status:
-  summary: VibeGeometry has an initial persistence scaffold plus verified Geometry Script translations for local math/utility samples, a first official Blender demo tranche, and two IRCSS French Houses city-scale footholds. The IRCSS pass verified MakeSpiral as an architectural spine and PointyGothicCone as ornament grown from a structural host, while mapping blockers in larger systems: repeat-zone feedback, repeat Top outputs, foreach zones, gizmo nodes, and converter duplicate-key failures. The repo-local Geometry Script fork includes a Blender 5.1 nodes_to_script converter port plus nested-group and menu-socket fixes needed by these translations.
-  next_action: Continue IRCSS French Houses by choosing the next city-organ target after either fixing repeat-zone/foreach/gizmo toolchain blockers or selecting another non-zone architectural helper with a non-empty behavioral harness.
+  summary: VibeGeometry has an initial persistence scaffold plus verified Geometry Script translations for local math/utility samples, a first official Blender demo tranche, and two IRCSS French Houses city-scale footholds. The IRCSS pass verified MakeSpiral as an architectural spine and PointyGothicCone as ornament grown from a structural host, while mapping blockers in larger systems: repeat-zone feedback, repeat Top outputs, foreach zones, and gizmo nodes. The repo-local Geometry Script fork includes a Blender 5.1 nodes_to_script converter port plus nested-group, menu-socket, and duplicate-key fixes needed by these translations.
+  next_action: Continue IRCSS French Houses by using the newly compiling GenerateArc/MakeStairs converter drafts as candidates for the next city-organ translation, or select another non-zone architectural helper with a non-empty behavioral harness.
 remotes:
   vibegeometry: https://github.com/GameCult/VibeGeometry
   geometry_script_fork: https://github.com/GameCult/geometry-script

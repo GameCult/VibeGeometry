@@ -105,12 +105,24 @@ the source and translation, then compare sorted evaluated vertices.
   path exposed the previous-geometry state as `None`.
 - `GenerateWindowsFromEdges` uses `For Each Geometry Element` zones.
 - `Pole` uses repeat zones and geometry-node gizmos.
-- `GenerateArc` and `MakeStairs` exposed a `nodes_to_script` converter bug:
-  duplicated keyword arguments for `primary_axis`.
 - `WindowBeams` depends on specific upstream edge/curve inputs. A synthetic
   harness could verify its secondary base-point output, but the main beam mesh
   stayed empty for both source and translation. That was rejected as an
   acceptance target.
+
+## Toolchain Fixes From This Pass
+
+- `GenerateArc` and `MakeStairs` originally exposed a `nodes_to_script`
+  converter bug: duplicated keyword arguments for `primary_axis`.
+- The Geometry Script fork now drops duplicate property keywords when a node
+  exposes the same control as a linkable input socket.
+- Expanded IRCSS converter smoke now compiles drafts for `GenerateArc`,
+  `MakeStairs`, `GenerateStairCase`, `GenerateBricks`,
+  `GenerateMedialAxisRectangleTopology`, `GenerateWindowsFromEdges`, `Pole`,
+  `Round Bottom`, and `WindowBeams`.
+- These are still converter drafts, not accepted translations. Repeat zones,
+  foreach zones, closures, gizmos, dependency groups, and behavioral harnesses
+  still decide what can be trusted.
 
 ## Lessons
 

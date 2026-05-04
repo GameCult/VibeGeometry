@@ -46,8 +46,10 @@ Accepted corpus families so far:
 Current frontier: IRCSS French Houses city-scale graph work. The accepted
 footholds are `MakeSpiral` and `PointyGothicCone`. Mapped blockers are
 repeat-zone feedback state, repeat `Top` boolean outputs, foreach zones, gizmo
-nodes, `nodes_to_script` duplicate-key failures around axes-to-rotation, and a
-rejected empty-output harness for `WindowBeams`.
+nodes, and a rejected empty-output harness for `WindowBeams`. The previous
+`nodes_to_script` duplicate-key failure around axes-to-rotation is fixed in the
+Geometry Script fork, so `GenerateArc` and `MakeStairs` now have compiling
+converter drafts.
 
 Current authoring prior: use the full Python stack. Python structures intent,
 tables, loops, variants, cleanup, validation, docs, and scene/render

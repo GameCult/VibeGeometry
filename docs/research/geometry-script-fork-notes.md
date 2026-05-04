@@ -75,6 +75,7 @@ current VibeGeometry toolchain branch, and applies the patches stored in:
 patches/geometry-script/0001-fix-nested-tree-group-references-on-blender-4.patch
 patches/geometry-script/0002-Port-node-tree-conversion-operator.patch
 patches/geometry-script/0003-Tolerate-Blender-menu-socket-defaults.patch
+patches/geometry-script/0004-Avoid-duplicate-converter-keywords-for-socket-backed-properties.patch
 ```
 
 `external/` is intentionally ignored by the VibeGeometry repository. The clone
@@ -96,6 +97,8 @@ This is the branch VibeGeometry should use locally. It contains:
 - a Blender 5.1 port of the historical `nodes_to_script` converter prototype
 - a Blender 5.1 menu-socket default tolerance fix so group construction does
   not fail when `NodeSocketMenu` enum items are not populated yet
+- a converter duplicate-key fix for nodes that expose one control as both an
+  RNA property and a linkable input socket, such as `FunctionNodeAxesToRotation`
 
 The converter adds:
 
@@ -115,6 +118,8 @@ Current acceptance:
 - Converter runs in Blender 5.1.1.
 - Generated drafts compile as Python for the tested groups.
 - The full 176-node `Field Value` source group emits a 179-line draft script.
+- IRCSS `GenerateArc` and `MakeStairs` now emit compiling drafts instead of
+  duplicate `primary_axis` keyword syntax errors.
 - Generated text is a bootstrap draft, not doctrine-quality final code or style
   guidance.
 
