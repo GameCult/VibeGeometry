@@ -130,6 +130,16 @@ Use these only after the smaller idioms are reliable.
   - Translation value: recursive-looking branch systems, curve distortion,
     instance orientation, scale variation, and material variation.
 
+- `IRCSS/Blender-Geometry-Node-French-Houses`
+  - Source: https://github.com/IRCSS/Blender-Geometry-Node-French-Houses
+  - Completed foothold:
+    `docs/research/translations/ircss-french-houses.md`
+  - Why it matters: city-scale architectural kit with houses, gates, towers,
+    walls, bridges, church parts, stalls, terrain, roads, vegetation, banners,
+    windows, doors, and roofs.
+  - Translation value: hierarchical procedural city systems, façade organs,
+    topology generators, repeat/foreach/gizmo blockers, and reusable spines.
+
 ## First Translation Target
 
 Start with `Shriinivas/geometrynodes` because it is public, GitHub-hosted, MIT
@@ -244,6 +254,16 @@ Completed Blender raycast minigame foothold:
   evaluated geometry with sorted max vertex delta `0.0`.
 - Translation value: direction vectors, curve breadcrumbs, raycast hit updates,
   reflected vectors, and object-target controls.
+
+Completed IRCSS French Houses foothold:
+
+- `docs/research/translations/ircss-french-houses.md`
+- Source group: `MakeSpiral`
+- Verification: output curve converted to points matches source with ordered
+  max vertex delta `0.0`.
+- Translation value: procedural-city corpus triage, spiral architectural
+  spines, and explicit blockers for repeat-zone feedback, repeat `Top` outputs,
+  foreach zones, gizmo nodes, and converter duplicate-key failures.
 
 Inspected but deferred official demo files:
 

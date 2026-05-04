@@ -91,8 +91,8 @@ data_flow:
   - If state grows faster than understanding, cut it back.
 
 current_status:
-  summary: VibeGeometry has an initial persistence scaffold plus verified Geometry Script translations for local math/utility samples and a first official Blender demo tranche: instance attributes grass tuft, index-of-nearest helpers, shortest-path labyrinth, and raycast minigame helpers. Deferred official samples are now classified when they require legacy-node migration, gizmo-node authoring, repeat-zone support, or simulation-zone support. The repo-local Geometry Script fork includes a Blender 5.1 nodes_to_script converter port plus nested-group and menu-socket fixes needed by these translations.
-  next_action: Move from translation-corpus chewing into the next architecture organ: define the scene brief and node graph manifest contracts using the verified idioms and deferred-zone blockers as pressure cases.
+  summary: VibeGeometry has an initial persistence scaffold plus verified Geometry Script translations for local math/utility samples, a first official Blender demo tranche, and an initial IRCSS French Houses city-scale foothold. The IRCSS pass verified MakeSpiral and mapped blockers in larger architectural systems: repeat-zone feedback, repeat Top outputs, foreach zones, gizmo nodes, and converter duplicate-key failures. The repo-local Geometry Script fork includes a Blender 5.1 nodes_to_script converter port plus nested-group and menu-socket fixes needed by these translations.
+  next_action: Continue IRCSS French Houses by choosing the next city-organ target after either fixing repeat-zone/foreach/gizmo toolchain blockers or selecting another non-zone architectural helper with a non-empty behavioral harness.
 remotes:
   vibegeometry: https://github.com/GameCult/VibeGeometry
   geometry_script_fork: https://github.com/GameCult/geometry-script

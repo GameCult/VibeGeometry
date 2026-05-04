@@ -68,6 +68,15 @@ The completed official Blender demo tranche now includes:
 - `docs/research/translations/blender-raycast-minigame.md`, covering
   `Initial Direction`, `Line to be Casted`, and `Cast Rays`.
 
+The first city-scale corpus target is
+`docs/research/translations/ircss-french-houses.md`, backed by
+`examples/geometry_script/ircss_french_houses.py`. The accepted foothold is
+`MakeSpiral -> VG Make Spiral`, verified with 200 ordered curve points matching
+source geometry at max delta `0.0`. The same pass mapped larger blockers:
+repeat-zone feedback state, repeat `Top` boolean outputs, foreach zones, gizmo
+nodes, `nodes_to_script` duplicate-key failures around axes-to-rotation, and a
+rejected empty-output harness for `WindowBeams`.
+
 Official demo files inspected but deferred are listed in
 `docs/research/geonodes-translation-corpus.md`: hexgrid, wavy wall, pebble
 scattering, gizmo array, jiggly pudding, and repeat-zone flower. They are not
@@ -99,10 +108,10 @@ The GameCult fork is intentionally pruned to `main` plus VibeGeometry-owned
 tooling branches. Upstream branch clutter should not be copied forward unless a
 future patch actually needs it.
 
-The current next action is to move from translation-corpus chewing into the
-next architecture organ: define the scene brief and node graph manifest
-contracts using the verified idioms and deferred-zone blockers as pressure
-cases. Keep `docs/research/procedural-doctrine.md` compact; put
+The current next action is to continue IRCSS French Houses by choosing the next
+city-organ target after either fixing repeat-zone/foreach/gizmo toolchain
+blockers or selecting another non-zone architectural helper with a non-empty
+behavioral harness. Keep `docs/research/procedural-doctrine.md` compact; put
 sample-specific graph maps and verification details in
 `docs/research/translations/`.
 

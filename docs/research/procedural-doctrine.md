@@ -120,6 +120,44 @@ Verification cue: compare the sampled path or the realized mesh. If downstream
 topology order matters, direct vertex order matters; otherwise sorted vertex
 comparison may be enough to prove the same visible path.
 
+## Spines Carry Architecture
+
+Reach for spine curves when a larger architectural feature needs a route before
+it needs walls, treads, beams, rails, or trim: spiral stairs, winding roads,
+bridges, ribs, towers, vines, banners, cables, and roof seams.
+
+Mental move: author the centerline as a parameterized scaffold first. Attach
+parts later. In the IRCSS French Houses file, `MakeSpiral` gives the staircase
+system a screw-thread path before stair geometry is hung from it.
+
+```python
+rail = curve_line(mode=CurveLine.Mode.POINTS, start=(0.0, 0.0, 0.0), end=(0.0, 0.0, 1.0))
+samples = resample_curve(keep_last_segment=True, curve=rail, mode="Count", count=200)
+point_count = domain_size(component="CURVE", geometry=samples).point_count
+t = math(operation=Math.Operation.DIVIDE, value=(index(), point_count))
+theta = math(operation=Math.Operation.MULTIPLY, value=(t, frequency))
+expanding_radius = math(
+    operation=Math.Operation.ADD,
+    value=(radius, math(operation=Math.Operation.MULTIPLY, value=(t, height_radius_gain))),
+)
+positioned = set_position(
+    geometry=samples,
+    position=combine_xyz(
+        x=math(operation=Math.Operation.MULTIPLY, value=(math(operation=Math.Operation.SINE, value=theta), expanding_radius)),
+        y=math(operation=Math.Operation.MULTIPLY, value=(math(operation=Math.Operation.COSINE, value=theta), expanding_radius)),
+        z=math(operation=Math.Operation.MULTIPLY, value=(t, height)),
+    ),
+)
+```
+
+Metaphor in use: the spine is the chalk line on the floor before the carpentry
+starts. If the chalk line is wrong, every beautiful tread and railing becomes
+obedient nonsense.
+
+Verification cue: compare ordered curve points. A spine is order-sensitive;
+sorted vertices can hide a route that doubles back through the right positions
+in the wrong sequence.
+
 ## Fields Are Weather
 
 Reach for fields when the shape should respond to position, index, normal,
