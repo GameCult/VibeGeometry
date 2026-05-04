@@ -11,6 +11,9 @@ Inspection cache:
 All-node atlas:
 `docs/research/translations/ircss-french-houses-node-atlas.md`
 
+Node mechanism study:
+`docs/research/translations/ircss-french-houses-node-mechanisms.md`
+
 Generated with Blender 5.1.1 after extending
 `tools/inspect_blend_node_groups.py` to record nested `GeometryNodeGroup`
 `node_tree` references.

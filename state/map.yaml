@@ -70,6 +70,7 @@ current_artifacts:
     - docs/research/geometry-script-fork-notes.md
     - docs/research/translations/ircss-french-houses-system-map.md
     - docs/research/translations/ircss-french-houses-node-atlas.md
+    - docs/research/translations/ircss-french-houses-node-mechanisms.md
   tools:
     - tools/vibegeometry_state.py
     - tools/vibegeometry_prepare_compaction.py
@@ -93,7 +94,7 @@ data_flow:
   - If state grows faster than understanding, cut it back.
 
 current_status:
-  summary: VibeGeometry has an initial persistence scaffold plus verified Geometry Script translations for local math/utility samples, a first official Blender demo tranche, and two IRCSS French Houses city-scale footholds. The IRCSS pass verified MakeSpiral as an architectural spine and PointyGothicCone as ornament grown from a structural host, and now includes a file-level dependency map plus an all-node atlas for the 108-group town kit. The remaining large-system blockers are repeat-zone feedback, repeat Top outputs, foreach zones, and gizmo nodes. The repo-local Geometry Script fork includes a Blender 5.1 nodes_to_script converter port plus nested-group, menu-socket, and duplicate-key fixes needed by these translations.
+  summary: VibeGeometry has an initial persistence scaffold plus verified Geometry Script translations for local math/utility samples, a first official Blender demo tranche, and two IRCSS French Houses city-scale footholds. The IRCSS pass verified MakeSpiral as an architectural spine and PointyGothicCone as ornament grown from a structural host, and now includes a file-level dependency map, an all-node atlas, and a node mechanism study for the 108-group town kit. The remaining large-system blockers are repeat-zone feedback, repeat Top outputs, foreach zones, and gizmo nodes. The repo-local Geometry Script fork includes a Blender 5.1 nodes_to_script converter port plus nested-group, menu-socket, and duplicate-key fixes needed by these translations.
   next_action: Continue IRCSS French Houses with a behaviorally verifiable city-organ target from the atlas, preferring GenerateArc, Switch On Roof Type, Is Edge Manifold, or Generate Windows unless deliberately attacking repeat/foreach/gizmo support.
 remotes:
   vibegeometry: https://github.com/GameCult/VibeGeometry

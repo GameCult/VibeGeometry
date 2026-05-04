@@ -52,7 +52,9 @@ Geometry Script fork, so `GenerateArc` and `MakeStairs` now have compiling
 converter drafts. The file-level dependency map lives at
 `docs/research/translations/ircss-french-houses-system-map.md`; the all-node
 structural atlas lives at
-`docs/research/translations/ircss-french-houses-node-atlas.md`.
+`docs/research/translations/ircss-french-houses-node-atlas.md`; the node-level
+mechanism study lives at
+`docs/research/translations/ircss-french-houses-node-mechanisms.md`.
 
 Current authoring prior: use the full Python stack. Python structures intent,
 tables, loops, variants, cleanup, validation, docs, and scene/render
