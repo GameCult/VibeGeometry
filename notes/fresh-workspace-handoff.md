@@ -23,11 +23,12 @@ git log --oneline -5
 ## Current State
 
 VibeGeometry is an initial scaffold. It has persistence machinery, project
-orientation docs, and helper tools, but no Blender builder library or artifact
-schemas yet.
+orientation docs, helper tools, and an initial Geometry Nodes translation corpus
+note, but no Blender builder library or artifact schemas yet.
 
-The current next action is to draft the scene brief and node graph manifest
-schemas, then validate them against one tiny reference-driven example.
+The current next action is to build the first Geometry Nodes translation corpus
+entry by inspecting a small public `.blend` node group, mapping its graph in
+prose, and recreating it with Geometry Script.
 
 ## Important Invariants
 
@@ -47,6 +48,8 @@ schemas, then validate them against one tiny reference-driven example.
 - What exact JSON shape should the scene brief use for references,
   instructions, target traits, and acceptance criteria?
 - What should the first node graph manifest schema require versus merely allow?
+- What node-group inspection JSON shape is most useful for translating public
+  `.blend` examples into Geometry Script?
 - Which Blender 5.0+ APIs and node construction helpers should become the
   first stable builder layer?
 - What is the smallest useful render-review artifact?

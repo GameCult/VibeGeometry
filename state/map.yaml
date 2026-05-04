@@ -77,4 +77,4 @@ data_flow:
 
 current_status:
   summary: VibeGeometry has an initial Epiphany-style persistence scaffold adapted for Blender geometry-node scene generation, with project-neutral state, handoff, architecture notes, and helper tools.
-  next_action: Draft the scene brief and node graph manifest schemas, then validate them against one tiny reference-driven example.
+  next_action: Build the first Geometry Nodes translation corpus entry by inspecting a small public `.blend` node group, mapping its graph in prose, and recreating it with Geometry Script.
