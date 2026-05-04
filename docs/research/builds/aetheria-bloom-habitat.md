@@ -30,10 +30,16 @@ The build follows the current Bloom model:
 - broad open pressurized commons
 - high-radius civic surface with comfortable spin gravity
 - despun or partially despun axial hub and light/traffic spire
-- expensive spoke interfaces where transit, utilities, and authority concentrate
+- despun hub cap and docking port on the center axis
+- spun-up spire sheath connected to the rotating spoke frame
+- expensive spoke interfaces where transit, utilities, cargo, air, and authority
+  concentrate
+- frame-transfer arteries between the despun core and spun sheath/spoke frame
 - outward stack of utility mat, pressure/structural shell, and aggregate shielding
-- layered civic geography: central water band, plains, farms, forests, city
-  clusters, roads, rivers, cloud patches, and service routes
+- layered civic geography: hub-cap terrace slums, hyper-urban favela belts,
+  luxury spoke districts, urban mixed belts, suburban/industrial areas,
+  industrial/agricultural bands, beach rim, sea band, roads, rivers, cloud
+  patches, and service routes
 - one small Service Ring Kappa marker among many maintenance systems, not the
   compositional focus
 
@@ -59,7 +65,7 @@ Result:
 ```text
 AETHERIA_BLOOM_VERIFY ok
 AETHERIA_BLOOM_VERIFY group VG Bloom Light Spine 21 31
-AETHERIA_BLOOM_VERIFY objects 98
+AETHERIA_BLOOM_VERIFY objects 481
 ```
 
 ## Procedural Translation Notes
@@ -70,18 +76,23 @@ This is intentionally hybrid:
   meanings, mapped civic regions, cameras, labels, and render paths.
 - Geometry Script emits `VG Bloom Light Spine`, an inspectable 21-node
   geometry-node group used by a Nodes modifier in the scene.
-- bpy builds the cutaway shell surfaces, spokes, wrapped region patches, city
-  blocks, roads, rivers, clouds, utility lines, service markers, and cameras.
+- bpy builds the full shell surfaces, despun core, hub cap, docking port, spun
+  sheath, major spokes, thin utility spokes, frame-transfer arteries, wrapped
+  region patches, city blocks, roads, rivers, clouds, utility lines, service
+  markers, and cameras.
 
 The IRCSS pass paid off in three ways:
 
 - **Edge-first architecture:** the Bloom is built as shell layers, spoke lines,
-  region patches, utility routes, and service markers before local dressing.
+  transfer arteries, region patches, utility routes, and service markers before
+  local dressing.
 - **Curves as attachment rails:** roads, rivers, and utility routes are curves
-  wrapped onto the inner cylinder or service layers.
+  wrapped onto the inner cylinder or service layers; frame-transfer arteries
+  curve between rotating frames instead of pretending the hub/spire interface is
+  a straight elevator.
 - **Python as orchestration:** the cylinder layers, region maps, city blocks,
-  roads, rivers, forests, clouds, and spokes come from small tables and named
-  helpers rather than copied object placement.
+  social-gradient bands, roads, rivers, forests, clouds, and spokes come from
+  small tables and named helpers rather than copied object placement.
 
 ## Current Limits
 
@@ -90,5 +101,5 @@ The IRCSS pass paid off in three ways:
 - The current whole-Bloom view is more diagrammatic than cinematic; it needs
   atmospheric scale cues, denser horizon detail, and better light gradation.
 - Only the light spine is emitted through Geometry Script so far. The next pass
-  should move one repeated whole-Bloom subsystem, probably wrapped roads/rivers
-  or region patches, into a reusable Geometry Script group.
+  should move one repeated whole-Bloom subsystem, probably spoke/artery
+  networks or wrapped region patches, into reusable Geometry Script groups.

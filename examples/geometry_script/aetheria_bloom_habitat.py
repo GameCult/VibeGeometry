@@ -28,6 +28,8 @@ TAU = pymath.tau
 AXIS_LENGTH = 18.0
 CUT_START = pymath.radians(-132.0)
 CUT_END = pymath.radians(132.0)
+FULL_START = -pymath.pi
+FULL_END = pymath.pi
 INNER_RADIUS = 5.0
 
 
@@ -89,7 +91,7 @@ def tangent(angle: float):
     return (0.0, -pymath.sin(angle), pymath.cos(angle))
 
 
-def add_shell_segment(name, radius, half_length, thickness, material, angle_steps=96, x_steps=8):
+def add_shell_segment(name, radius, half_length, thickness, material, angle_steps=144, x_steps=8, start_angle=FULL_START, end_angle=FULL_END):
     import bpy
 
     verts = []
@@ -97,7 +99,7 @@ def add_shell_segment(name, radius, half_length, thickness, material, angle_step
     for ix in range(x_steps + 1):
         x = -half_length + (2.0 * half_length * ix / x_steps)
         for ia in range(angle_steps + 1):
-            a = CUT_START + (CUT_END - CUT_START) * ia / angle_steps
+            a = start_angle + (end_angle - start_angle) * ia / angle_steps
             verts.append((x, radius * pymath.cos(a), radius * pymath.sin(a)))
     for ix in range(x_steps):
         for ia in range(angle_steps):
@@ -154,6 +156,47 @@ def add_surface_box(name, x, angle, material, size=(0.22, 0.12, 0.08), radial_li
     t = tangent(angle)
     loc = surface_point(x, angle, INNER_RADIUS, lift=radial_lift)
     return add_box(name, loc, axes=((1, 0, 0), t, r), size=size, material=material)
+
+
+def add_surface_block_field(name, x_values, angles, material, size, radial_lift=-0.22, jitter=0.0):
+    for ix, x in enumerate(x_values):
+        for ia, angle in enumerate(angles):
+            if jitter:
+                x_offset = ((ix * 17 + ia * 7) % 9 - 4) * jitter
+                angle_offset = ((ix * 11 + ia * 5) % 7 - 3) * jitter * 0.05
+            else:
+                x_offset = 0.0
+                angle_offset = 0.0
+            add_surface_box(
+                f"{name}_{ix:02d}_{ia:02d}",
+                x + x_offset,
+                angle + angle_offset,
+                material,
+                size=size,
+                radial_lift=radial_lift,
+            )
+
+
+def add_rotating_spoke(name, x, angle, inner_radius, outer_radius, material, radius=0.045, vertices=10):
+    r = radial(angle)
+    return add_cylinder_between(
+        name,
+        (x, r[1] * inner_radius, r[2] * inner_radius),
+        (x, r[1] * outer_radius, r[2] * outer_radius),
+        radius,
+        material,
+        vertices=vertices,
+    )
+
+
+def add_frame_transfer_artery(name, x, angle, start_radius, end_radius, material, sweep=0.42, bevel=0.025):
+    samples = []
+    for i in range(9):
+        t = i / 8
+        a = angle + (t - 0.5) * sweep
+        radius = start_radius + (end_radius - start_radius) * t
+        samples.append((x + (t - 0.5) * 0.65, radius * pymath.cos(a), radius * pymath.sin(a)))
+    return add_curve_polyline(name, samples, bevel, material)
 
 
 def add_cylinder_between(name, start, end, radius, material, vertices=16):
@@ -255,9 +298,15 @@ def build_scene():
         "pressure": mat("pressure laminate blue", (0.18, 0.45, 0.86), alpha=0.25),
         "shield": mat("aggregate shielding graphite", (0.08, 0.075, 0.07), alpha=0.86),
         "hub": mat("despun hub white", (0.82, 0.86, 0.88), alpha=0.88),
+        "spire_sheath": mat("spun spire sheath", (0.38, 0.42, 0.46), alpha=0.34),
         "light": mat("light spine gold", (1.0, 0.78, 0.25), emission=True, strength=1.6),
         "farm": mat("TCS Root farms", (0.15, 0.55, 0.24), alpha=0.92),
         "district": mat("surface districts", (0.55, 0.58, 0.62), alpha=0.95),
+        "favela": mat("hubcap terrace slums", (0.74, 0.48, 0.26), alpha=0.98),
+        "luxury": mat("luxury spoke districts", (0.82, 0.78, 0.62), alpha=0.98),
+        "industrial": mat("industrial works", (0.32, 0.34, 0.36), alpha=0.98),
+        "suburban": mat("suburban mixed belt", (0.5, 0.64, 0.5), alpha=0.96),
+        "beach": mat("beach rim", (0.86, 0.76, 0.48), alpha=0.96),
         "water": mat("cylindrical sea", (0.05, 0.28, 0.55), alpha=0.82),
         "forest": mat("forest canopy", (0.04, 0.32, 0.1), alpha=0.92),
         "road": mat("road graph", (0.72, 0.66, 0.52), alpha=0.96),
@@ -272,76 +321,80 @@ def build_scene():
         "glass": mat("operations glass", (0.45, 0.8, 1.0), alpha=0.28),
     }
 
-    add_shell_segment("01_open_civic_inner_surface", 5.0, AXIS_LENGTH / 2, 0.05, mats["inner"])
-    add_shell_segment("02_utility_mat_service_interlayer", 5.35, AXIS_LENGTH / 2, 0.08, mats["utility"])
-    add_shell_segment("03_pressure_structural_shell", 5.75, AXIS_LENGTH / 2, 0.12, mats["pressure"])
-    add_shell_segment("04_outer_aggregate_shielding", 6.35, AXIS_LENGTH / 2, 0.32, mats["shield"])
+    add_shell_segment("01_open_civic_inner_surface_full_bloom", 5.0, AXIS_LENGTH / 2, 0.045, mats["inner"])
+    add_shell_segment("02_utility_mat_service_interlayer_full_bloom", 5.35, AXIS_LENGTH / 2, 0.075, mats["utility"])
+    add_shell_segment("03_pressure_structural_shell_full_bloom", 5.75, AXIS_LENGTH / 2, 0.11, mats["pressure"])
+    add_shell_segment("04_outer_aggregate_shielding_full_bloom", 6.35, AXIS_LENGTH / 2, 0.28, mats["shield"])
 
-    add_cylinder_between("despun_axial_hub", (-9.8, 0, 0), (9.8, 0, 0), 0.42, mats["hub"], vertices=32)
+    add_cylinder_between("despun_center_axis_core", (-10.2, 0, 0), (10.2, 0, 0), 0.28, mats["hub"], vertices=32)
+    add_cylinder_between("despun_hub_cap_docking_axis", (-10.85, 0, 0), (-9.25, 0, 0), 0.72, mats["hub"], vertices=48)
+    add_cylinder_between("docking_port_on_despun_hub_cap", (-11.55, 0, 0), (-10.75, 0, 0), 0.36, mats["pressure_line"], vertices=32)
     add_cylinder_between("traffic_light_spire_core", (-9.2, 0, 0), (9.2, 0, 0), 0.13, mats["light"], vertices=16)
+    add_cylinder_between("spun_spire_sheath_outer_frame", (-8.9, 0, 0), (8.9, 0, 0), 0.82, mats["spire_sheath"], vertices=48)
     add_gn_light_spine(mats["light"])
 
-    # Spokes and transfer collars: places where frame changes, and therefore where class power gathers.
-    spoke_angles = [pymath.radians(a) for a in (-96, -45, 0, 45, 96)]
-    for idx, a in enumerate(spoke_angles, start=1):
-        r = radial(a)
-        add_cylinder_between(
-            f"rotating_spoke_{idx:02d}_transfer_trunk",
-            (0.0, r[1] * 0.52, r[2] * 0.52),
-            (0.0, r[1] * 5.18, r[2] * 5.18),
-            0.08,
-            mats["hub"],
-            vertices=12,
-        )
-        add_cylinder_between(
-            f"spoke_base_transfer_collar_{idx:02d}",
-            (-0.35, r[1] * 5.06, r[2] * 5.06),
-            (0.35, r[1] * 5.06, r[2] * 5.06),
-            0.22,
-            mats["pressure_line"],
-            vertices=24,
-        )
+    # Multi-level spokes: major passenger spokes, cargo arteries, utility ribs,
+    # and atmospheric-conditioning trunks all bridge the spun sheath to the
+    # rotating civic surface. The despun core only meets them through collars.
+    primary_angles = [pymath.radians(a) for a in (-120, -60, 0, 60, 120, 180)]
+    spoke_xs = [-7.2, -4.4, -1.6, 1.2, 4.0, 6.8]
+    for ix, x in enumerate(spoke_xs):
+        for ia, a in enumerate(primary_angles):
+            add_rotating_spoke(f"major_rotating_spoke_{ix:02d}_{ia:02d}", x, a, 0.82, 5.12, mats["hub"], radius=0.055, vertices=12)
+            add_cylinder_between(
+                f"spoke_base_transfer_collar_{ix:02d}_{ia:02d}",
+                (x - 0.28, radial(a)[1] * 5.02, radial(a)[2] * 5.02),
+                (x + 0.28, radial(a)[1] * 5.02, radial(a)[2] * 5.02),
+                0.16,
+                mats["pressure_line"],
+                vertices=20,
+            )
+            if ia % 2 == ix % 2:
+                add_frame_transfer_artery(f"frame_transfer_artery_{ix:02d}_{ia:02d}", x, a, 0.28, 0.82, mats["pressure_line"], sweep=0.72, bevel=0.018)
+    for ix, x in enumerate([-8.4, -6.0, -3.0, 0.0, 3.0, 6.0, 8.4]):
+        for deg in (-150, -90, -30, 30, 90, 150):
+            a = pymath.radians(deg + (ix % 2) * 15)
+            add_rotating_spoke(f"thin_utility_spoke_{ix:02d}_{deg}", x, a, 0.95, 5.55, mats["air"], radius=0.022, vertices=8)
 
-    # Civic skin: Rama-style map layers wrapped to the rotating inner surface.
-    # Blooms do not copy Rama's poles/sea literally, but the procedural lesson is
-    # useful: big readable regions first, then roads, rivers, cities, fields,
-    # forests, clouds, and local infrastructure on top.
-    add_surface_patch("central_civic_sea_band", -1.15, 1.15, pymath.radians(-126), pymath.radians(126), INNER_RADIUS, mats["water"], lift=-0.07, angle_steps=64, x_steps=4)
-    for i, (x0, x1) in enumerate([(-8.2, -6.1), (-5.8, -3.6), (3.6, 5.8), (6.1, 8.2)]):
-        add_surface_patch(f"plain_grass_region_{i}", x0, x1, pymath.radians(-118), pymath.radians(118), INNER_RADIUS, mats["farm"], angle_steps=36, x_steps=3)
-    for i, (x0, x1, a0, a1) in enumerate([
-        (-6.0, -4.1, -108, -74),
-        (-4.9, -3.2, 48, 86),
-        (3.1, 4.7, -92, -58),
-        (5.0, 6.9, 68, 106),
-        (6.8, 8.4, -30, 18),
-    ]):
-        add_surface_patch(f"forest_region_{i}", x0, x1, pymath.radians(a0), pymath.radians(a1), INNER_RADIUS, mats["forest"], lift=-0.12, angle_steps=12, x_steps=3)
-    for i, (x0, x1, a0, a1) in enumerate([
-        (-7.4, -6.0, 48, 86),
-        (-3.1, -1.7, -88, -50),
-        (1.8, 3.4, 40, 82),
-        (5.4, 7.0, -112, -76),
-    ]):
-        add_surface_patch(f"district_city_region_{i}", x0, x1, pymath.radians(a0), pymath.radians(a1), INNER_RADIUS, mats["district"], lift=-0.16, angle_steps=8, x_steps=3)
-        for bx in [x0 + 0.25, (x0 + x1) / 2, x1 - 0.25]:
-            for ba in [pymath.radians(a0 + 7), pymath.radians((a0 + a1) / 2), pymath.radians(a1 - 7)]:
-                add_surface_box(f"city_block_{i}_{bx:.1f}_{ba:.2f}", bx, ba, mats["city"], size=(0.18, 0.1, 0.16), radial_lift=-0.27)
+    # Whole-cylinder civic gradient. Axial bands move from hub-cap terrace slums
+    # through dense and luxury urban districts, mixed suburbs, industrial/farm
+    # belts, and finally a beach/sea edge.
+    add_surface_patch("hubcap_terrace_slum_band", -8.9, -7.35, FULL_START, FULL_END, INNER_RADIUS, mats["favela"], lift=-0.20, angle_steps=72, x_steps=3)
+    add_surface_patch("hyperurban_favela_city_belt", -7.35, -5.6, FULL_START, FULL_END, INNER_RADIUS, mats["city"], lift=-0.18, angle_steps=72, x_steps=3)
+    add_surface_patch("prestige_urban_luxury_spoke_belt", -5.6, -2.7, FULL_START, FULL_END, INNER_RADIUS, mats["luxury"], lift=-0.17, angle_steps=72, x_steps=4)
+    add_surface_patch("urban_mixed_suburban_industrial_belt", -2.7, 0.9, FULL_START, FULL_END, INNER_RADIUS, mats["suburban"], lift=-0.18, angle_steps=72, x_steps=4)
+    add_surface_patch("industrial_agricultural_belt", 0.9, 5.8, FULL_START, FULL_END, INNER_RADIUS, mats["farm"], lift=-0.16, angle_steps=72, x_steps=5)
+    add_surface_patch("beach_resort_rim", 5.8, 7.05, FULL_START, FULL_END, INNER_RADIUS, mats["beach"], lift=-0.23, angle_steps=72, x_steps=3)
+    add_surface_patch("cylindrical_sea_after_beach", 7.05, 8.85, FULL_START, FULL_END, INNER_RADIUS, mats["water"], lift=-0.25, angle_steps=72, x_steps=3)
+
+    dense_angles = [pymath.radians(a) for a in range(-165, 180, 15)]
+    add_surface_block_field("layered_hubcap_slum_stack", [-8.65, -8.25, -7.85, -7.45], dense_angles, mats["favela"], size=(0.16, 0.08, 0.22), radial_lift=-0.35, jitter=0.035)
+    add_surface_block_field("hyperurban_microtower", [-7.0, -6.55, -6.1, -5.7], dense_angles[::2], mats["city"], size=(0.2, 0.1, 0.36), radial_lift=-0.42, jitter=0.03)
+    for x in [-5.0, -4.2, -3.4]:
+        for a in primary_angles:
+            add_surface_box(f"luxury_spoke_plaza_{x:.1f}_{a:.2f}", x, a, mats["luxury"], size=(0.55, 0.34, 0.14), radial_lift=-0.31)
+            for da in (-0.16, 0.16):
+                add_surface_box(f"luxury_spoke_tower_{x:.1f}_{a:.2f}_{da:.1f}", x + da, a + da, mats["city"], size=(0.18, 0.1, 0.42), radial_lift=-0.44)
+    add_surface_block_field("mixed_suburban_industrial_block", [-2.2, -1.4, -0.6, 0.2], [pymath.radians(a) for a in range(-150, 181, 30)], mats["suburban"], size=(0.42, 0.18, 0.12), radial_lift=-0.27, jitter=0.04)
+    add_surface_block_field("factory_yard_block", [1.2, 2.0, 2.8, 3.6], [pymath.radians(a) for a in range(-150, 181, 45)], mats["industrial"], size=(0.62, 0.22, 0.16), radial_lift=-0.29, jitter=0.035)
+    add_surface_block_field("farm_service_shed", [4.2, 5.0, 5.6], [pymath.radians(a) for a in range(-165, 181, 45)], mats["farm"], size=(0.52, 0.16, 0.08), radial_lift=-0.24, jitter=0.04)
+
     road_specs = [
-        [(-8.4, -90), (-6.8, -70), (-5.2, -42), (-3.2, -18), (-1.1, -6), (1.1, 4), (3.4, 25), (5.8, 48), (8.2, 74)],
-        [(-7.8, 92), (-5.0, 72), (-2.4, 50), (0.0, 38), (2.7, 55), (5.2, 83), (8.0, 104)],
-        [(-8.0, -22), (-5.6, -10), (-3.3, 10), (-1.2, 32), (0.8, 42), (2.8, 34), (5.4, 12), (8.1, -14)],
+        [(-8.7, -160), (-7.2, -130), (-5.6, -94), (-3.0, -58), (-1.0, -34), (1.6, -14), (4.4, 8), (6.7, 26), (8.4, 44)],
+        [(-8.4, 140), (-6.7, 118), (-4.9, 92), (-2.0, 72), (0.8, 62), (3.2, 74), (5.4, 94), (8.1, 122)],
+        [(-8.2, -26), (-6.0, -8), (-3.6, 18), (-1.0, 42), (1.8, 50), (4.2, 38), (6.4, 20), (8.4, -2)],
+        [(-8.6, 12), (-6.2, 32), (-4.2, 48), (-1.8, 38), (0.4, 12), (2.8, -22), (5.5, -52), (8.2, -84)],
     ]
     for i, spec in enumerate(road_specs):
-        add_surface_curve(f"wrapped_road_graph_{i}", [(x, pymath.radians(a)) for x, a in spec], INNER_RADIUS, 0.018, mats["road"], lift=-0.24)
+        add_surface_curve(f"wrapped_road_graph_{i}", [(x, pymath.radians(a)) for x, a in spec], INNER_RADIUS, 0.016, mats["road"], lift=-0.39)
     river_specs = [
-        [(-8.1, 18), (-6.5, 10), (-4.9, -4), (-3.2, -20), (-1.0, -32)],
-        [(1.0, 18), (2.6, 5), (4.4, -12), (6.2, -28), (8.1, -42)],
+        [(-8.6, 82), (-6.5, 68), (-4.6, 42), (-2.2, 22), (0.8, 8), (3.8, -2), (6.1, -12), (8.6, -24)],
+        [(-8.2, -112), (-5.6, -92), (-3.0, -72), (-0.2, -58), (2.6, -46), (5.2, -38), (8.4, -34)],
     ]
     for i, spec in enumerate(river_specs):
-        add_surface_curve(f"wrapped_river_{i}", [(x, pymath.radians(a)) for x, a in spec], INNER_RADIUS, 0.04, mats["water"], lift=-0.18)
-    for i, (x, a, sx) in enumerate([(-5.5, -42, 0.65), (-2.0, 62, 0.5), (2.4, -66, 0.55), (5.9, 25, 0.7)]):
-        add_surface_patch(f"interior_cloud_patch_{i}", x - sx, x + sx, pymath.radians(a - 8), pymath.radians(a + 8), 3.1, mats["cloud"], lift=0.0, angle_steps=8, x_steps=2)
+        add_surface_curve(f"wrapped_river_{i}", [(x, pymath.radians(a)) for x, a in spec], INNER_RADIUS, 0.035, mats["water"], lift=-0.34)
+    for i, (x, a, sx) in enumerate([(-6.9, -120, 0.8), (-5.2, 75, 0.7), (-2.4, 15, 0.9), (0.9, -54, 0.8), (3.4, 88, 0.9), (5.8, -12, 1.0)]):
+        add_surface_patch(f"airflow_cloud_patch_{i}", x - sx, x + sx, pymath.radians(a - 12), pymath.radians(a + 12), 3.25, mats["cloud"], lift=0.0, angle_steps=10, x_steps=3)
 
     # Service and heat/air/water flows running below the public surface.
     for deg, material, label in [

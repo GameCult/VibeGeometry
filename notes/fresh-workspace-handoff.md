@@ -59,8 +59,11 @@ mechanism study lives at
 First from-scratch build test: `examples/geometry_script/aetheria_bloom_habitat.py`
 generates an Aetheria Bloom whole-habitat study using Bloom lore plus Eric
 Bruneton's Rama making-of as a cylindrical-world reference. It now emphasizes
-whole-cylinder mapped spaces: water band, plains, farms, forests, city clusters,
-roads, rivers, clouds, spokes, hub/spine, and shell layers. Kappa is only a
+whole-cylinder mapped spaces and frame interfaces: full shell layers, despun
+hub cap and docking core, spun spire sheath, multi-level spokes, frame-transfer
+arteries, hub-cap terrace slums, favela/hyperurban belts, luxury spoke
+districts, mixed urban/suburban/industrial belts, industrial/agricultural areas,
+beach and sea bands, roads, rivers, and airflow cloud patches. Kappa is only a
 small service marker. Build notes live at
 `docs/research/builds/aetheria-bloom-habitat.md`; verification lives at
 `tools/verify_aetheria_bloom_habitat.py`.
@@ -84,10 +87,10 @@ The GameCult fork is intentionally pruned to `main` plus VibeGeometry-owned
 tooling branches. Do not copy upstream branch soup forward unless a future patch
 actually needs it.
 
-The current next action is to continue the Aetheria Bloom build by moving one
-whole-habitat repeated subsystem, preferably wrapped roads/rivers or region
-patches, into reusable Geometry Script groups and improving the whole-cylinder
-render evidence.
+The current next action is to continue the Aetheria Bloom build by moving a
+repeated whole-habitat subsystem, preferably spoke/transfer-artery networks or
+wrapped region patches, into reusable Geometry Script groups and improving
+atmospheric/light readability.
 
 ## Important Invariants
 
