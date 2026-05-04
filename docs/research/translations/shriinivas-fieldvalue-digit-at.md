@@ -1,24 +1,41 @@
-# Translation: Shriinivas Field Value Digit At
+# Translation: Shriinivas Field Value Helpers
 
 ## Source
 
 - Repository: https://github.com/Shriinivas/geometrynodes
 - Source file: `fieldvalue.blend`
-- Source group: `Digit At`
+- Source groups:
+  - `Create Decimal`
+  - `Digit At`
 - Geometry Script recreation:
   `examples/geometry_script/shriinivas_fieldvalue.py`
 
 ## Why This Graph
 
 `fieldvalue.blend` contains a large seven-segment field display system. The full
-`Field Value` graph has 176 nodes, so the first honest target is a scalar helper:
-`Digit At`.
+`Field Value` graph has 176 nodes, so the first honest targets are small
+helpers: `Create Decimal` and `Digit At`.
 
-This group does not make visible geometry. It extracts a digit from a number at
-a requested decimal position. That makes it useful for learning how value-only
-node groups support larger procedural systems.
+Together they show both sides of a display system: tiny glyph geometry and
+value-only digit extraction.
 
-## Graph Map
+## Create Decimal Map
+
+Source group: `Create Decimal`
+
+Geometry Script group: `VG Create Decimal`
+
+Mechanism:
+
+- Create a filled 32-vertex `Mesh Circle`.
+- Use `radius` as the circle radius.
+- Offset it downward by `Vertical Segment Size * -1`.
+- Return the dot geometry.
+
+Metaphor: the decimal is a loose bead placed under the seven-segment digit
+frame. It is not a digit; it is punctuation geometry with one placement rule.
+
+## Digit At Map
 
 Inputs:
 
@@ -57,12 +74,13 @@ into geometry Blender can evaluate and compare.
 
 Results from Blender 5.1.1:
 
-| Number | Position | Source Count | Translated Count | Status |
-| ---: | ---: | ---: | ---: | --- |
-| 1234.0 | 0 | 4 | 4 | accepted |
-| 1234.0 | 1 | 3 | 3 | accepted |
-| 98765.0 | 2 | 7 | 7 | accepted |
-| 120305.0 | 3 | 0 | 0 | accepted |
+| Case | Source | Translated | Delta | Status |
+| --- | ---: | ---: | ---: | --- |
+| Create Decimal vertices | 32 | 32 | 0.0 | accepted |
+| Digit At `1234.0`, position `0` | 4 | 4 | 0 | accepted |
+| Digit At `1234.0`, position `1` | 3 | 3 | 0 | accepted |
+| Digit At `98765.0`, position `2` | 7 | 7 | 0 | accepted |
+| Digit At `120305.0`, position `3` | 0 | 0 | 0 | accepted |
 
 ## Lessons
 
@@ -73,3 +91,6 @@ Results from Blender 5.1.1:
   normalize.
 - Large procedural display systems should be built from tiny tested scalar
   helpers before composing visible glyph geometry.
+- Tiny glyph marks are still worth isolating as named groups. A decimal point is
+  just a dot, but a named dot with scale and placement controls is a reusable
+  punctuation part.

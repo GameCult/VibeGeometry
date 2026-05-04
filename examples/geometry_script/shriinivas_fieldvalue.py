@@ -14,6 +14,17 @@ load_repo_geometry_script()
 from geometry_script import *  # noqa: F403 - Geometry Script exposes node functions as DSL globals.
 
 
+@tree("VG Create Decimal")
+def vg_create_decimal(vertical_segment_size: Float = 2.0, radius: Float = 0.0):
+    dot = mesh_circle(fill_type=MeshCircle.FillType.NGON, vertices=32, radius=radius)
+    offset = combine_xyz(
+        x=0.0,
+        y=math(operation=Math.Operation.MULTIPLY, value=(-1.0, vertical_segment_size)),
+        z=0.0,
+    )
+    return {"Dot": dot.set_position(offset=offset)}
+
+
 @tree("VG Digit At")
 def vg_digit_at(number: Float = 0.0, position: Int = 0):
     shifted_position = math(operation=Math.Operation.ADD, value=(position, 1.0))
@@ -47,11 +58,14 @@ def vg_digit_at(number: Float = 0.0, position: Int = 0):
 def _finalize_groups():
     import bpy
 
-    group = bpy.data.node_groups.get("VG Digit At")
-    if not group:
-        return []
-    group.use_fake_user = True
-    return [group]
+    groups = []
+    for name in ("VG Create Decimal", "VG Digit At"):
+        group = bpy.data.node_groups.get(name)
+        if not group:
+            continue
+        group.use_fake_user = True
+        groups.append(group)
+    return groups
 
 
 _finalize_groups()

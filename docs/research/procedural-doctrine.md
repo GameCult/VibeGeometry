@@ -128,6 +128,15 @@ Metaphor: if a graph only whispers a number, build a little megaphone around it.
 The verifier's job is not to be beautiful. It is to make the invisible output
 hard to lie about.
 
+## Glyphs Are Parts
+
+Display systems are made from small, boring geometry tokens: bars, dots,
+strokes, caps, labels. `Create Decimal` is only a filled circle moved downward,
+but naming it as a group gives the larger display graph a clean punctuation
+part instead of another anonymous mesh primitive.
+
+Tiny named parts are not overengineering when they carry stable intent.
+
 ## Stack Abstractions Carefully
 
 There are two abstraction layers available:

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import math
 import sys
 from pathlib import Path
 
@@ -19,6 +20,8 @@ CASES = [
     {"Number": 98765.0, "Position": 2},
     {"Number": 120305.0, "Position": 3},
 ]
+
+DECIMAL_CASE = {"Vertical Segment Size": 2.4, "radius": 0.18}
 
 
 def _load_translation() -> None:
@@ -68,6 +71,23 @@ def _build_count_wrapper(name: str, digit_group: bpy.types.GeometryNodeTree, inp
     return wrapper
 
 
+def _build_geometry_wrapper(name: str, source_group: bpy.types.GeometryNodeTree, inputs: dict[str, object], output: str):
+    wrapper = _new_geometry_group(name)
+    nodes = wrapper.nodes
+    links = wrapper.links
+    group_node = nodes.new("GeometryNodeGroup")
+    group_node.node_tree = source_group
+    lower_inputs = {key.lower(): value for key, value in inputs.items()}
+    for socket in group_node.inputs:
+        if socket.name in inputs:
+            socket.default_value = inputs[socket.name]
+        elif socket.name.lower() in lower_inputs:
+            socket.default_value = lower_inputs[socket.name.lower()]
+    group_output = nodes.new("NodeGroupOutput")
+    links.new(_socket_by_name(group_node.outputs, output), _socket_by_name(group_output.inputs, "Geometry"))
+    return wrapper
+
+
 def _evaluated_vertex_count(group: bpy.types.GeometryNodeTree) -> int:
     mesh = bpy.data.meshes.new(group.name + " Input Mesh")
     obj = bpy.data.objects.new(group.name + " Object", mesh)
@@ -83,11 +103,47 @@ def _evaluated_vertex_count(group: bpy.types.GeometryNodeTree) -> int:
         evaluated.to_mesh_clear()
 
 
+def _evaluated_vertices(group: bpy.types.GeometryNodeTree) -> list[tuple[float, float, float]]:
+    mesh = bpy.data.meshes.new(group.name + " Input Mesh")
+    obj = bpy.data.objects.new(group.name + " Object", mesh)
+    bpy.context.collection.objects.link(obj)
+    modifier = obj.modifiers.new(group.name + " Modifier", "NODES")
+    modifier.node_group = group
+    depsgraph = bpy.context.evaluated_depsgraph_get()
+    evaluated = obj.evaluated_get(depsgraph)
+    evaluated_mesh = evaluated.to_mesh()
+    try:
+        return [tuple(vertex.co) for vertex in evaluated_mesh.vertices]
+    finally:
+        evaluated.to_mesh_clear()
+
+
 def main() -> int:
     _load_translation()
     source = bpy.data.node_groups["Digit At"]
     translated = bpy.data.node_groups["VG Digit At"]
     results = []
+    source_decimal = _evaluated_vertices(
+        _build_geometry_wrapper("VG Verify Source Decimal", bpy.data.node_groups["Create Decimal"], DECIMAL_CASE, "Dot")
+    )
+    translated_decimal = _evaluated_vertices(
+        _build_geometry_wrapper("VG Verify Translated Decimal", bpy.data.node_groups["VG Create Decimal"], DECIMAL_CASE, "Dot")
+    )
+    results.append(
+        {
+            "case": "create_decimal",
+            "source_vertex_count": len(source_decimal),
+            "translated_vertex_count": len(translated_decimal),
+            "max_sorted_vertex_delta": max(
+                (math.dist(a, b) for a, b in zip(sorted(source_decimal), sorted(translated_decimal))),
+                default=0.0,
+            ),
+        }
+    )
+    results[-1]["ok"] = (
+        results[-1]["source_vertex_count"] == results[-1]["translated_vertex_count"]
+        and results[-1]["max_sorted_vertex_delta"] <= 1e-6
+    )
     for index, inputs in enumerate(CASES):
         source_count = _evaluated_vertex_count(_build_count_wrapper(f"VG Verify Source Digit {index}", source, inputs))
         translated_count = _evaluated_vertex_count(

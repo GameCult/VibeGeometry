@@ -83,4 +83,4 @@ data_flow:
 
 current_status:
   summary: VibeGeometry has an initial persistence scaffold plus verified Geometry Script translations for inspected Shriinivas cartesian, pie chart, and field-value helper graph families.
-  next_action: Continue fieldvalue.blend by translating the next bounded seven-segment display helper, likely `Create Decimal` or `Create Segment`, before attempting the full `Field Value` graph.
+  next_action: Continue fieldvalue.blend by translating `Create Segment`, the next bounded seven-segment display helper, before attempting the full `Field Value` graph.
