@@ -35,6 +35,17 @@ modifier sockets, and basic graph inspection.
 
 Use these after the primitive layer can be recreated without guessing.
 
+- Blender public Geometry Nodes demo: instance attributes grass tuft
+  - Source:
+    https://download.blender.org/demo/geometry-nodes/instance_attribtues.blend
+  - Completed entry:
+    `docs/research/translations/blender-instance-attributes.md`
+  - Why it matters: compact scatter graph that captures instance root position
+    before realization and uses it to curl each realized blade.
+  - Translation value: distribute points, instance on points, scale instances,
+    capture attributes on instance domain, realize instances, tangent-axis
+    deformation, and profile-scaled curve-to-mesh output.
+
 - Blender Guru beginner Geometry Nodes candy tutorial
   - Source: https://www.blenderguru.com/tutorials/2025/9/10/blender-tutorial-geometry-nodes-for-beginners
   - Candidate artifact: downloadable final `.blend`
@@ -72,6 +83,36 @@ Use these to learn how artists package node networks into inspectable tools.
 ### Tier 4: Procedural Systems
 
 Use these only after the smaller idioms are reliable.
+
+- Blender public Geometry Nodes demo: Index Of Nearest
+  - Source: https://download.blender.org/demo/geometry-nodes/index_of_nearest.blend
+  - Completed entry:
+    `docs/research/translations/blender-index-of-nearest.md`
+  - Why it matters: compact helper groups around a simulation-zone point
+    system.
+  - Translation value: nearest-neighbor lookup, evaluate-at-index sampling,
+    point-radius collision, velocity-field harnessing, and boundary/collider
+    constraint helpers.
+
+- Blender public Geometry Nodes demo: shortest-path labyrinth
+  - Source:
+    https://download.blender.org/demo/geometry-nodes/labyrinth-shortest_path-simon_thommes.blend
+  - Completed entry:
+    `docs/research/translations/blender-labyrinth-shortest-path.md`
+  - Why it matters: compact pathfinding system built around shortest edge
+    paths and path-to-curve conversion.
+  - Translation value: topology-first graph structure, edge path selection,
+    path capture before deletion, filleted curve output, and solution reveal
+    control.
+
+- Blender public Geometry Nodes demo: raycast minigame
+  - Source: https://download.blender.org/demo/geometry-nodes/raycast-minigame.blend
+  - Completed entry:
+    `docs/research/translations/blender-raycast-minigame.md`
+  - Why it matters: small ray-step helper groups inside a larger game-like
+    procedural setup.
+  - Translation value: initial direction vectors, sampled ray lines, raycast
+    hit updates, reflected direction, and curve-output harnessing.
 
 - Blender Studio Geometry Nodes from Scratch files
   - Source: https://studio.blender.org/training/geometry-nodes-from-scratch/chapter/files/
@@ -163,6 +204,60 @@ Completed CurveToMeshUV utility entry:
   match smooth-face flags in Blender 5.1.1; main utility mesh, UV-field
   harness, caps-mask harness, demo geometry, and title geometry all match
   source evaluated geometry.
+
+Completed Blender instance attributes entry:
+
+- `docs/research/translations/blender-instance-attributes.md`
+- Source group: `Grass Tuft Generator`
+- Verification: default and wider/curlier/seeded control cases match source
+  evaluated geometry with sorted max vertex delta `0.0`; edge counts, polygon
+  counts, and smooth-face flags also match.
+- Translation value: scatter nurseries, reused radial falloff, instance-domain
+  capture before realization, and per-blade curl driven by remembered root
+  position.
+
+Completed Blender index-of-nearest helper entry:
+
+- `docs/research/translations/blender-index-of-nearest.md`
+- Source groups: `boundary_step`, `update_velocity`, `collision_step`,
+  `collider_step`
+- Verification: helper harnesses match source evaluated geometry with sorted
+  max vertex delta `0.0`.
+- Translation value: constraint projection, velocity capping, nearest-neighbor
+  collision, and point-output verification harnesses.
+
+Completed Blender shortest-path labyrinth entry:
+
+- `docs/research/translations/blender-labyrinth-shortest-path.md`
+- Source group: `Solvable Labyrinth Generator`
+- Verification: small unsolved and solved cases match source evaluated
+  geometry with sorted max vertex delta `0.0`; edge and polygon counts also
+  match.
+- Translation value: shortest edge paths, path capture, topology carving,
+  path-to-curve conversion, and solution reveal.
+
+Completed Blender raycast minigame foothold:
+
+- `docs/research/translations/blender-raycast-minigame.md`
+- Source groups: `Initial Direction`, `Line to be Casted`, `Cast Rays`
+- Verification: direction, line, and raycast-step harnesses match source
+  evaluated geometry with sorted max vertex delta `0.0`.
+- Translation value: direction vectors, curve breadcrumbs, raycast hit updates,
+  reflected vectors, and object-target controls.
+
+Inspected but deferred official demo files:
+
+- `hexgrid_blender_geometry_nodes_demo.blend`: mostly legacy undefined nodes
+  in Blender 5.1, plus a duplicate `Auto Smooth` helper already covered.
+- `wavy_procedural_wall.blend`: several legacy/undefined attribute-toolkit
+  groups; useful later as migration quarry, not current doctrine.
+- `pebble_scattering.blend`: legacy undefined nodes dominate the single group.
+- `gizmo_array.blend`: focused on Blender 4.3+ geometry-node gizmo nodes.
+  Needs a dedicated gizmo-authoring pass.
+- `jiggly_pudding.blend`: simulation-zone graph. Needs dedicated simulation
+  zone support and verification discipline.
+- `repeat_zone_flower_by_MiRA.blend`: repeat-zone flower system. Needs a
+  repeat-zone pass before translation.
 
 ## Extraction Workflow
 

@@ -91,8 +91,8 @@ data_flow:
   - If state grows faster than understanding, cut it back.
 
 current_status:
-  summary: VibeGeometry has an initial persistence scaffold plus verified Geometry Script translations for all currently inspected local sample graph families: Shriinivas cartesian, pie chart including extended clones, field-value full display, parametric/polar selectors and wrappers, plus CurveToMeshUV utility/demo/title graphs. The repo-local Geometry Script fork includes a Blender 5.1 nodes_to_script converter port plus nested-group and menu-socket fixes needed by these translations.
-  next_action: Add a new source sample focused on scattering/instancing and attribute distribution; keep doctrine compact and put graph-specific autopsies under `docs/research/translations/`.
+  summary: VibeGeometry has an initial persistence scaffold plus verified Geometry Script translations for local math/utility samples and a first official Blender demo tranche: instance attributes grass tuft, index-of-nearest helpers, shortest-path labyrinth, and raycast minigame helpers. Deferred official samples are now classified when they require legacy-node migration, gizmo-node authoring, repeat-zone support, or simulation-zone support. The repo-local Geometry Script fork includes a Blender 5.1 nodes_to_script converter port plus nested-group and menu-socket fixes needed by these translations.
+  next_action: Move from translation-corpus chewing into the next architecture organ: define the scene brief and node graph manifest contracts using the verified idioms and deferred-zone blockers as pressure cases.
 remotes:
   vibegeometry: https://github.com/GameCult/VibeGeometry
   geometry_script_fork: https://github.com/GameCult/geometry-script

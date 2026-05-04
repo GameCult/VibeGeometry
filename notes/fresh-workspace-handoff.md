@@ -57,6 +57,23 @@ The completed CurveToMeshUV utility sample is
 `docs/research/translations/quellenform-curve-to-mesh-uv.md`. It covers
 `Auto Smooth`, `Curve to Mesh UV`, `_258246`, and `_Title`.
 
+The completed official Blender demo tranche now includes:
+
+- `docs/research/translations/blender-instance-attributes.md`, covering
+  `Grass Tuft Generator`.
+- `docs/research/translations/blender-index-of-nearest.md`, covering
+  `boundary_step`, `update_velocity`, `collision_step`, and `collider_step`.
+- `docs/research/translations/blender-labyrinth-shortest-path.md`, covering
+  `Solvable Labyrinth Generator`.
+- `docs/research/translations/blender-raycast-minigame.md`, covering
+  `Initial Direction`, `Line to be Casted`, and `Cast Rays`.
+
+Official demo files inspected but deferred are listed in
+`docs/research/geonodes-translation-corpus.md`: hexgrid, wavy wall, pebble
+scattering, gizmo array, jiggly pudding, and repeat-zone flower. They are not
+empty; they need legacy-node migration, gizmo-node, simulation-zone, or
+repeat-zone support before they are good doctrine targets.
+
 `docs/research/procedural-doctrine.md` now stores the current spatial reasoning
 playbook for mapping geometric ideas to Geometry Script. Doctrine entries should
 explain when a tool becomes salient for a visual form, the mental move that
@@ -82,10 +99,12 @@ The GameCult fork is intentionally pruned to `main` plus VibeGeometry-owned
 tooling branches. Upstream branch clutter should not be copied forward unless a
 future patch actually needs it.
 
-The current next action is to add a new source sample focused on scattering,
-instancing, and attribute distribution. Keep
-`docs/research/procedural-doctrine.md` compact; put sample-specific graph maps
-and verification details in `docs/research/translations/`.
+The current next action is to move from translation-corpus chewing into the
+next architecture organ: define the scene brief and node graph manifest
+contracts using the verified idioms and deferred-zone blockers as pressure
+cases. Keep `docs/research/procedural-doctrine.md` compact; put
+sample-specific graph maps and verification details in
+`docs/research/translations/`.
 
 ## Important Invariants
 

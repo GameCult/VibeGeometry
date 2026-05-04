@@ -460,6 +460,188 @@ of instances and domains, untagged values are gone in the baggage system.
 Verification cue: test the full composed graph after realization or deletion,
 not just the captured helper. The point of capture is later survival.
 
+## Scatter In Layers
+
+Reach for scatter layering when the target is grass, fur, candies, rivets,
+pebbles, bubbles, leaves, scales, debris, or any repeated body distributed over
+a surface.
+
+Mental move: separate the nursery from the bodies. First make the surface that
+decides where points may live. Then make the point field that controls density,
+spacing, randomness, scale, and seed. Then instance a separately named body and
+only realize it when later deformation needs real vertices.
+
+```python
+base_disc = mesh_circle(fill_type=MeshCircle.FillType.TRIANGLE_FAN, vertices=12, radius=radius)
+scattered_surface = subdivide_mesh(mesh=base_disc, level=3)
+radial_distance = vector_math(operation=VectorMath.Operation.LENGTH, vector=position())
+radial_falloff = map_range(
+    clamp=True,
+    interpolation_type="SMOOTHSTEP",
+    data_type="FLOAT",
+    value=radial_distance,
+    from_min=0.0,
+    from_max=radius,
+    to_min=1.0,
+    to_max=0.38999998569488525,
+)
+points = distribute_points_on_faces(
+    distribute_method="POISSON",
+    mesh=scattered_surface,
+    distance_min=math(
+        operation=Math.Operation.DIVIDE,
+        value=(math(operation=Math.Operation.MULTIPLY, value=(thickness, 2.0)), density),
+    ),
+    density_max=math(operation=Math.Operation.MULTIPLY, value=(density, 5000.0)),
+    density_factor=radial_falloff,
+    seed=seed,
+)
+instances = instance_on_points(points=points.points, instance=tapered_blade)
+scaled = scale_instances(instances=instances, scale=radial_falloff)
+roots = _capture_attribute_item("VECTOR", "INSTANCE", scaled, position(), "Value")
+realized = realize_instances(geometry=roots.geometry, realize_all=True, depth=0)
+```
+
+Metaphor in use: the scatter surface is a nursery tray. Points are planting
+holes. Instances are seedlings. Realization is when the seedlings stop being
+copies and become individual geometry you can bend, cut, or shade.
+
+Verification cue: test more than one seed/control set. Scatter graphs can match
+counts at one setting while density, scale, or captured-root behavior is wrong.
+
+## Constraint Helpers Are Bumpers
+
+Reach for constraint helpers when a procedural system has a small physical rule
+that should be true after each update: stay inside a boundary, avoid another
+point, cap velocity, project out of a collider, or keep motion planar.
+
+Mental move: express the rule as condition, projection, and `Set Position`.
+The condition says when the rule applies. The projection computes the nearest
+allowed state. `Set Position` makes the point obey.
+
+```python
+from_center = vector_math(operation=VectorMath.Operation.SUBTRACT, vector=(position(), vector))
+distance = vector_math(operation=VectorMath.Operation.LENGTH, vector=from_center)
+outside = compare(
+    operation=Compare.Operation.GREATER_THAN,
+    data_type=Compare.DataType.FLOAT,
+    mode=Compare.Mode.ELEMENT,
+    a=distance,
+    b=b,
+)
+clamped_xy = vector_math(
+    operation=VectorMath.Operation.MULTIPLY,
+    vector=(
+        vector_math(
+            operation=VectorMath.Operation.SCALE,
+            vector=vector_math(operation=VectorMath.Operation.NORMALIZE, vector=from_center),
+            scale=b,
+        ),
+        (1.0, 1.0, 0.0),
+    ),
+)
+geometry = set_position(geometry=geometry, selection=outside, position=clamped_xy)
+```
+
+For point collisions, make the neighbor visible as a sampled field:
+
+```python
+neighbor = index_of_nearest(position=position())
+neighbor_position = evaluate_at_index(
+    domain="POINT",
+    data_type="FLOAT_VECTOR",
+    value=position(),
+    index=neighbor.index,
+)
+from_neighbor = vector_math(operation=VectorMath.Operation.SUBTRACT, vector=(position(), neighbor_position))
+push = vector_math(operation=VectorMath.Operation.SCALE, vector=from_neighbor, scale=push_strength)
+geometry = set_position(geometry=geometry, offset=push)
+```
+
+Metaphor in use: these are bumpers on the table. They do not make the whole
+simulation smart; they keep one kind of stupidity from persisting into the next
+tick.
+
+Verification cue: point clouds may evaluate to empty mesh summaries. When the
+promise is point position, convert points to vertices in the harness before
+comparing geometry.
+
+## Paths Are Topology First
+
+Reach for path nodes when the visual idea depends on connectivity: mazes,
+routes, veins, circuit traces, cracks, growth paths, street maps, or solution
+reveals.
+
+Mental move: solve the graph before drawing the tube. First mark the root or
+target vertices, compute path selection on mesh topology, capture the path
+state that later deletion or conversion will destroy, then convert the accepted
+path into visible curves.
+
+```python
+start_vertex = compare(
+    operation=Compare.Operation.EQUAL,
+    data_type=Compare.DataType.INT,
+    mode=Compare.Mode.ELEMENT,
+    a=index(),
+    b=0,
+)
+paths = shortest_edge_paths(end_vertex=start_vertex, edge_cost=edge_cost)
+path_selection = edge_paths_to_selection(next_vertex_index=paths.next_vertex_index)
+captured_path = _capture_attribute_item("BOOLEAN", "EDGE", base_geometry, path_selection, "Path")
+subdivided = subdivide_mesh(mesh=captured_path.geometry, level=1)
+walkable = delete_geometry(
+    mode=DeleteGeometry.Mode.ALL,
+    domain=DeleteGeometry.Domain.POINT,
+    geometry=subdivided,
+    selection=captured_path.path,
+)
+solution = edge_paths_to_curves(mesh=walkable, start_vertices=far_x_vertices, next_vertex_index=paths.next_vertex_index)
+```
+
+Metaphor in use: topology is the street map. Curves are the painted route.
+Paint after the route exists, or you are decorating roads that may be closed in
+the next operation.
+
+Verification cue: compare solved and unsolved control states. A path graph can
+preserve topology while putting visible tubes at the wrong scale if anonymous
+value nodes are misread.
+
+## Rays Are Breadcrumbs
+
+Reach for raycast helpers when a path should bounce, aim, probe, measure
+distance, or react to a target object.
+
+Mental move: keep the ray step explicit. Store the breadcrumb line, sample the
+previous point, cast from there, write the next point, then pass the reflected
+direction and next index forward.
+
+```python
+previous_position = sample_index(
+    data_type=SampleIndex.DataType.FLOAT_VECTOR,
+    domain=SampleIndex.Domain.POINT,
+    clamp=True,
+    geometry=line,
+    value=position(),
+    index=math(operation=Math.Operation.SUBTRACT, value=(hit_index, integer(integer=1))),
+)
+hit = raycast(
+    data_type="FLOAT_VECTOR",
+    target_geometry=target_info.geometry,
+    interpolation="Nearest",
+    source_position=previous_position,
+    ray_direction=ray_direction,
+    ray_length=20.0,
+)
+updated_line = set_position(geometry=line, selection=active_point, position=hit.hit_position)
+reflected = vector_math(operation=VectorMath.Operation.REFLECT, vector=(ray_direction, hit.hit_normal))
+```
+
+Metaphor in use: every hit drops a crumb and turns the flashlight. The next
+step reads the crumb, not the whole trail.
+
+Verification cue: curve breadcrumbs need a curve-to-points or curve-to-mesh
+harness before evaluated mesh comparison can see them.
+
 ## Branch Helpers Are Switchboards
 
 Reach for branch helpers when the same output contract can be fed by multiple
