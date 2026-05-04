@@ -124,12 +124,15 @@ Completed pie chart entry:
 Completed field value helper entry:
 
 - `docs/research/translations/shriinivas-fieldvalue-digit-at.md`
-- Source groups: `Create Decimal`, `Create Segment`, `Digit At`
+- Source groups: `Create Decimal`, `Create Segment`, `Seven Segments`,
+  `Delete Segments`, `Digit At`
 - Verification: decimal glyph geometry matches source with sorted max vertex
   delta `0.0`; segment geometry matches horizontal and vertical source cases
-  with sorted max vertex delta `0.0`; digit scalar helper matches source
-  behavior across four number/position cases by driving `Mesh Line.Count` with
-  the result.
+  with sorted max vertex delta `0.0`; seven-segment chassis geometry matches
+  source with 74 vertices and sorted max vertex delta `0.0`; digit scalar
+  helper matches source behavior across four number/position cases by driving
+  `Mesh Line.Count` with the result; delete-mask scalar helper matches source
+  across 195 digit/segment-position cases with zero mismatches.
 
 ## Extraction Workflow
 

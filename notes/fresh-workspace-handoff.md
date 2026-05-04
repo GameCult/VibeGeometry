@@ -41,7 +41,8 @@ The completed pie chart translation is
 
 The completed field-value helper translation is
 `docs/research/translations/shriinivas-fieldvalue-digit-at.md`. It covers
-`Create Decimal`, `Create Segment`, and `Digit At` from `fieldvalue.blend`.
+`Create Decimal`, `Create Segment`, `Seven Segments`, `Delete Segments`, and
+`Digit At` from `fieldvalue.blend`.
 
 `docs/research/procedural-doctrine.md` now stores the current intuitive model
 for mapping geometric ideas to Geometry Script: curves as rails, fields as
@@ -58,9 +59,8 @@ The GameCult fork is intentionally pruned to `main` plus the active
 `vibegeometry/blender-5-nested-tree-groups` branch. Upstream branch clutter
 should not be copied forward unless a future patch actually needs it.
 
-The current next action is to continue `fieldvalue.blend` by translating the
-next composition helper, likely `Seven Segments` or `Delete Segments`, before
-attempting the full `Field Value` graph.
+The current next action is to continue `fieldvalue.blend` by inspecting
+`Next Digit`, `Geometry Nodes Group.002`, and then the full `Field Value` graph.
 
 ## Important Invariants
 

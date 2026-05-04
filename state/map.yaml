@@ -67,6 +67,8 @@ current_artifacts:
     - tools/vibegeometry_prepare_compaction.py
     - tools/inspect_blend_node_groups.py
     - tools/verify_cartesian_translations.py
+    - tools/verify_piechart_translations.py
+    - tools/verify_fieldvalue_translations.py
     - tools/geometry_script_loader.py
   pending_contracts:
     - schemas/scene-brief.schema.json
@@ -82,8 +84,8 @@ data_flow:
   - If state grows faster than understanding, cut it back.
 
 current_status:
-  summary: VibeGeometry has an initial persistence scaffold plus verified Geometry Script translations for inspected Shriinivas cartesian, pie chart, and field-value helper graph families.
-  next_action: Continue fieldvalue.blend by translating the next composition helper, likely `Seven Segments` or `Delete Segments`, before attempting the full `Field Value` graph.
+  summary: VibeGeometry has an initial persistence scaffold plus verified Geometry Script translations for inspected Shriinivas cartesian, pie chart, and field-value helper/chassis/mask graph families.
+  next_action: Continue fieldvalue.blend by inspecting `Next Digit`, `Geometry Nodes Group.002`, and then the full `Field Value` graph.
 remotes:
   vibegeometry: https://github.com/GameCult/VibeGeometry
   geometry_script_fork: https://github.com/GameCult/geometry-script

@@ -137,6 +137,39 @@ part instead of another anonymous mesh primitive.
 
 Tiny named parts are not overengineering when they carry stable intent.
 
+## Chassis Groups Compose Parts
+
+Once a part has a stable contract, the next group up should read like assembly,
+not reinvention. `Seven Segments` does not know how to pinch bar tips; it calls
+`Create Segment` seven times with different orientation, length, thickness, and
+offset controls, then joins the results with a decimal dot.
+
+The useful pattern is:
+
+```text
+tested part -> repeated placements -> joined chassis -> later visibility logic
+```
+
+Metaphor: the lower group machines the bolt. The chassis group decides where
+the bolts go. Keep those jobs separate so later graph layers can remove,
+materialize, or transform parts without reopening the primitive geometry logic.
+
+## Boolean Thickets Are Often Tables
+
+Large boolean node regions can look more algorithmic than they are. `Delete
+Segments` is mostly a truth table: compare the digit, compare the segment
+position, combine masks, and decide whether that part should disappear.
+
+When a graph is a table, translate it as a table with named clauses:
+
+```text
+input values -> grouped masks -> digit-specific clauses -> final OR
+```
+
+The source node count is not sacred. The behavior is. A compact translation is
+acceptable when full-grid verification proves every input pair still lands on
+the same boolean result.
+
 ## Field Masks Are Chisels
 
 You can sculpt simple meshes by combining a regular seed mesh with field masks.

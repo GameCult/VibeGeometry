@@ -40,6 +40,17 @@ SEGMENT_CASES = [
         "offset": (-0.3, 0.25, 0.0),
     },
 ]
+SEVEN_SEGMENTS_CASE = {
+    "Horizontal Segment Size": 2.2,
+    "Horizontal Segment Thickness": 0.42,
+    "Vertical Segment Size": 1.7,
+    "Vertical Segment Thickness": 0.36,
+    "X Separation": 0.13,
+    "Y Seperation": 0.17,
+    "Tip Sharpness": 0.8,
+}
+DELETE_DIGITS = range(0, 13)
+DELETE_SEGMENT_POSITIONS = range(0, 15)
 
 
 def _load_translation() -> None:
@@ -83,6 +94,33 @@ def _build_count_wrapper(name: str, digit_group: bpy.types.GeometryNodeTree, inp
     line.count_mode = "TOTAL"
     _socket_by_name(line.inputs, "Offset").default_value = (1.0, 0.0, 0.0)
     links.new(_socket_by_name(digit.outputs, "Result"), _socket_by_name(line.inputs, "Count"))
+
+    group_output = nodes.new("NodeGroupOutput")
+    links.new(_socket_by_name(line.outputs, "Mesh"), _socket_by_name(group_output.inputs, "Geometry"))
+    return wrapper
+
+
+def _build_bool_count_wrapper(name: str, bool_group: bpy.types.GeometryNodeTree, inputs: dict[str, object]):
+    wrapper = _new_geometry_group(name)
+    nodes = wrapper.nodes
+    links = wrapper.links
+    bool_node = nodes.new("GeometryNodeGroup")
+    bool_node.node_tree = bool_group
+    for socket in bool_node.inputs:
+        if socket.name in inputs:
+            socket.default_value = inputs[socket.name]
+
+    switch_node = nodes.new("GeometryNodeSwitch")
+    switch_node.input_type = "INT"
+    _socket_by_name(switch_node.inputs, "False").default_value = 0
+    _socket_by_name(switch_node.inputs, "True").default_value = 1
+    links.new(_socket_by_name(bool_node.outputs, "result"), _socket_by_name(switch_node.inputs, "Switch"))
+
+    line = nodes.new("GeometryNodeMeshLine")
+    line.mode = "OFFSET"
+    line.count_mode = "TOTAL"
+    _socket_by_name(line.inputs, "Offset").default_value = (1.0, 0.0, 0.0)
+    links.new(_socket_by_name(switch_node.outputs, "Output"), _socket_by_name(line.inputs, "Count"))
 
     group_output = nodes.new("NodeGroupOutput")
     links.new(_socket_by_name(line.outputs, "Mesh"), _socket_by_name(group_output.inputs, "Geometry"))
@@ -192,6 +230,35 @@ def main() -> int:
                 "ok": len(source_segment) == len(translated_segment) and max_delta <= 1e-6,
             }
         )
+    source_seven_segments = _evaluated_vertices(
+        _build_geometry_wrapper(
+            "VG Verify Source Seven Segments",
+            bpy.data.node_groups["Seven Segments"],
+            SEVEN_SEGMENTS_CASE,
+            "bars",
+        )
+    )
+    translated_seven_segments = _evaluated_vertices(
+        _build_geometry_wrapper(
+            "VG Verify Translated Seven Segments",
+            bpy.data.node_groups["VG Seven Segments"],
+            SEVEN_SEGMENTS_CASE,
+            "bars",
+        )
+    )
+    seven_segments_delta = max(
+        (math.dist(a, b) for a, b in zip(sorted(source_seven_segments), sorted(translated_seven_segments))),
+        default=0.0,
+    )
+    results.append(
+        {
+            "case": {"seven_segments": SEVEN_SEGMENTS_CASE},
+            "source_vertex_count": len(source_seven_segments),
+            "translated_vertex_count": len(translated_seven_segments),
+            "max_sorted_vertex_delta": seven_segments_delta,
+            "ok": len(source_seven_segments) == len(translated_seven_segments) and seven_segments_delta <= 1e-6,
+        }
+    )
     for index, inputs in enumerate(CASES):
         source_count = _evaluated_vertex_count(_build_count_wrapper(f"VG Verify Source Digit {index}", source, inputs))
         translated_count = _evaluated_vertex_count(
@@ -205,6 +272,42 @@ def main() -> int:
                 "ok": source_count == translated_count,
             }
         )
+    delete_mismatches = []
+    source_delete = bpy.data.node_groups["Delete Segments"]
+    translated_delete = bpy.data.node_groups["VG Delete Segments"]
+    checked = 0
+    for digit in DELETE_DIGITS:
+        for segment_position in DELETE_SEGMENT_POSITIONS:
+            inputs = {"Digit": digit, "Segment Position": segment_position}
+            source_count = _evaluated_vertex_count(
+                _build_bool_count_wrapper(f"VG Verify Source Delete {digit}-{segment_position}", source_delete, inputs)
+            )
+            translated_count = _evaluated_vertex_count(
+                _build_bool_count_wrapper(
+                    f"VG Verify Translated Delete {digit}-{segment_position}",
+                    translated_delete,
+                    inputs,
+                )
+            )
+            checked += 1
+            if source_count != translated_count:
+                delete_mismatches.append(
+                    {
+                        "digit": digit,
+                        "segment_position": segment_position,
+                        "source_count": source_count,
+                        "translated_count": translated_count,
+                    }
+                )
+    results.append(
+        {
+            "case": "delete_segments_grid",
+            "checked": checked,
+            "mismatches": delete_mismatches[:10],
+            "mismatch_count": len(delete_mismatches),
+            "ok": not delete_mismatches,
+        }
+    )
     ok = all(result["ok"] for result in results)
     print("VG_FIELDVALUE_TRANSLATION_BEHAVIOR " + json.dumps({"ok": ok, "results": results}, sort_keys=True))
     return 0 if ok else 1
