@@ -95,7 +95,7 @@ def _node_summary(node: Any) -> dict[str, Any]:
             continue
         if value is None or isinstance(value, (str, int, float, bool)):
             properties[prop.identifier] = value
-    return {
+    summary = {
         "name": node.name,
         "label": node.label,
         "bl_idname": node.bl_idname,
@@ -105,6 +105,10 @@ def _node_summary(node: Any) -> dict[str, Any]:
         "inputs": [_socket_summary(socket) for socket in node.inputs],
         "outputs": [_socket_summary(socket) for socket in node.outputs],
     }
+    node_tree = getattr(node, "node_tree", None)
+    if node_tree is not None:
+        summary["node_tree"] = getattr(node_tree, "name", "")
+    return summary
 
 
 def _link_summary(link: Any) -> dict[str, str]:

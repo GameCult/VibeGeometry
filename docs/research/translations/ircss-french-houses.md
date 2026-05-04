@@ -10,6 +10,8 @@
   - `PointyGothicCone`
 - Geometry Script recreation:
   `examples/geometry_script/ircss_french_houses.py`
+- File-level system map:
+  `docs/research/translations/ircss-french-houses-system-map.md`
 
 ## Why This File
 

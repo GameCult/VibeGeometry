@@ -49,7 +49,8 @@ repeat-zone feedback state, repeat `Top` boolean outputs, foreach zones, gizmo
 nodes, and a rejected empty-output harness for `WindowBeams`. The previous
 `nodes_to_script` duplicate-key failure around axes-to-rotation is fixed in the
 Geometry Script fork, so `GenerateArc` and `MakeStairs` now have compiling
-converter drafts.
+converter drafts. The file-level dependency map lives at
+`docs/research/translations/ircss-french-houses-system-map.md`.
 
 Current authoring prior: use the full Python stack. Python structures intent,
 tables, loops, variants, cleanup, validation, docs, and scene/render

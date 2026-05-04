@@ -258,6 +258,7 @@ Completed Blender raycast minigame foothold:
 Completed IRCSS French Houses foothold:
 
 - `docs/research/translations/ircss-french-houses.md`
+- File-level map: `docs/research/translations/ircss-french-houses-system-map.md`
 - Source groups: `MakeSpiral`, `PointyGothicCone`
 - Verification: spiral output curve converted to points matches source with
   ordered max vertex delta `0.0`; plain and ornamented gothic cone cases match
