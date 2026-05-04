@@ -75,6 +75,25 @@ def vg_digit_at(number: Float = 0.0, position: Int = 0):
     )
 
 
+@tree("VG Next Digit")
+def vg_next_digit(
+    whole_part: Float = 0.0,
+    fraction_part: Float = 0.0,
+    max_precision: Int = 0,
+    position: Int = 0,
+):
+    whole_position = math(operation=Math.Operation.SUBTRACT, value=(position, max_precision))
+    use_fraction = math(operation=Math.Operation.LESS_THAN, value=(position, max_precision))
+    whole_digit = vg_digit_at(number=whole_part, position=whole_position)
+    fraction_digit = vg_digit_at(number=fraction_part, position=position)
+    return switch(
+        input_type=Switch.InputType.INT,
+        switch=use_fraction,
+        false=whole_digit,
+        true=fraction_digit,
+    )
+
+
 @tree("VG Create Segment")
 def vg_create_segment(
     x_major: Bool = False,
@@ -307,6 +326,7 @@ def _finalize_groups():
     for name in (
         "VG Create Decimal",
         "VG Digit At",
+        "VG Next Digit",
         "VG Create Segment",
         "VG Seven Segments",
         "VG Delete Segments",

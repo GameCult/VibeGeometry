@@ -125,14 +125,22 @@ Completed field value helper entry:
 
 - `docs/research/translations/shriinivas-fieldvalue-digit-at.md`
 - Source groups: `Create Decimal`, `Create Segment`, `Seven Segments`,
-  `Delete Segments`, `Digit At`
+  `Delete Segments`, `Next Digit`, `Digit At`
 - Verification: decimal glyph geometry matches source with sorted max vertex
   delta `0.0`; segment geometry matches horizontal and vertical source cases
   with sorted max vertex delta `0.0`; seven-segment chassis geometry matches
   source with 74 vertices and sorted max vertex delta `0.0`; digit scalar
   helper matches source behavior across four number/position cases by driving
-  `Mesh Line.Count` with the result; delete-mask scalar helper matches source
-  across 195 digit/segment-position cases with zero mismatches.
+  `Mesh Line.Count` with the result; next-digit branch helper matches source
+  across four cases spanning both sides of `Max Precision`; delete-mask scalar
+  helper matches source across 195 digit/segment-position cases with zero
+  mismatches.
+
+Boundary note: the full `Field Value` graph is a 176-node composition involving
+menu switches, capture attributes, sample-index reads, instances, transforms,
+and delete geometry. Before translating it by hand, test or port upstream's
+historical `nodes_to_script` converter so VibeGeometry gets a generated first
+draft to inspect.
 
 ## Extraction Workflow
 

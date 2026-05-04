@@ -9,6 +9,7 @@
   - `Create Segment`
   - `Seven Segments`
   - `Delete Segments`
+  - `Next Digit`
   - `Digit At`
 - Geometry Script recreation:
   `examples/geometry_script/shriinivas_fieldvalue.py`
@@ -22,6 +23,18 @@ build the digit chassis before the full display logic is attempted.
 Together they show the first display-system layers: tiny glyph geometry,
 field-sculpted segment geometry, segment composition, segment visibility masks,
 and value-only digit extraction.
+
+## Current Boundary
+
+The remaining full `Field Value` group has 176 nodes and combines menu switches,
+capture attributes across multiple domains, sampled fields, instancing,
+instance transforms, delete-geometry selection, material assignment, and the
+helpers translated here.
+
+That graph should not be translated manually as one heroic sweep. The next
+right move is to port or test the upstream `nodes_to_script` prototype against
+this graph so the first draft can be generated, inspected, and then cleaned
+with doctrine instead of hand-copied node by node.
 
 ## Create Decimal Map
 
@@ -142,6 +155,34 @@ Mechanism:
 Metaphor: `Delete Segments` is not a sculptor. It is a stencil card. Given a
 digit and a slot on the chassis, it punches out the slots that should go dark.
 
+## Next Digit Map
+
+Source group: `Next Digit`
+
+Geometry Script group: `VG Next Digit`
+
+Inputs:
+
+- `Whole Part`
+- `Fraction Part`
+- `Max Precision`
+- `Position`
+
+Output:
+
+- `Result`
+
+Mechanism:
+
+- Compute `Position - Max Precision` for whole-part indexing.
+- Compare `Position < Max Precision`.
+- If true, read from `Fraction Part` at `Position`.
+- If false, read from `Whole Part` at `Position - Max Precision`.
+
+Metaphor: `Next Digit` is the read head for the display tape. Before the decimal
+boundary it reads the fractional reel; after that boundary it reads the whole
+number reel.
+
 ## Verification
 
 Run:
@@ -166,6 +207,7 @@ Results from Blender 5.1.1:
 | Digit At `1234.0`, position `1` | 3 | 3 | 0 | accepted |
 | Digit At `98765.0`, position `2` | 7 | 7 | 0 | accepted |
 | Digit At `120305.0`, position `3` | 0 | 0 | 0 | accepted |
+| Next Digit branch cases | 4 cases | 4 cases | 0 mismatches | accepted |
 | Delete Segments grid | 195 cases | 195 cases | 0 mismatches | accepted |
 
 ## Lessons
@@ -190,3 +232,7 @@ Results from Blender 5.1.1:
 - Dense boolean graphs often hide lookup tables. Translate them into named
   clauses and verify over the full input grid instead of preserving every source
   `OR` node as ceremony.
+- A branch helper deserves tests on both sides of the branch. `Next Digit`
+  verifies positions before and after `Max Precision`, because the interesting
+  behavior is not digit extraction itself but choosing which number part feeds
+  extraction.

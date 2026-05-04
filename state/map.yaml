@@ -84,8 +84,8 @@ data_flow:
   - If state grows faster than understanding, cut it back.
 
 current_status:
-  summary: VibeGeometry has an initial persistence scaffold plus verified Geometry Script translations for inspected Shriinivas cartesian, pie chart, and field-value helper/chassis/mask graph families.
-  next_action: Continue fieldvalue.blend by inspecting `Next Digit`, `Geometry Nodes Group.002`, and then the full `Field Value` graph.
+  summary: VibeGeometry has an initial persistence scaffold plus verified Geometry Script translations for inspected Shriinivas cartesian, pie chart, and field-value helper/chassis/mask/branch graph families.
+  next_action: Test or port upstream Geometry Script's `nodes_to_script` prototype before attempting the full 176-node `Field Value` translation.
 remotes:
   vibegeometry: https://github.com/GameCult/VibeGeometry
   geometry_script_fork: https://github.com/GameCult/geometry-script

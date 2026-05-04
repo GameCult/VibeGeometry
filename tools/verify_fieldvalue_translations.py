@@ -20,6 +20,12 @@ CASES = [
     {"Number": 98765.0, "Position": 2},
     {"Number": 120305.0, "Position": 3},
 ]
+NEXT_DIGIT_CASES = [
+    {"Whole Part": 1234.0, "Fraction Part": 5678.0, "Max Precision": 2, "Position": 0},
+    {"Whole Part": 1234.0, "Fraction Part": 5678.0, "Max Precision": 2, "Position": 1},
+    {"Whole Part": 1234.0, "Fraction Part": 5678.0, "Max Precision": 2, "Position": 2},
+    {"Whole Part": 98765.0, "Fraction Part": 4321.0, "Max Precision": 3, "Position": 4},
+]
 
 DECIMAL_CASE = {"Vertical Segment Size": 2.4, "radius": 0.18}
 SEGMENT_CASES = [
@@ -267,6 +273,23 @@ def main() -> int:
         results.append(
             {
                 "case": inputs,
+                "source_count": source_count,
+                "translated_count": translated_count,
+                "ok": source_count == translated_count,
+            }
+        )
+    source_next_digit = bpy.data.node_groups["Next Digit"]
+    translated_next_digit = bpy.data.node_groups["VG Next Digit"]
+    for index, inputs in enumerate(NEXT_DIGIT_CASES):
+        source_count = _evaluated_vertex_count(
+            _build_count_wrapper(f"VG Verify Source Next Digit {index}", source_next_digit, inputs)
+        )
+        translated_count = _evaluated_vertex_count(
+            _build_count_wrapper(f"VG Verify Translated Next Digit {index}", translated_next_digit, inputs)
+        )
+        results.append(
+            {
+                "case": {"next_digit": inputs},
                 "source_count": source_count,
                 "translated_count": translated_count,
                 "ok": source_count == translated_count,

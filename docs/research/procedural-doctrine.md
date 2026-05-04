@@ -128,6 +128,21 @@ Metaphor: if a graph only whispers a number, build a little megaphone around it.
 The verifier's job is not to be beautiful. It is to make the invisible output
 hard to lie about.
 
+## Branch Helpers Are Switchboards
+
+Some scalar helpers exist only to choose which already-tested value path should
+feed the next stage. `Next Digit` decides whether to read from the fractional
+part or the whole part of a number based on `Position < Max Precision`.
+
+The useful pattern is:
+
+```text
+branch condition -> candidate A -> candidate B -> switch -> value output
+```
+
+Verify both sides of the branch. If all tests stay on one side, the switchboard
+has not actually been tested; it has merely sat there looking employed.
+
 ## Glyphs Are Parts
 
 Display systems are made from small, boring geometry tokens: bars, dots,
