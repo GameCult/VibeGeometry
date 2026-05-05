@@ -49,7 +49,8 @@ From-scratch story-bound builds:
   security doors. Accepted revision uses Cycles, shader nodes, explicit bubble
   attachment, an orthogonal spin-gravity city plane, a flat-cut dome base,
   radial/tangential streets, irregular parcels, prestige anchor towers, parks,
-  faux-rural edge falloff, and a sunflower-like ray-floret crest.
+  faux-rural edge falloff, and an exterior sunflower-like crest of alternating
+  solar panels/radiators.
   Build notes: `docs/research/builds/lucent-tether-habitat.md`; verifier:
   `tools/verify_lucent_tether_habitat.py`.
 

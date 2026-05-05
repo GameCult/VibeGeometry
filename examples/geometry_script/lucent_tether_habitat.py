@@ -158,7 +158,8 @@ def enrich_shader_graphs(mats):
     add_shader_bump(mats["park"], scale=18.0, detail=6.0, strength=0.045, distance=0.028)
     add_shader_bump(mats["cottage"], scale=31.0, detail=5.0, strength=0.055, distance=0.03)
     add_shader_bump(mats["plaza"], scale=36.0, detail=6.0, strength=0.028, distance=0.02)
-    add_shader_bump(mats["crest"], scale=22.0, detail=8.0, strength=0.035, distance=0.025)
+    add_shader_bump(mats["solar_panel"], scale=42.0, detail=8.0, strength=0.028, distance=0.018)
+    add_shader_bump(mats["radiator"], scale=58.0, detail=9.0, strength=0.035, distance=0.02)
     for key, pulse in [
         ("cyan", (0.65, 1.0, 1.0, 1.0)),
         ("amber", (1.0, 0.88, 0.32, 1.0)),
@@ -263,16 +264,19 @@ def add_yz_disk(name, x, radius, material, segments=96):
 
 
 def add_dome_base_crest(mats):
-    verts = []
-    faces = []
+    solar_verts, solar_faces = [], []
+    radiator_verts, radiator_faces = [], []
     petals = 34
     radial_steps = 5
     for petal in range(petals):
         center_a = TAU * petal / petals + 0.025 * pymath.sin(petal * 1.7)
         width = TAU / petals * (0.82 + 0.36 * hash01(petal, 0, 251))
-        climb = 0.58 + 0.36 * fbm_2d(pymath.cos(center_a) * 2.1, pymath.sin(center_a) * 2.1, seed=177)
+        outward_reach = 0.48 + 0.38 * fbm_2d(pymath.cos(center_a) * 2.1, pymath.sin(center_a) * 2.1, seed=177)
+        sunward_cant = 0.18 + 0.12 * hash01(petal, 9, 277)
         twist = 0.08 * (hash01(petal, 4, 271) - 0.5)
-        petal_base = len(verts)
+        target_verts = solar_verts if petal % 2 == 0 else radiator_verts
+        target_faces = solar_faces if petal % 2 == 0 else radiator_faces
+        petal_base = len(target_verts)
         for side in (-1.0, 1.0):
             for step in range(radial_steps + 1):
                 t = step / radial_steps
@@ -280,16 +284,20 @@ def add_dome_base_crest(mats):
                 noise = fbm_2d(petal * 0.41, step * 0.73 + side, seed=303) - 0.5
                 local_width = width * (1.0 - 0.42 * smoothstep(t)) * edge + noise * 0.018
                 a = center_a + side * local_width * 0.5 + twist * t
-                radius = 1.48 + 0.22 * smoothstep(t) + 0.03 * noise
-                x = CITY_GROUND_X + climb * smoothstep(t)
+                radius = 1.57 + outward_reach * smoothstep(t) + 0.04 * noise
+                # Outside means sunward/outboard of the flattened dome base:
+                # negative X from the city ground plane, not inside the glass.
+                x = CITY_GROUND_X - 0.035 - sunward_cant * smoothstep(t)
                 y = radius * pymath.cos(a)
                 z = radius * pymath.sin(a)
-                verts.append((x, y, z))
+                target_verts.append((x, y, z))
         for step in range(radial_steps):
-            faces.append((petal_base + step, petal_base + step + 1, petal_base + radial_steps + 2 + step + 1, petal_base + radial_steps + 2 + step))
-    obj = add_mesh_parts("city_bubble_perlin_leaf_crest", verts, faces, mats["crest"])
-    obj.show_transparent = True
-    return obj
+            target_faces.append((petal_base + step, petal_base + step + 1, petal_base + radial_steps + 2 + step + 1, petal_base + radial_steps + 2 + step))
+    solar = add_mesh_parts("city_bubble_solar_panel_ray_florets", solar_verts, solar_faces, mats["solar_panel"])
+    radiator = add_mesh_parts("city_bubble_radiator_ray_florets", radiator_verts, radiator_faces, mats["radiator"])
+    solar.show_transparent = True
+    radiator.show_transparent = True
+    return solar, radiator
 
 
 def add_floor_patch(name, center, width, depth, material, z=0.0):
@@ -601,7 +609,8 @@ def build_scene():
         "park": mat("interspersed park green", (0.12, 0.48, 0.22), alpha=0.92),
         "cottage": mat("verdant faux rural cottagecore", (0.46, 0.64, 0.39), alpha=0.96),
         "plaza": mat("tether anchor plaza stone", (0.68, 0.7, 0.66), alpha=0.96),
-        "crest": mat("Perlin-edged dome flower crest", (0.25, 0.9, 0.74), emission=True, strength=0.12, alpha=0.34),
+        "solar_panel": mat("sunward blue solar ray florets", (0.08, 0.42, 0.88), emission=True, strength=0.08, alpha=0.58),
+        "radiator": mat("silver radiator ray florets", (0.78, 0.88, 0.86), emission=True, strength=0.04, alpha=0.52),
         "label": mat("label white", (0.92, 0.95, 1.0), emission=True, strength=0.45),
     }
     enrich_shader_graphs(mats)

@@ -32,7 +32,8 @@ REQUIRED_OBJECTS = [
     "city_bubble_anchor_plaza_ring",
     "city_bubble_flat_ground_surface_disk",
     "city_bubble_flattening_boolean_cutter",
-    "city_bubble_perlin_leaf_crest",
+    "city_bubble_solar_panel_ray_florets",
+    "city_bubble_radiator_ray_florets",
     "city_bubble_interspersed_park_cells",
     "city_bubble_prestige_anchor_skyscrapers",
     "city_bubble_midcity_irregular_blocks",
@@ -94,15 +95,20 @@ def verify_render_engine_and_shaders():
 def verify_city_coordinate_contract():
     bubble = bpy.data.objects["city_bubble_sealed_aquarium"]
     plaza = bpy.data.objects["city_bubble_tether_anchor_plaza_core"]
-    crest = bpy.data.objects["city_bubble_perlin_leaf_crest"]
+    solar = bpy.data.objects["city_bubble_solar_panel_ray_florets"]
+    radiator = bpy.data.objects["city_bubble_radiator_ray_florets"]
     if bubble.dimensions.x >= bubble.dimensions.y * 0.7:
         raise AssertionError("City dome is not flattened along the tether axis")
     if plaza.dimensions.x >= 0.05:
         raise AssertionError("City ground surface should be orthogonal to tether with minimal X depth")
-    if crest.dimensions.x <= 0.45:
-        raise AssertionError("Sunflower crest should climb partway up the dome along the tether axis")
-    if crest.dimensions.y < 2.8 or crest.dimensions.z < 2.8:
-        raise AssertionError("Sunflower crest should wrap around most of the dome rim")
+    if solar.location.x > 0.001 or radiator.location.x > 0.001:
+        raise AssertionError("Ray florets should use object-space geometry, not hidden object offsets")
+    if max(vertex.co.x for vertex in solar.data.vertices) >= -5.45:
+        raise AssertionError("Solar ray florets should sit outside the dome base, sunward of the flat cut")
+    if max(vertex.co.x for vertex in radiator.data.vertices) >= -5.45:
+        raise AssertionError("Radiator ray florets should sit outside the dome base, sunward of the flat cut")
+    if solar.dimensions.y < 3.4 or solar.dimensions.z < 3.4 or radiator.dimensions.y < 3.4 or radiator.dimensions.z < 3.4:
+        raise AssertionError("Alternating solar/radiator ray florets should wrap around most of the dome rim")
 
 
 def verify_artifacts():

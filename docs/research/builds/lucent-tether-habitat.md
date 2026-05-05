@@ -152,17 +152,19 @@ else:
     verts, faces = cottage_verts, cottage_faces
 ```
 
-**Sunflower Crest**
+**Sunflower Utility Crest**
 
-The city disk is the disk-floret region. The crest is the ray-floret region:
-Perlin-warped translucent petals anchored around the flat dome base and climbing
-partway up the dome, not a loose decorative halo.
+The city disk is the disk-floret region. The external crest is the ray-floret
+region: alternating solar panels and radiators, Perlin-warped and anchored
+around the flat dome base, radiating sunward outside the glass rather than
+inside the city volume.
 
 ```python
 for petal in range(34):
     center_a = TAU * petal / petals + 0.025 * pymath.sin(petal * 1.7)
-    climb = 0.58 + 0.36 * fbm_2d(pymath.cos(center_a) * 2.1, pymath.sin(center_a) * 2.1, seed=177)
-    x = CITY_GROUND_X + climb * smoothstep(t)
+    target_verts = solar_verts if petal % 2 == 0 else radiator_verts
+    radius = 1.57 + outward_reach * smoothstep(t)
+    x = CITY_GROUND_X - 0.035 - sunward_cant * smoothstep(t)
 ```
 
 **Shader Graphs Are Geometry Evidence Too**
@@ -196,7 +198,8 @@ Render review rejected the first pass because the city bubble read as detached
 from the tether and the EEVEE/default-material pass was too shallow. The
 accepted revision uses Cycles, explicit bubble-to-tether attachment geometry,
 shader-node work, a non-grid city map, the orthogonal spinning city frame,
-boolean-cut flat dome base, and a sunflower ray-floret crest. The verifier now
+boolean-cut flat dome base, and an external alternating solar/radiator
+sunflower ray-floret crest. The verifier now
 checks the attachment objects, Cycles engine, material shader-node types, named
 crisis geometry, city coordinate contract, render artifacts, and the `VG Lucent
 Feed Ribbon` Geometry Script group.
