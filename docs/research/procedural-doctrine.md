@@ -63,6 +63,43 @@ not ask the machine shop to be the whole factory.
 Verification cue: if Python generates graph structure, verify the emitted node
 groups and evaluated behavior, not the Python loop by itself.
 
+## Ground The Coordinate Frame First
+
+Reach for this before adding visual detail to lore-bound or reference-bound
+spaces. Ornament in the wrong frame is not detail. It is a confident lie with
+nice bevels.
+
+Mental move:
+
+```text
+source vocabulary -> basis axes -> meaning of up/down -> attachment surfaces -> detail
+```
+
+For the Bloom, axial, radial, spinward, and counterspinward are not synonyms
+for ordinary room directions. On a hubward endcap, "up" means inward toward the
+Spire and weaker gravity, so terrace slums become annular shelves, ladders,
+nets, handlines, and tilted rooms around the docking hub. They do not climb the
+cylinder wall unless the lore says that wall is the relevant surface.
+
+Code shape from the Bloom pass:
+
+```python
+def add_hubward_endcap_terraced_slums(prefix, x, mats):
+    # Bloom lore frame: on an endcap, "up" is inward toward the axial Spire.
+    rings = [0.95, 1.28, 1.62, 1.98, 2.36, 2.76, 3.18, 3.62, 4.08, 4.55, 4.95]
+    for tier, radius in enumerate(rings[:-1]):
+        inner_r = radius
+        outer_r = rings[tier + 1]
+        append_endcap_ring_band(shelf_verts, shelf_faces, face_x, inner_r, outer_r)
+```
+
+Metaphor in use: the coordinate frame is the local weather. Build with it and
+forms lean naturally. Ignore it and every later detail needs apology machinery.
+
+Verification cue: name representative objects after the frame they prove, then
+render from a view that can reveal the attachment surface. `hubward_endcap_*`
+objects prove something different from `surface_*` objects.
+
 ## Start With A Pipeline
 
 Reach for this when the form feels like it has stages: a seed shape, a sampling

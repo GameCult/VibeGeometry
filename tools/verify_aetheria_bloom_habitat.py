@@ -26,7 +26,12 @@ REQUIRED_OBJECTS = {
     "capward_endcap_pressure_face",
     "hubward_endcap_terrace_ring_00",
     "capward_endcap_terrace_ring_00",
-    "hubward_endcap_slum_balcony_00_00",
+    "hubward_docking_hub_office_complex_ring_office_mesh",
+    "hubward_docking_hub_office_complex_office_spoke_bridge_00",
+    "hubward_endcap_rice_paddy_slums_annular_shelf_mesh",
+    "hubward_endcap_rice_paddy_slums_rickety_shack_mesh",
+    "hubward_endcap_rice_paddy_slums_patched_roof_mesh",
+    "hubward_endcap_rice_paddy_slums_ladders_nets_handlines",
     "capward_endcap_beach_service_00_00",
     "spiral_cargo_spoke_00",
     "spiral_passenger_spoke_01",
@@ -43,7 +48,7 @@ REQUIRED_OBJECTS = {
     "kappa_air_return_to_filters",
     "kappa_coolant_heat_exchanger",
     "kappa_condensate_drain",
-    "hubcap_terrace_slum_band",
+    "hubward_low_g_transition_band",
     "hyperurban_favela_city_belt",
     "prestige_urban_luxury_spoke_belt",
     "urban_mixed_suburban_industrial_belt",
@@ -53,10 +58,7 @@ REQUIRED_OBJECTS = {
     "wrapped_road_graph_0",
     "wrapped_river_0",
     "airflow_cloud_patch_0",
-    "layered_hubcap_slum_stack_00_00",
-    "fractal_wall_favela_shack_mesh",
-    "fractal_wall_favela_roof_mesh",
-    "fractal_wall_favela_brace_and_catwalks",
+    "hubward_spoke_access_market_stack_00_00",
     "hyperurban_nested_town_nested_house_mesh",
     "hyperurban_nested_town_lane_network",
     "luxury_spoke_plaza_-5.0_-3.14",
@@ -95,7 +97,7 @@ def verify_scene():
         assert_true(path.stat().st_size > 10_000, f"Generated artifact is suspiciously small: {path}")
 
     mesh_objects = [obj for obj in bpy.data.objects if obj.type in {"MESH", "CURVE", "FONT"}]
-    assert_true(len(mesh_objects) >= 760, f"Expected a populated whole-Bloom study scene, found {len(mesh_objects)} geometry/text objects")
+    assert_true(len(mesh_objects) >= 930, f"Expected a populated whole-Bloom study scene, found {len(mesh_objects)} geometry/text objects")
 
     print("AETHERIA_BLOOM_VERIFY ok")
     print("AETHERIA_BLOOM_VERIFY group", group.name, len(group.nodes), len(group.links))

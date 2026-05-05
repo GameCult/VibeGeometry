@@ -43,12 +43,15 @@ The build follows the current Bloom model:
 - layered endcaps with pressure faces, terrace rings, slum balconies, and beach
   service structures
 - outward stack of utility mat, pressure/structural shell, and aggregate shielding
-- layered civic geography: hub-cap terrace slums, hyper-urban favela belts,
-  luxury spoke districts, urban mixed belts, suburban/industrial areas,
+- layered civic geography: hubward low-g transition belt, hyper-urban favela
+  belts, luxury spoke districts, urban mixed belts, suburban/industrial areas,
   industrial/agricultural bands, beach rim, sea band, roads, rivers, cloud
   patches, and service routes
-- fractal favela wall detail: batched core shacks, child shacks, patched roofs,
-  stilts, diagonal braces, and catwalks climbing the hubward wall
+- hubward endcap terrace slums: annular shelves around the docking hub office
+  complex, stepping inward toward the Spire as "up" and extending outward to the
+  high-radius surface
+- rickety endcap favela detail: batched shacks, patched roofs, ladders, nets,
+  and handlines on the endcap terrace system
 - elaborated spoke plazas and town fields: plaza rings, kiosks, feeder walks,
   nested town houses, and lane networks
 - one small Service Ring Kappa marker among many maintenance systems, not the
@@ -76,7 +79,7 @@ Result:
 ```text
 AETHERIA_BLOOM_VERIFY ok
 AETHERIA_BLOOM_VERIFY group VG Bloom Light Spine 21 31
-AETHERIA_BLOOM_VERIFY objects 1102
+AETHERIA_BLOOM_VERIFY objects 1026
 ```
 
 ## Procedural Translation Notes
@@ -89,8 +92,8 @@ This is intentionally hybrid:
   geometry-node group used by a Nodes modifier in the scene.
 - bpy builds the full shell surfaces, despun core, hub cap, docking port, spun
   sheath, spiral spoke loops, endcaps, frame-transfer arteries, wrapped region
-  patches, city blocks, batched favela/town/plaza detail, roads, rivers, clouds,
-  utility lines, service markers, and cameras.
+  patches, city blocks, hubward endcap terrace slums, batched town/plaza detail,
+  roads, rivers, clouds, utility lines, service markers, and cameras.
 
 The IRCSS pass paid off in three ways:
 
@@ -112,6 +115,10 @@ The IRCSS pass paid off in three ways:
   object per plank. The favela/town pass batches many boxes into shared meshes
   and many brace/catwalk paths into shared curve objects, preserving detail
   without making scene generation stall.
+- **Lore frame before ornament:** Bloom endcap "up" points inward toward the
+  axial Spire, not along the cylinder wall. Terrace slums therefore belong on
+  hubward/capward endcaps as annular shelves, galleries, ladders, nets, and
+  handlines around the axial hub, growing outward to the surface.
 - **Python as orchestration:** the cylinder layers, region maps, city blocks,
   social-gradient bands, roads, rivers, forests, clouds, and spokes come from
   small tables and named helpers rather than copied object placement.
@@ -119,7 +126,7 @@ The IRCSS pass paid off in three ways:
 ## Current Limits
 
 - The build is a spatial systems study, not final art.
-- The civic surface is still a symbolic map-layer world, but the hubward favela
+- The civic surface is still a symbolic map-layer world, but the hubward endcap
   now has enough nested structure to read as precarious built habitat.
 - The current whole-Bloom view is less skeletal, but still a study. It needs
   denser horizon city detail and better art-directed lighting before it earns

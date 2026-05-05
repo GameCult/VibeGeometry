@@ -61,10 +61,11 @@ Bruneton's Rama making-of as a cylindrical-world reference. It now emphasizes
 whole-cylinder mapped spaces and frame interfaces: full shell layers, despun
 hub cap and docking core, spun spire sheath, shared x/angle/radius coordinate
 helpers, golden-angle spoke/transfer loops, layered endcaps, mapped civic
-bands, roads, rivers, cloud patches, and service seams. The hubward favela wall
-uses batched fractal shack/roof/brace/catwalk detail; plazas and towns have
-nested buildings, kiosks, feeder walks, and lane networks. Kappa is only a
-small service marker. Build notes live at
+bands, roads, rivers, cloud patches, and service seams. The hubward terrace
+slums are on the endcap: annular shelves around the docking hub office complex
+step inward toward the Spire as "up" and grow outward to the surface. Plazas
+and towns have nested buildings, kiosks, feeder walks, and lane networks. Kappa
+is only a small service marker. Build notes live at
 `docs/research/builds/aetheria-bloom-habitat.md`; verification lives at
 `tools/verify_aetheria_bloom_habitat.py`.
 

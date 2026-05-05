@@ -317,6 +317,87 @@ def add_favela_fractal_cluster(prefix, x_values, angles, mats):
     add_multi_polyline_curve(prefix + "_brace_and_catwalks", brace_lines, 0.005, mats["brace"], resolution=2)
 
 
+def append_endcap_ring_band(verts, faces, x, inner_radius, outer_radius, segments=96):
+    base = len(verts)
+    for i in range(segments):
+        a = FULL_START + TAU * i / segments
+        verts.append(cyl_point(x, a, inner_radius))
+        verts.append(cyl_point(x, a, outer_radius))
+    for i in range(segments):
+        j = (i + 1) % segments
+        faces.append((base + i * 2, base + j * 2, base + j * 2 + 1, base + i * 2 + 1))
+
+
+def add_hubward_endcap_terraced_slums(prefix, x, mats):
+    # Bloom lore frame: on an endcap, "up" is inward toward the axial Spire.
+    # These are compressed annular terraces around the docking/hub offices,
+    # descending outward until they reach the rotating civic surface.
+    shelf_verts, shelf_faces = [], []
+    shack_verts, shack_faces = [], []
+    roof_verts, roof_faces = [], []
+    ladder_lines = []
+    rings = [0.95, 1.28, 1.62, 1.98, 2.36, 2.76, 3.18, 3.62, 4.08, 4.55, 4.95]
+    for tier, radius in enumerate(rings[:-1]):
+        inner_r = radius
+        outer_r = rings[tier + 1]
+        face_x = x + 0.04 + tier * 0.012
+        append_endcap_ring_band(shelf_verts, shelf_faces, face_x, inner_r, outer_r, segments=128)
+        count = 14 + tier * 3
+        for i in range(count):
+            a = FULL_START + TAU * (i + 0.23 * (tier % 3)) / count
+            lane_r = (inner_r + outer_r) * 0.5 + 0.035 * pymath.sin(i * 1.7 + tier)
+            local_x = face_x + 0.035 * ((i + tier) % 3)
+            local_axes = (tangent(a), radial(a), (1, 0, 0))
+            tangential = max(0.045, TAU * lane_r / count * 0.32)
+            radial_depth = max(0.09, (outer_r - inner_r) * 0.38)
+            height = 0.11 + 0.025 * ((i + tier) % 4)
+            append_box_parts(
+                shack_verts,
+                shack_faces,
+                cyl_point(local_x + height * 0.35, a, lane_r),
+                local_axes,
+                (tangential, radial_depth, height),
+            )
+            roof_axes = (tangent(a + 0.006), radial(a + 0.006), (1, 0, 0))
+            append_box_parts(
+                roof_verts,
+                roof_faces,
+                cyl_point(local_x + height * 0.78, a + 0.004, lane_r - 0.012),
+                roof_axes,
+                (tangential * 1.18, radial_depth * 1.05, 0.018),
+            )
+            if i % 2 == 0:
+                ladder_lines.append([cyl_point(local_x + 0.12, a, outer_r - 0.04), cyl_point(local_x + 0.18, a + 0.01, inner_r + 0.04)])
+            if i % 3 == 0:
+                ladder_lines.append(
+                    [
+                        cyl_point(local_x + 0.1, a - 0.025, lane_r),
+                        cyl_point(local_x + 0.12, a, lane_r - 0.03),
+                        cyl_point(local_x + 0.1, a + 0.025, lane_r),
+                    ]
+                )
+    add_mesh_parts(prefix + "_annular_shelf_mesh", shelf_verts, shelf_faces, mats["favela"])
+    add_mesh_parts(prefix + "_rickety_shack_mesh", shack_verts, shack_faces, mats["favela"])
+    add_mesh_parts(prefix + "_patched_roof_mesh", roof_verts, roof_faces, mats["shack_roof"])
+    add_multi_polyline_curve(prefix + "_ladders_nets_handlines", ladder_lines, 0.0055, mats["brace"], resolution=2)
+
+
+def add_hubward_office_complex(prefix, x, mats):
+    office_verts, office_faces = [], []
+    for i, radius in enumerate((0.42, 0.68, 0.92)):
+        append_endcap_ring_band(office_verts, office_faces, x + 0.18 + i * 0.06, radius, radius + 0.16, segments=96)
+    add_mesh_parts(prefix + "_ring_office_mesh", office_verts, office_faces, mats["hub"])
+    for i, angle in enumerate([pymath.radians(a) for a in range(-150, 181, 30)]):
+        add_cylinder_between(
+            f"{prefix}_office_spoke_bridge_{i:02d}",
+            cyl_point(x + 0.28, angle, 0.9),
+            cyl_point(x + 0.18, angle, 1.22),
+            0.012,
+            mats["pressure_line"],
+            vertices=6,
+        )
+
+
 def add_town_detail_cluster(prefix, x_values, angles, material, road_material):
     verts, faces = [], []
     lanes = []
@@ -616,14 +697,8 @@ def build_scene():
         for ir, rr in enumerate((0.82, 1.6, 2.45, 3.25, 4.05, 4.75, 5.35)):
             mat_key = "favela" if x < 0 and ir >= 2 else "beach" if x > 0 and ir >= 4 else "pressure_line"
             add_endcap_ring(f"{prefix}_endcap_terrace_ring_{ir:02d}", x, rr, mats[mat_key], minor_radius=0.018 + ir * 0.002)
-    add_endcap_terrace_blocks(
-        "hubward_endcap_slum_balcony",
-        -9.12,
-        [2.1, 2.7, 3.3, 3.9, 4.45],
-        [pymath.radians(a) for a in range(-170, 181, 20)],
-        mats["favela"],
-        height=0.22,
-    )
+    add_hubward_office_complex("hubward_docking_hub_office_complex", -9.24, mats)
+    add_hubward_endcap_terraced_slums("hubward_endcap_rice_paddy_slums", -9.18, mats)
     add_endcap_terrace_blocks(
         "capward_endcap_beach_service",
         9.12,
@@ -673,10 +748,10 @@ def build_scene():
         a = ((i * golden_angle * 1.618 + 0.72 * pymath.sin(t * TAU * 2.0)) % TAU) - pymath.pi
         add_spiral_spoke_loop(f"spiral_atmospheric_utility_rib_{i:02d}", x, a, 0.95, 5.55, mats["air"], bevel=0.015, cargo=False)
 
-    # Whole-cylinder civic gradient. Axial bands move from hub-cap terrace slums
+    # Whole-cylinder civic gradient. Axial bands move from hubward transition
     # through dense and luxury urban districts, mixed suburbs, industrial/farm
     # belts, and finally a beach/sea edge.
-    add_surface_patch("hubcap_terrace_slum_band", -8.9, -7.35, FULL_START, FULL_END, INNER_RADIUS, mats["favela"], lift=-0.20, angle_steps=72, x_steps=3)
+    add_surface_patch("hubward_low_g_transition_band", -8.9, -7.35, FULL_START, FULL_END, INNER_RADIUS, mats["favela"], lift=-0.20, angle_steps=72, x_steps=3)
     add_surface_patch("hyperurban_favela_city_belt", -7.35, -5.6, FULL_START, FULL_END, INNER_RADIUS, mats["city"], lift=-0.18, angle_steps=72, x_steps=3)
     add_surface_patch("prestige_urban_luxury_spoke_belt", -5.6, -2.7, FULL_START, FULL_END, INNER_RADIUS, mats["luxury"], lift=-0.17, angle_steps=72, x_steps=4)
     add_surface_patch("urban_mixed_suburban_industrial_belt", -2.7, 0.9, FULL_START, FULL_END, INNER_RADIUS, mats["suburban"], lift=-0.18, angle_steps=72, x_steps=4)
@@ -685,14 +760,8 @@ def build_scene():
     add_surface_patch("cylindrical_sea_after_beach", 7.05, 8.85, FULL_START, FULL_END, INNER_RADIUS, mats["water"], lift=-0.25, angle_steps=72, x_steps=3)
 
     dense_angles = [pymath.radians(a) for a in range(-165, 180, 15)]
-    add_surface_block_field("layered_hubcap_slum_stack", [-8.65, -8.25, -7.85, -7.45], dense_angles, mats["favela"], size=(0.16, 0.08, 0.22), radial_lift=-0.35, jitter=0.035)
+    add_surface_block_field("hubward_spoke_access_market_stack", [-8.65, -8.25, -7.85, -7.45], dense_angles, mats["favela"], size=(0.16, 0.08, 0.18), radial_lift=-0.29, jitter=0.035)
     add_surface_block_field("hyperurban_microtower", [-7.0, -6.55, -6.1, -5.7], dense_angles[::2], mats["city"], size=(0.2, 0.1, 0.36), radial_lift=-0.42, jitter=0.03)
-    add_favela_fractal_cluster(
-        "fractal_wall_favela",
-        [-8.78, -8.42, -8.06, -7.7, -7.34, -6.98, -6.62],
-        [pymath.radians(a) for a in range(-165, 181, 30)],
-        mats,
-    )
     add_town_detail_cluster(
         "hyperurban_nested_town",
         [-7.1, -6.65, -6.2, -5.75],
