@@ -177,6 +177,208 @@ def add_surface_block_field(name, x_values, angles, material, size, radial_lift=
             )
 
 
+def append_box_parts(verts, faces, loc, axes, size):
+    from mathutils import Vector
+
+    origin = Vector(loc)
+    ax = [Vector(axis).normalized() for axis in axes]
+    sx, sy, sz = (value * 0.5 for value in size)
+    base = len(verts)
+    for dx, dy, dz in [
+        (-sx, -sy, -sz),
+        (sx, -sy, -sz),
+        (sx, sy, -sz),
+        (-sx, sy, -sz),
+        (-sx, -sy, sz),
+        (sx, -sy, sz),
+        (sx, sy, sz),
+        (-sx, sy, sz),
+    ]:
+        v = origin + ax[0] * dx + ax[1] * dy + ax[2] * dz
+        verts.append((v.x, v.y, v.z))
+    faces.extend(
+        [
+            (base + 0, base + 1, base + 2, base + 3),
+            (base + 4, base + 7, base + 6, base + 5),
+            (base + 0, base + 4, base + 5, base + 1),
+            (base + 1, base + 5, base + 6, base + 2),
+            (base + 2, base + 6, base + 7, base + 3),
+            (base + 3, base + 7, base + 4, base + 0),
+        ]
+    )
+
+
+def add_mesh_parts(name, verts, faces, material):
+    import bpy
+
+    mesh = bpy.data.meshes.new(name + "Mesh")
+    mesh.from_pydata(verts, [], faces)
+    mesh.update()
+    obj = bpy.data.objects.new(name, mesh)
+    bpy.context.collection.objects.link(obj)
+    obj.data.materials.append(material)
+    return obj
+
+
+def add_multi_polyline_curve(name, lines, bevel, material, resolution=2):
+    import bpy
+
+    curve = bpy.data.curves.new(name + "Curve", "CURVE")
+    curve.dimensions = "3D"
+    curve.resolution_u = resolution
+    curve.bevel_depth = bevel
+    curve.bevel_resolution = 2
+    for line in lines:
+        spline = curve.splines.new("POLY")
+        spline.points.add(len(line) - 1)
+        for point, co in zip(spline.points, line):
+            point.co = (co[0], co[1], co[2], 1.0)
+    obj = bpy.data.objects.new(name, curve)
+    bpy.context.collection.objects.link(obj)
+    obj.data.materials.append(material)
+    return obj
+
+
+def add_surface_stilt(name, x, angle, inner_lift, outer_lift, material, radius=0.009):
+    start = surface_point(x, angle, INNER_RADIUS, lift=inner_lift)
+    end = surface_point(x, angle, INNER_RADIUS, lift=outer_lift)
+    return add_cylinder_between(name, start, end, radius, material, vertices=6)
+
+
+def add_surface_brace(name, x0, angle0, x1, angle1, lift0, lift1, material, bevel=0.006):
+    return add_curve_polyline(
+        name,
+        [
+            surface_point(x0, angle0, INNER_RADIUS, lift=lift0),
+            surface_point((x0 + x1) * 0.5, (angle0 + angle1) * 0.5, INNER_RADIUS, lift=(lift0 + lift1) * 0.5 - 0.03),
+            surface_point(x1, angle1, INNER_RADIUS, lift=lift1),
+        ],
+        bevel,
+        material,
+        resolution=3,
+    )
+
+
+def add_favela_fractal_cluster(prefix, x_values, angles, mats):
+    shack_verts, shack_faces = [], []
+    roof_verts, roof_faces = [], []
+    brace_lines = []
+    for ix, x in enumerate(x_values):
+        for ia, angle in enumerate(angles):
+            lean = ((ix * 5 + ia * 3) % 5 - 2) * 0.018
+            root = f"{prefix}_{ix:02d}_{ia:02d}"
+            axes = ((1, 0, 0), tangent(angle + lean), radial(angle + lean))
+            append_box_parts(shack_verts, shack_faces, surface_point(x, angle + lean, INNER_RADIUS, lift=-0.38), axes, (0.2, 0.12, 0.24))
+            for level in range(2):
+                lift = -0.55 - level * 0.14
+                width = 0.13 - level * 0.015
+                for wing in (-1, 1):
+                    dx = wing * (0.09 + 0.035 * level)
+                    da = wing * (0.018 + 0.012 * level) + lean
+                    local_axes = ((1, 0, 0), tangent(angle + da), radial(angle + da))
+                    append_box_parts(
+                        shack_verts,
+                        shack_faces,
+                        surface_point(x + dx, angle + da, INNER_RADIUS, lift=lift),
+                        local_axes,
+                        (width, 0.075, 0.11),
+                    )
+                    roof_axes = ((1, 0, 0), tangent(angle + da + 0.006 * wing), radial(angle + da + 0.006 * wing))
+                    append_box_parts(
+                        roof_verts,
+                        roof_faces,
+                        surface_point(x + dx + 0.012 * wing, angle + da + 0.006 * wing, INNER_RADIUS, lift=lift - 0.07),
+                        roof_axes,
+                        (width * 1.22, 0.095, 0.018),
+                    )
+                    brace_lines.append(
+                        [
+                            surface_point(x + dx - width * 0.25, angle + da - 0.006, INNER_RADIUS, lift=lift + 0.05),
+                            surface_point(x + dx - width * 0.25, angle + da - 0.006, INNER_RADIUS, lift=-0.25),
+                        ]
+                    )
+                    brace_lines.append(
+                        [
+                            surface_point(x + dx - width * 0.42, angle + da - 0.012, INNER_RADIUS, lift=lift + 0.02),
+                            surface_point(x + dx, angle + da, INNER_RADIUS, lift=lift - 0.04),
+                            surface_point(x + dx + width * 0.42, angle + da + 0.012, INNER_RADIUS, lift=lift - 0.09),
+                        ]
+                    )
+            for step in range(2):
+                brace_lines.append(
+                    [
+                        surface_point(x - 0.18, angle + lean + step * 0.028, INNER_RADIUS, lift=-0.62 - step * 0.08),
+                        surface_point(x, angle + lean + 0.035 + step * 0.025, INNER_RADIUS, lift=-0.62 - step * 0.08),
+                        surface_point(x + 0.2, angle + lean + step * 0.02, INNER_RADIUS, lift=-0.62 - step * 0.08),
+                    ]
+                )
+    add_mesh_parts(prefix + "_shack_mesh", shack_verts, shack_faces, mats["favela"])
+    add_mesh_parts(prefix + "_roof_mesh", roof_verts, roof_faces, mats["shack_roof"])
+    add_multi_polyline_curve(prefix + "_brace_and_catwalks", brace_lines, 0.005, mats["brace"], resolution=2)
+
+
+def add_town_detail_cluster(prefix, x_values, angles, material, road_material):
+    verts, faces = [], []
+    lanes = []
+    for ix, x in enumerate(x_values):
+        for ia, angle in enumerate(angles):
+            root = f"{prefix}_{ix:02d}_{ia:02d}"
+            for lane in (-1, 0, 1):
+                local_angle = angle + lane * 0.024
+                lanes.append(
+                    [
+                        surface_point(x - 0.32, local_angle - 0.014, INNER_RADIUS, lift=-0.37),
+                        surface_point(x, local_angle + 0.008, INNER_RADIUS, lift=-0.37),
+                        surface_point(x + 0.32, local_angle - 0.006, INNER_RADIUS, lift=-0.37),
+                    ]
+                )
+                for b in range(3):
+                    dx = -0.22 + b * 0.22 + ((ix + ia + b) % 3 - 1) * 0.018
+                    da = lane * 0.026 + ((ix * 7 + ia * 5 + b) % 5 - 2) * 0.004
+                    height = 0.12 + 0.035 * ((ix + ia + b) % 4)
+                    append_box_parts(
+                        verts,
+                        faces,
+                        surface_point(x + dx, angle + da, INNER_RADIUS, lift=-0.3 - height * 0.5),
+                        ((1, 0, 0), tangent(angle + da), radial(angle + da)),
+                        (0.12, 0.07, height),
+                    )
+    add_mesh_parts(prefix + "_nested_house_mesh", verts, faces, material)
+    add_multi_polyline_curve(prefix + "_lane_network", lanes, 0.006, road_material, resolution=2)
+
+
+def add_spoke_plaza_detail(prefix, x, angle, mats, seed):
+    add_surface_curve(
+        f"{prefix}_plaza_ring",
+        [(x + 0.34 * pymath.cos(t), angle + 0.065 * pymath.sin(t)) for t in [TAU * i / 28 for i in range(29)]],
+        INNER_RADIUS,
+        0.01,
+        mats["road"],
+        lift=-0.42,
+    )
+    for i in range(10):
+        t = TAU * i / 10 + seed * 0.13
+        dx = 0.28 * pymath.cos(t)
+        da = 0.052 * pymath.sin(t)
+        add_surface_box(
+            f"{prefix}_kiosk_{i:02d}",
+            x + dx,
+            angle + da,
+            mats["luxury"],
+            size=(0.09, 0.055, 0.1 + 0.025 * (i % 3)),
+            radial_lift=-0.37,
+        )
+    for i, spoke_da in enumerate((-0.11, -0.055, 0.055, 0.11)):
+        add_surface_curve(
+            f"{prefix}_feeder_walk_{i:02d}",
+            [(x - 0.45, angle + spoke_da), (x, angle + spoke_da * 0.3), (x + 0.45, angle - spoke_da * 0.6)],
+            INNER_RADIUS,
+            0.008,
+            mats["pressure_line"],
+            lift=-0.43,
+        )
+
+
 def add_rotating_spoke(name, x, angle, inner_radius, outer_radius, material, radius=0.045, vertices=10):
     r = radial(angle)
     return add_cylinder_between(
@@ -374,6 +576,8 @@ def build_scene():
         "farm": mat("TCS Root farms", (0.15, 0.55, 0.24), alpha=0.92),
         "district": mat("surface districts", (0.55, 0.58, 0.62), alpha=0.95),
         "favela": mat("hubcap terrace slums", (0.74, 0.48, 0.26), alpha=0.98),
+        "shack_roof": mat("patched favela sheet metal", (0.46, 0.39, 0.32), alpha=0.98),
+        "brace": mat("rickety brace dark steel", (0.12, 0.10, 0.085), alpha=0.98),
         "luxury": mat("luxury spoke districts", (0.82, 0.78, 0.62), alpha=0.98),
         "industrial": mat("industrial works", (0.32, 0.34, 0.36), alpha=0.98),
         "suburban": mat("suburban mixed belt", (0.5, 0.64, 0.5), alpha=0.96),
@@ -483,12 +687,33 @@ def build_scene():
     dense_angles = [pymath.radians(a) for a in range(-165, 180, 15)]
     add_surface_block_field("layered_hubcap_slum_stack", [-8.65, -8.25, -7.85, -7.45], dense_angles, mats["favela"], size=(0.16, 0.08, 0.22), radial_lift=-0.35, jitter=0.035)
     add_surface_block_field("hyperurban_microtower", [-7.0, -6.55, -6.1, -5.7], dense_angles[::2], mats["city"], size=(0.2, 0.1, 0.36), radial_lift=-0.42, jitter=0.03)
+    add_favela_fractal_cluster(
+        "fractal_wall_favela",
+        [-8.78, -8.42, -8.06, -7.7, -7.34, -6.98, -6.62],
+        [pymath.radians(a) for a in range(-165, 181, 30)],
+        mats,
+    )
+    add_town_detail_cluster(
+        "hyperurban_nested_town",
+        [-7.1, -6.65, -6.2, -5.75],
+        [pymath.radians(a) for a in range(-150, 181, 45)],
+        mats["city"],
+        mats["road"],
+    )
     for x in [-5.0, -4.2, -3.4]:
-        for a in prestige_angles[:8]:
+        for ia, a in enumerate(prestige_angles[:8]):
             add_surface_box(f"luxury_spoke_plaza_{x:.1f}_{a:.2f}", x, a, mats["luxury"], size=(0.55, 0.34, 0.14), radial_lift=-0.31)
+            add_spoke_plaza_detail(f"luxury_spoke_plaza_detail_{x:.1f}_{ia:02d}", x, a, mats, ia)
             for da in (-0.16, 0.16):
                 add_surface_box(f"luxury_spoke_tower_{x:.1f}_{a:.2f}_{da:.1f}", x + da, a + da, mats["city"], size=(0.18, 0.1, 0.42), radial_lift=-0.44)
     add_surface_block_field("mixed_suburban_industrial_block", [-2.2, -1.4, -0.6, 0.2], [pymath.radians(a) for a in range(-150, 181, 30)], mats["suburban"], size=(0.42, 0.18, 0.12), radial_lift=-0.27, jitter=0.04)
+    add_town_detail_cluster(
+        "mixed_belt_nested_town",
+        [-2.35, -1.65, -0.95, -0.25, 0.45],
+        [pymath.radians(a) for a in range(-150, 181, 60)],
+        mats["suburban"],
+        mats["road"],
+    )
     add_surface_block_field("factory_yard_block", [1.2, 2.0, 2.8, 3.6], [pymath.radians(a) for a in range(-150, 181, 45)], mats["industrial"], size=(0.62, 0.22, 0.16), radial_lift=-0.29, jitter=0.035)
     add_surface_block_field("farm_service_shed", [4.2, 5.0, 5.6], [pymath.radians(a) for a in range(-165, 181, 45)], mats["farm"], size=(0.52, 0.16, 0.08), radial_lift=-0.24, jitter=0.04)
     for i, deg in enumerate(range(-170, 181, 20)):

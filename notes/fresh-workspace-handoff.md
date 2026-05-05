@@ -60,11 +60,11 @@ generates an Aetheria Bloom whole-habitat study using Bloom lore plus Eric
 Bruneton's Rama making-of as a cylindrical-world reference. It now emphasizes
 whole-cylinder mapped spaces and frame interfaces: full shell layers, despun
 hub cap and docking core, spun spire sheath, shared x/angle/radius coordinate
-helpers, golden-angle spiral spoke and transfer-loop distribution, layered
-endcaps, hub-cap terrace slums, favela/hyperurban belts, luxury spoke districts,
-mixed urban/suburban/industrial belts, industrial/agricultural areas, beach and
-sea bands, roads, rivers, airflow cloud patches, and surface service seams.
-Kappa is only a small service marker. Build notes live at
+helpers, golden-angle spoke/transfer loops, layered endcaps, mapped civic
+bands, roads, rivers, cloud patches, and service seams. The hubward favela wall
+uses batched fractal shack/roof/brace/catwalk detail; plazas and towns have
+nested buildings, kiosks, feeder walks, and lane networks. Kappa is only a
+small service marker. Build notes live at
 `docs/research/builds/aetheria-bloom-habitat.md`; verification lives at
 `tools/verify_aetheria_bloom_habitat.py`.
 

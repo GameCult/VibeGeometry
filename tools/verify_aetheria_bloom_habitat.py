@@ -54,7 +54,16 @@ REQUIRED_OBJECTS = {
     "wrapped_river_0",
     "airflow_cloud_patch_0",
     "layered_hubcap_slum_stack_00_00",
+    "fractal_wall_favela_shack_mesh",
+    "fractal_wall_favela_roof_mesh",
+    "fractal_wall_favela_brace_and_catwalks",
+    "hyperurban_nested_town_nested_house_mesh",
+    "hyperurban_nested_town_lane_network",
     "luxury_spoke_plaza_-5.0_-3.14",
+    "luxury_spoke_plaza_detail_-5.0_00_plaza_ring",
+    "luxury_spoke_plaza_detail_-5.0_00_kiosk_00",
+    "luxury_spoke_plaza_detail_-5.0_00_feeder_walk_00",
+    "mixed_belt_nested_town_nested_house_mesh",
     "factory_yard_block_00_00",
     "axial_surface_service_lane_00",
     "circumferential_market_seam_00",
@@ -86,7 +95,7 @@ def verify_scene():
         assert_true(path.stat().st_size > 10_000, f"Generated artifact is suspiciously small: {path}")
 
     mesh_objects = [obj for obj in bpy.data.objects if obj.type in {"MESH", "CURVE", "FONT"}]
-    assert_true(len(mesh_objects) >= 500, f"Expected a populated whole-Bloom study scene, found {len(mesh_objects)} geometry/text objects")
+    assert_true(len(mesh_objects) >= 760, f"Expected a populated whole-Bloom study scene, found {len(mesh_objects)} geometry/text objects")
 
     print("AETHERIA_BLOOM_VERIFY ok")
     print("AETHERIA_BLOOM_VERIFY group", group.name, len(group.nodes), len(group.links))
