@@ -63,6 +63,11 @@ tables, loops, variants, cleanup, validation, docs, and scene/render
 orchestration; Geometry Script emits inspectable Geometry Nodes groups; `bpy`
 handles Blender scene machinery and evaluated evidence.
 
+`vibegeometry/` is the first reusable helper library. It currently holds
+coordinate-frame helpers, deterministic field/noise helpers, mesh batching,
+thin Blender object/material/camera helpers, and verifier helpers. The Bloom
+script imports these primitives directly, so the library is not just a shrine.
+
 The repo-local Geometry Script clone has Blender 5.1 work for nested `@tree`
 group reuse, a ported `nodes_to_script` converter, and menu-socket default
 tolerance. See `docs/research/geometry-script-fork-notes.md`. Run
@@ -77,9 +82,9 @@ The GameCult fork is intentionally pruned to `main` plus VibeGeometry-owned
 tooling branches. Do not copy upstream branch soup forward unless a future patch
 actually needs it.
 
-The current next action is to extract the Bloom coordinate/noise/detail lessons
-into a small reusable builder seam, starting with either endcap terrace slums or
-spiral transfer arteries, then bind that seam to scene-brief, manifest,
+The current next action is to grow `vibegeometry/` from helper primitives into a
+small reusable builder seam, starting with either endcap terrace slums or spiral
+transfer arteries, then bind that seam to scene-brief, manifest,
 inspection-render, and verifier contract drafts.
 
 ## Important Invariants

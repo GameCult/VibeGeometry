@@ -49,13 +49,14 @@ Currently present:
 
 - persistence surfaces for re-entry, evidence, planning, and compaction hygiene
 - starter architecture notes for the Blender scene-generation pipeline
+- a small `vibegeometry/` helper library for coordinate frames, deterministic
+  fields, batching, Blender object/material/camera helpers, and verifier checks
 - a repo structure for schemas, prompts, examples, experiments, scripts, tools,
   notes, and durable state
 - small state inspection and pre-compaction helpers
 
 Not present yet:
 
-- Blender Python graph builder library
 - scene brief schema
 - node graph manifest schema
 - render review schema
@@ -73,6 +74,7 @@ Not present yet:
 - `notes/fresh-workspace-handoff.md`: compact re-entry packet
 - `notes/vibegeometry-current-system-map.md`: current repo machinery
 - `notes/vibegeometry-implementation-plan.md`: implementation sequence
+- `vibegeometry/`: reusable procedural-scene helper library
 - `notes/architecture-rationale.md`: why the persistence surfaces exist
 - `docs/architecture/`: pipeline contracts and design notes
 - `docs/research/`: Blender geometry-node research notes

@@ -3,11 +3,16 @@
 from __future__ import annotations
 
 from pathlib import Path
+import sys
 
 import bpy
 
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
+
+from vibegeometry import assert_objects_exist, assert_render_artifacts, assert_scene_density
+
 ARTIFACT_DIR = ROOT / "experiments" / "generated" / "aetheria_bloom"
 
 
@@ -83,8 +88,7 @@ def assert_true(condition: bool, message: str):
 
 
 def verify_scene():
-    missing = sorted(name for name in REQUIRED_OBJECTS if name not in bpy.data.objects)
-    assert_true(not missing, f"Missing required objects: {missing}")
+    assert_objects_exist(bpy, REQUIRED_OBJECTS)
 
     group = bpy.data.node_groups.get("VG Bloom Light Spine")
     assert_true(group is not None, "Missing Geometry Script node group VG Bloom Light Spine")
@@ -94,18 +98,17 @@ def verify_scene():
     carrier = bpy.data.objects["GN_Light_Spine_Modifier_Carrier"]
     assert_true(any(mod.type == "NODES" and mod.node_group == group for mod in carrier.modifiers), "Light-spine carrier lacks expected geometry-nodes modifier")
 
-    for filename in (
-        "aetheria_bloom_habitat.png",
-        "aetheria_bloom_interior_world.png",
-        "aetheria_bloom_hubward_endcap_terraces.png",
-        "aetheria_bloom_habitat.blend",
-    ):
-        path = ARTIFACT_DIR / filename
-        assert_true(path.exists(), f"Missing generated artifact {path}")
-        assert_true(path.stat().st_size > 10_000, f"Generated artifact is suspiciously small: {path}")
+    assert_render_artifacts(
+        ARTIFACT_DIR / filename
+        for filename in (
+            "aetheria_bloom_habitat.png",
+            "aetheria_bloom_interior_world.png",
+            "aetheria_bloom_hubward_endcap_terraces.png",
+            "aetheria_bloom_habitat.blend",
+        )
+    )
 
-    mesh_objects = [obj for obj in bpy.data.objects if obj.type in {"MESH", "CURVE", "FONT"}]
-    assert_true(len(mesh_objects) >= 930, f"Expected a populated whole-Bloom study scene, found {len(mesh_objects)} geometry/text objects")
+    mesh_objects = assert_scene_density(bpy, 930)
 
     slum_mesh = bpy.data.objects["hubward_endcap_rice_paddy_slums_rickety_shack_mesh"].data
     mid_mesh = bpy.data.objects["hubward_endcap_rice_paddy_slums_midrise_housing_mesh"].data

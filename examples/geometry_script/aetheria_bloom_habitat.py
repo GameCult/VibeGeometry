@@ -22,6 +22,21 @@ except ModuleNotFoundError:
 load_repo_geometry_script()
 
 from geometry_script import *  # noqa: F403 - Geometry Script exposes node functions as DSL globals.
+from vibegeometry import (
+    CylinderFrame,
+    add_box,
+    add_curve_polyline,
+    add_cylinder_between,
+    add_material,
+    add_mesh_parts,
+    add_multi_polyline_curve,
+    aim_camera,
+    append_box_parts,
+    append_cylindrical_ring_band,
+    clear_scene,
+    fbm_2d,
+    smoothstep,
+)
 
 
 TAU = pymath.tau
@@ -31,6 +46,12 @@ CUT_END = pymath.radians(132.0)
 FULL_START = -pymath.pi
 FULL_END = pymath.pi
 INNER_RADIUS = 5.0
+FRAME = CylinderFrame(INNER_RADIUS)
+radial = FRAME.radial
+tangent = FRAME.tangent
+cyl_point = FRAME.cyl_point
+surface_point = FRAME.surface_point
+mat = add_material
 
 
 @tree("VG Bloom Light Spine")
@@ -55,42 +76,6 @@ def vg_bloom_light_spine(
     return {"Geometry": curve_to_mesh(curve=positioned, profile_curve=profile, fill_caps=True)}
 
 
-def mat(name, color, emission=False, strength=0.0, alpha=1.0):
-    import bpy
-
-    material = bpy.data.materials.new(name)
-    material.diffuse_color = (color[0], color[1], color[2], alpha)
-    material.use_nodes = True
-    bsdf = material.node_tree.nodes.get("Principled BSDF")
-    if bsdf:
-        if emission:
-            bsdf.inputs["Emission Color"].default_value = (color[0], color[1], color[2], 1.0)
-            bsdf.inputs["Emission Strength"].default_value = strength
-        bsdf.inputs["Base Color"].default_value = (color[0], color[1], color[2], alpha)
-        bsdf.inputs["Roughness"].default_value = 0.62
-        bsdf.inputs["Alpha"].default_value = alpha
-    if alpha < 1.0:
-        material.blend_method = "BLEND"
-        material.use_screen_refraction = True
-        material.show_transparent_back = True
-    return material
-
-
-def clear_scene():
-    import bpy
-
-    bpy.ops.object.select_all(action="SELECT")
-    bpy.ops.object.delete()
-
-
-def radial(angle: float):
-    return (0.0, pymath.cos(angle), pymath.sin(angle))
-
-
-def tangent(angle: float):
-    return (0.0, -pymath.sin(angle), pymath.cos(angle))
-
-
 def add_shell_segment(name, radius, half_length, thickness, material, angle_steps=144, x_steps=8, start_angle=FULL_START, end_angle=FULL_END):
     import bpy
 
@@ -100,7 +85,7 @@ def add_shell_segment(name, radius, half_length, thickness, material, angle_step
         x = -half_length + (2.0 * half_length * ix / x_steps)
         for ia in range(angle_steps + 1):
             a = start_angle + (end_angle - start_angle) * ia / angle_steps
-            verts.append((x, radius * pymath.cos(a), radius * pymath.sin(a)))
+            verts.append(cyl_point(x, a, radius))
     for ix in range(x_steps):
         for ia in range(angle_steps):
             row = angle_steps + 1
@@ -116,11 +101,6 @@ def add_shell_segment(name, radius, half_length, thickness, material, angle_step
     solid.thickness = thickness
     solid.offset = 0.0
     return obj
-
-
-def surface_point(x, angle, radius=INNER_RADIUS, lift=-0.04):
-    r = radius + lift
-    return (x, r * pymath.cos(angle), r * pymath.sin(angle))
 
 
 def add_surface_patch(name, x0, x1, a0, a1, radius, material, lift=-0.045, angle_steps=8, x_steps=3):
@@ -175,68 +155,6 @@ def add_surface_block_field(name, x_values, angles, material, size, radial_lift=
                 size=size,
                 radial_lift=radial_lift,
             )
-
-
-def append_box_parts(verts, faces, loc, axes, size):
-    from mathutils import Vector
-
-    origin = Vector(loc)
-    ax = [Vector(axis).normalized() for axis in axes]
-    sx, sy, sz = (value * 0.5 for value in size)
-    base = len(verts)
-    for dx, dy, dz in [
-        (-sx, -sy, -sz),
-        (sx, -sy, -sz),
-        (sx, sy, -sz),
-        (-sx, sy, -sz),
-        (-sx, -sy, sz),
-        (sx, -sy, sz),
-        (sx, sy, sz),
-        (-sx, sy, sz),
-    ]:
-        v = origin + ax[0] * dx + ax[1] * dy + ax[2] * dz
-        verts.append((v.x, v.y, v.z))
-    faces.extend(
-        [
-            (base + 0, base + 1, base + 2, base + 3),
-            (base + 4, base + 7, base + 6, base + 5),
-            (base + 0, base + 4, base + 5, base + 1),
-            (base + 1, base + 5, base + 6, base + 2),
-            (base + 2, base + 6, base + 7, base + 3),
-            (base + 3, base + 7, base + 4, base + 0),
-        ]
-    )
-
-
-def add_mesh_parts(name, verts, faces, material):
-    import bpy
-
-    mesh = bpy.data.meshes.new(name + "Mesh")
-    mesh.from_pydata(verts, [], faces)
-    mesh.update()
-    obj = bpy.data.objects.new(name, mesh)
-    bpy.context.collection.objects.link(obj)
-    obj.data.materials.append(material)
-    return obj
-
-
-def add_multi_polyline_curve(name, lines, bevel, material, resolution=2):
-    import bpy
-
-    curve = bpy.data.curves.new(name + "Curve", "CURVE")
-    curve.dimensions = "3D"
-    curve.resolution_u = resolution
-    curve.bevel_depth = bevel
-    curve.bevel_resolution = 2
-    for line in lines:
-        spline = curve.splines.new("POLY")
-        spline.points.add(len(line) - 1)
-        for point, co in zip(spline.points, line):
-            point.co = (co[0], co[1], co[2], 1.0)
-    obj = bpy.data.objects.new(name, curve)
-    bpy.context.collection.objects.link(obj)
-    obj.data.materials.append(material)
-    return obj
 
 
 def add_surface_stilt(name, x, angle, inner_lift, outer_lift, material, radius=0.009):
@@ -317,17 +235,6 @@ def add_favela_fractal_cluster(prefix, x_values, angles, mats):
     add_multi_polyline_curve(prefix + "_brace_and_catwalks", brace_lines, 0.005, mats["brace"], resolution=2)
 
 
-def append_endcap_ring_band(verts, faces, x, inner_radius, outer_radius, segments=96):
-    base = len(verts)
-    for i in range(segments):
-        a = FULL_START + TAU * i / segments
-        verts.append(cyl_point(x, a, inner_radius))
-        verts.append(cyl_point(x, a, outer_radius))
-    for i in range(segments):
-        j = (i + 1) % segments
-        faces.append((base + i * 2, base + j * 2, base + j * 2 + 1, base + i * 2 + 1))
-
-
 def add_hubward_endcap_terraced_slums(prefix, x, mats):
     # Bloom lore frame: on an endcap, "up" is inward toward the axial Spire.
     # These terraces are not polar graph paper. Fractal noise makes the shelf
@@ -345,7 +252,7 @@ def add_hubward_endcap_terraced_slums(prefix, x, mats):
         outer_r = rings[tier + 1]
         tier_t = tier / (len(rings) - 2)
         face_x = x + 0.035 + tier * 0.018
-        append_endcap_ring_band(shelf_verts, shelf_faces, face_x, inner_r, outer_r, segments=160)
+        append_cylindrical_ring_band(shelf_verts, shelf_faces, face_x, inner_r, outer_r, segments=160)
         count = int(30 + tier * 8 + 18 * fbm_2d(tier * 0.71, 4.0, seed=12))
         angular_step = TAU / count
         run = 0
@@ -414,7 +321,7 @@ def add_hubward_endcap_terraced_slums(prefix, x, mats):
 def add_hubward_office_complex(prefix, x, mats):
     office_verts, office_faces = [], []
     for i, radius in enumerate((0.42, 0.68, 0.92)):
-        append_endcap_ring_band(office_verts, office_faces, x + 0.18 + i * 0.06, radius, radius + 0.16, segments=96)
+        append_cylindrical_ring_band(office_verts, office_faces, x + 0.18 + i * 0.06, radius, radius + 0.16, segments=96)
     add_mesh_parts(prefix + "_ring_office_mesh", office_verts, office_faces, mats["hub"])
     for i, angle in enumerate([pymath.radians(a) for a in range(-150, 181, 30)]):
         add_cylinder_between(
@@ -511,48 +418,6 @@ def add_frame_transfer_artery(name, x, angle, start_radius, end_radius, material
     return add_curve_polyline(name, samples, bevel, material)
 
 
-def cyl_point(x, angle, radius):
-    return (x, radius * pymath.cos(angle), radius * pymath.sin(angle))
-
-
-def smoothstep(t):
-    return t * t * (3.0 - 2.0 * t)
-
-
-def hash01(ix, iy=0, seed=0):
-    n = ix * 374761393 + iy * 668265263 + seed * 1442695041
-    n = (n ^ (n >> 13)) * 1274126177
-    n = n ^ (n >> 16)
-    return (n & 0xFFFFFFFF) / 0xFFFFFFFF
-
-
-def value_noise_2d(x, y, seed=0):
-    ix = pymath.floor(x)
-    iy = pymath.floor(y)
-    fx = smoothstep(x - ix)
-    fy = smoothstep(y - iy)
-    a = hash01(ix, iy, seed)
-    b = hash01(ix + 1, iy, seed)
-    c = hash01(ix, iy + 1, seed)
-    d = hash01(ix + 1, iy + 1, seed)
-    ab = a + (b - a) * fx
-    cd = c + (d - c) * fx
-    return ab + (cd - ab) * fy
-
-
-def fbm_2d(x, y, seed=0, octaves=4):
-    value = 0.0
-    amplitude = 0.5
-    frequency = 1.0
-    total = 0.0
-    for octave in range(octaves):
-        value += value_noise_2d(x * frequency, y * frequency, seed + octave * 19) * amplitude
-        total += amplitude
-        amplitude *= 0.5
-        frequency *= 2.03
-    return value / total if total else 0.0
-
-
 def add_spiral_spoke_loop(name, x, angle, start_radius, end_radius, material, bevel=0.04, cargo=False):
     """Shared cylinder frame: x is axial, angle is shell azimuth, radius is spin radius."""
     samples = []
@@ -615,60 +480,6 @@ def add_endcap_terrace_blocks(prefix, x, radii, angles, material, height=0.18):
             )
 
 
-def add_cylinder_between(name, start, end, radius, material, vertices=16):
-    import bpy
-    from mathutils import Vector
-
-    start_v = Vector(start)
-    end_v = Vector(end)
-    mid = (start_v + end_v) / 2.0
-    direction = end_v - start_v
-    length = direction.length
-    bpy.ops.mesh.primitive_cylinder_add(vertices=vertices, radius=radius, depth=length, location=mid)
-    obj = bpy.context.object
-    obj.name = name
-    obj.data.name = name + "Mesh"
-    obj.rotation_euler = direction.to_track_quat("Z", "Y").to_euler()
-    obj.data.materials.append(material)
-    return obj
-
-
-def add_curve_polyline(name, points, bevel, material, resolution=2):
-    import bpy
-
-    curve = bpy.data.curves.new(name + "Curve", "CURVE")
-    curve.dimensions = "3D"
-    curve.resolution_u = resolution
-    curve.bevel_depth = bevel
-    curve.bevel_resolution = 4
-    spline = curve.splines.new("POLY")
-    spline.points.add(len(points) - 1)
-    for point, co in zip(spline.points, points):
-        point.co = (co[0], co[1], co[2], 1.0)
-    obj = bpy.data.objects.new(name, curve)
-    bpy.context.collection.objects.link(obj)
-    obj.data.materials.append(material)
-    return obj
-
-
-def add_box(name, loc, axes, size, material):
-    import bpy
-    from mathutils import Matrix, Vector
-
-    bpy.ops.mesh.primitive_cube_add(size=1.0, location=loc)
-    obj = bpy.context.object
-    obj.name = name
-    obj.dimensions = size
-    matrix = Matrix.Identity(4)
-    matrix.col[0].xyz = Vector(axes[0]).normalized()
-    matrix.col[1].xyz = Vector(axes[1]).normalized()
-    matrix.col[2].xyz = Vector(axes[2]).normalized()
-    obj.rotation_euler = matrix.to_euler()
-    obj.data.materials.append(material)
-    bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
-    return obj
-
-
 def add_label(name, text, loc, size, material):
     import bpy
 
@@ -694,13 +505,6 @@ def add_gn_light_spine(material):
     mod.node_group = group
     obj.data.materials.append(material)
     return obj
-
-
-def aim_camera(obj, target):
-    from mathutils import Vector
-
-    direction = Vector(target) - obj.location
-    obj.rotation_euler = direction.to_track_quat("-Z", "Y").to_euler()
 
 
 def build_scene():

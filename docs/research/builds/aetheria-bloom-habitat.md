@@ -91,6 +91,9 @@ This is intentionally hybrid:
 
 - Python structures the lore-derived coordinate system, layer tables, material
   meanings, mapped civic regions, cameras, labels, and render paths.
+- `vibegeometry/` supplies the reusable Python primitives promoted from this
+  build: coordinate frames, deterministic fields, batched mesh construction,
+  Blender object/material/camera helpers, and verifier checks.
 - Geometry Script emits `VG Bloom Light Spine`, an inspectable 21-node
   geometry-node group used by a Nodes modifier in the scene.
 - bpy builds the full shell surfaces, despun core, hub cap, docking port, spun

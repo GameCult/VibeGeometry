@@ -44,8 +44,8 @@ not carry live next-action clutter.
 ## Near-Term Sequence
 
 1. Promote the Bloom coordinate/noise lessons into reusable builder seams.
-   - Extract shared cylindrical/endcap coordinate helpers into a clear module or
-     Geometry Script-oriented builder layer.
+   - Build on the new `vibegeometry/` helper library rather than adding more
+     one-off example functions.
    - Preserve the split between coordinate contract, density field, batched
      realization, domain camera, and verifier checks.
    - Keep the first extraction small: endcap terrace slums or spiral transfer
