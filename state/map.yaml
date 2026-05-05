@@ -33,10 +33,11 @@ live_architecture:
   pipeline:
     - Ingest reference images and instructions into a scene brief.
     - Extract target visual traits: silhouette, repetition, distribution, material response, surface breakup, camera, lighting, palette, and scale cues.
+    - Define the source coordinate contract: basis axes, local up/down, attachment surfaces, and frame transitions.
     - Plan a geometry strategy in plain language before scripting.
     - Emit a node graph manifest describing groups, sockets, attributes, fields, modifiers, materials, and exposed controls.
     - Generate Blender Python that builds the scene and node graphs from the manifest.
-    - Run Blender headlessly or interactively to produce `.blend` files and render evidence.
+    - Run Blender headlessly or interactively to produce `.blend` files, overview renders, and domain-facing inspection renders.
     - Review renders against the visual target and record accepted, rejected, or revised hypotheses.
   authoring_stack:
     - Python structures intent, repetition, data tables, variants, cleanup, validation, documentation, and scene/render orchestration.
@@ -90,14 +91,14 @@ current_artifacts:
 data_flow:
   - Rehydrate from map, handoff, system map, implementation plan, and `npm run state:status`.
   - Work one bounded pipeline organ.
-  - Verify the seam that matters.
+  - Verify the seam that matters, including coordinate-frame objects, density checks, and inspection cameras when visual claims depend on them.
   - Add distilled evidence only when future belief changes.
   - Commit completed work.
   - If state grows faster than understanding, cut it back.
 
 current_status:
-  summary: VibeGeometry has an initial persistence scaffold plus verified Geometry Script translations for local math/utility samples, a first official Blender demo tranche, IRCSS French Houses city-scale graph doctrine, and a from-scratch Aetheria Bloom whole-habitat build. The IRCSS pass verified MakeSpiral and PointyGothicCone, then mapped the 108-group town kit through a dependency map, all-node atlas, and node mechanism study. The Bloom pass used Aetheria lore plus Bruneton's Rama making-of to generate a full cylindrical world study with shell anatomy, despun hub cap and docking core, spun spire sheath, shared x/angle/radius coordinate helpers, golden-angle spiral spoke and transfer-loop distribution, layered endcaps, noise-driven endcap terrace slums around the docking hub office complex that expand outward into a classier urban crown, social-gradient inner geography, elaborated spoke plazas/town fields, roads/rivers, cloud-flow patches, surface service seams, and service markers. The remaining large-system blockers are repeat-zone feedback, repeat Top outputs, foreach zones, and gizmo nodes.
-  next_action: Continue the Aetheria Bloom build by moving the shared cylindrical/endcap coordinate helpers plus endcap terrace-slum, town/plaza, and spiral spoke/transfer-artery networks into reusable Geometry Script groups, then improve atmospheric/light readability from render evidence.
+  summary: VibeGeometry has verified Geometry Script translations for local samples, official Blender demos, and IRCSS French Houses footholds, plus a from-scratch Aetheria Bloom whole-habitat build. Durable lessons now driving the pipeline: Python orchestrates intent and batching; Geometry Script emits inspectable node groups; source-bound scenes need explicit coordinate contracts before ornament; organic occupancy needs deterministic noise fields; dense detail must be batched; and visual acceptance needs domain-facing inspection renders plus verifier checks, not only overview renders. Bloom currently demonstrates shared cylindrical/endcap helpers, golden-angle transfer loops, layered shell/endcaps, noise-driven endcap terrace slums, social-gradient geography, roads/rivers/clouds, and service markers. Known graph-tooling blockers remain repeat-zone feedback, repeat Top outputs, foreach zones, and gizmo nodes.
+  next_action: Extract the Bloom coordinate/noise/detail lessons into a small reusable builder seam, starting with either endcap terrace slums or spiral transfer arteries, then bind that seam to scene-brief, manifest, inspection-render, and verifier contract drafts.
 remotes:
   vibegeometry: https://github.com/GameCult/VibeGeometry
   geometry_script_fork: https://github.com/GameCult/geometry-script

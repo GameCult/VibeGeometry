@@ -47,17 +47,14 @@ zones, gizmo nodes, and rejected empty-output `WindowBeams` harness. IRCSS maps
 live in `docs/research/translations/ircss-french-houses-*.md`.
 
 First from-scratch build test: `examples/geometry_script/aetheria_bloom_habitat.py`
-generates an Aetheria Bloom whole-habitat study using Bloom lore plus Eric
-Bruneton's Rama making-of as a cylindrical-world reference. It now emphasizes
-whole-cylinder mapped spaces and frame interfaces: full shell layers, despun
-hub cap and docking core, spun spire sheath, shared x/angle/radius coordinate
-helpers, golden-angle spoke/transfer loops, layered endcaps, mapped civic
-bands, roads, rivers, cloud patches, and service seams. The hubward terrace
-slums are on the endcap: noise-driven annular shelf fields around the docking
-hub office complex step inward toward the Spire as "up" and grow outward into a
-classier high-gravity urban crown. Plazas and towns have nested buildings,
-kiosks, feeder walks, and lane networks. Kappa is only a small service marker.
-Build notes live at
+generates an Aetheria Bloom whole-habitat study. It now carries the key spatial
+lessons: define the lore coordinate frame before ornament, use cylindrical and
+endcap helpers for attachment, use golden-angle curves for transfer networks,
+use deterministic noise for organic settlement pressure, batch dense detail by
+material/class, and render inspection cameras that face the domain being judged.
+The hubward terrace slums are noise-driven endcap shelves around the docking hub
+office complex, stepping inward toward the Spire as "up" and outward into a
+classier high-gravity urban crown. Build notes live at
 `docs/research/builds/aetheria-bloom-habitat.md`; verification lives at
 `tools/verify_aetheria_bloom_habitat.py`.
 
@@ -80,10 +77,10 @@ The GameCult fork is intentionally pruned to `main` plus VibeGeometry-owned
 tooling branches. Do not copy upstream branch soup forward unless a future patch
 actually needs it.
 
-The current next action is to continue the Aetheria Bloom build by moving the
-shared cylindrical coordinate helpers plus spiral spoke/transfer-artery network
-into reusable Geometry Script groups, then improving atmospheric/light
-readability from render evidence.
+The current next action is to extract the Bloom coordinate/noise/detail lessons
+into a small reusable builder seam, starting with either endcap terrace slums or
+spiral transfer arteries, then bind that seam to scene-brief, manifest,
+inspection-render, and verifier contract drafts.
 
 ## Important Invariants
 

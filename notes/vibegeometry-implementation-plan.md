@@ -29,21 +29,34 @@ not carry live next-action clutter.
   script execution.
 - City-scale graphs expose the next toolchain pressure: repeat zones, foreach
   zones, gizmo nodes, repeat `Top` outputs, and converter edge cases.
+- Source-bound scenes need a written coordinate contract before ornament.
+  Define basis axes, up/down, attachment surfaces, and frame transitions in the
+  script and verifier before adding detail.
+- Organic distribution needs a field, not tidy placement. Use deterministic
+  noise to drive density, offsets, sizes, heights, material/class bands, and
+  gaps when the visual target is accretion, poverty, erosion, cloud, vegetation,
+  or informal growth.
+- Dense procedural detail must be batched by material/class and line family.
+  Thousands of standalone Blender objects are the dumb kind of expensive.
+- Render evidence must include cameras that face the domain being judged. A
+  beauty camera can hide the exact spatial mistake that matters.
 
 ## Near-Term Sequence
 
-1. Choose the next IRCSS French Houses move.
-   - Either fix one repeat-zone/foreach/gizmo blocker in the Geometry Script
-     fork or select a non-zone architectural helper with a non-empty behavioral
-     harness.
-   - Keep the chosen target small enough to verify against evaluated geometry.
-   - Record rejected paths only when they change future decisions.
+1. Promote the Bloom coordinate/noise lessons into reusable builder seams.
+   - Extract shared cylindrical/endcap coordinate helpers into a clear module or
+     Geometry Script-oriented builder layer.
+   - Preserve the split between coordinate contract, density field, batched
+     realization, domain camera, and verifier checks.
+   - Keep the first extraction small: endcap terrace slums or spiral transfer
+     arteries, not the whole Bloom at once.
 
 2. Define the scene brief contract.
    - Capture references, text instructions, target visual traits, constraints,
      camera/composition requirements, acceptance criteria, and known unknowns.
    - Preserve source paths or URLs for every reference image.
-   - Separate visual target description from implementation strategy.
+   - Require a source-coordinate section for lore/reference-bound builds:
+     basis axes, local up/down, attachment surfaces, and known frame changes.
 
 3. Define the node graph manifest contract.
    - Describe node groups, sockets, exposed controls, modifiers, attribute
@@ -61,6 +74,8 @@ not carry live next-action clutter.
    - Store render path, scene brief id, manifest id, script path, Blender
      version, review status, visual misses, graph issues, and next hypothesis.
    - Treat rendered output as the acceptance surface for visual claims.
+   - Require at least one domain-facing inspection render for every major
+     spatial claim, not just a composed overview.
 
 6. Promote doctrine only after it survives use.
    - Keep examples small enough to inspect.
@@ -74,6 +89,13 @@ not carry live next-action clutter.
    - Add headless batch rendering.
    - Add visual comparison or reviewer prompts.
    - Add richer examples only after the contracts stop sliding.
+
+8. Return to IRCSS graph blockers after the scene loop has these contracts.
+   - Either fix one repeat-zone/foreach/gizmo blocker in the Geometry Script
+     fork or select a non-zone architectural helper with a non-empty behavioral
+     harness.
+   - Keep the chosen target small enough to verify against evaluated geometry.
+   - Record rejected paths only when they change future decisions.
 
 ## Deferred
 

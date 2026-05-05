@@ -86,7 +86,7 @@ Code shape from the Bloom pass:
 ```python
 def add_hubward_endcap_terraced_slums(prefix, x, mats):
     # Bloom lore frame: on an endcap, "up" is inward toward the axial Spire.
-    rings = [0.95, 1.28, 1.62, 1.98, 2.36, 2.76, 3.18, 3.62, 4.08, 4.55, 4.95]
+    rings = [0.72, 0.98, 1.24, 1.52, 1.82, 2.14, 2.48, 2.84, 3.22, 3.62, 4.04, 4.48, 4.9, 5.18]
     for tier, radius in enumerate(rings[:-1]):
         inner_r = radius
         outer_r = rings[tier + 1]
@@ -99,6 +99,11 @@ forms lean naturally. Ignore it and every later detail needs apology machinery.
 Verification cue: name representative objects after the frame they prove, then
 render from a view that can reveal the attachment surface. `hubward_endcap_*`
 objects prove something different from `surface_*` objects.
+
+Practical rule: before implementing a lore-bound scene, write the coordinate
+contract in code comments and object names. If the verifier cannot name an
+object that proves the contract, the script is probably trusting vibes where it
+needs geometry.
 
 ## Use Noise For Organic Occupancy
 
@@ -131,6 +136,10 @@ leans, or mutates.
 Verification cue: do not only count objects. Check density-bearing meshes for
 face counts, add a camera that looks at the actual domain surface, and inspect
 whether the pattern still reads as organic after batching.
+
+Batching rule: when noise controls many small details, prefer one mesh per
+material/class band and one multi-spline curve per line family. Thousands of
+standalone Blender objects are not detail. They are a performance invoice.
 
 ## Start With A Pipeline
 
