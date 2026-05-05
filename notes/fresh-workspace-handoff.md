@@ -46,17 +46,20 @@ footholds. Blockers are repeat-zone feedback, repeat `Top` outputs, foreach
 zones, gizmo nodes, and rejected empty-output `WindowBeams` harness. IRCSS maps
 live in `docs/research/translations/ircss-french-houses-*.md`.
 
-First from-scratch build test: `examples/geometry_script/aetheria_bloom_habitat.py`
-generates an Aetheria Bloom whole-habitat study. It now carries the key spatial
-lessons: define the lore coordinate frame before ornament, use cylindrical and
-endcap helpers for attachment, use golden-angle curves for transfer networks,
-use deterministic noise for organic settlement pressure, batch dense detail by
-material/class, and render inspection cameras that face the domain being judged.
-The hubward terrace slums are noise-driven endcap shelves around the docking hub
-office complex, stepping inward toward the Spire as "up" and outward into a
-classier high-gravity urban crown. Build notes live at
-`docs/research/builds/aetheria-bloom-habitat.md`; verification lives at
-`tools/verify_aetheria_bloom_habitat.py`.
+From-scratch story-bound builds:
+
+- `examples/geometry_script/aetheria_bloom_habitat.py` generates the Aetheria
+  Bloom whole-habitat study. It carries the key spatial lessons: explicit lore
+  coordinate frames, cylindrical/endcap attachment, golden-angle transfer
+  curves, deterministic settlement noise, batched dense detail, and inspection
+  cameras. Build notes: `docs/research/builds/aetheria-bloom-habitat.md`;
+  verifier: `tools/verify_aetheria_bloom_habitat.py`.
+- `examples/geometry_script/lucent_tether_habitat.py` generates the Lucent
+  tether habitat from Ghostlight `Lucent Hostage Feed`: tether axis, city bubble
+  below, media-eye lounge, elevator threshold, glass rail, white safe-line,
+  overlays, control rail, side panels, risk/heat surfaces, and security doors.
+  Build notes: `docs/research/builds/lucent-tether-habitat.md`; verifier:
+  `tools/verify_lucent_tether_habitat.py`.
 
 Current authoring prior: use the full Python stack. Python structures intent,
 tables, loops, variants, cleanup, validation, docs, and scene/render
@@ -82,9 +85,10 @@ The GameCult fork is intentionally pruned to `main` plus VibeGeometry-owned
 tooling branches. Do not copy upstream branch soup forward unless a future patch
 actually needs it.
 
-The current next action is to grow `vibegeometry/` from helper primitives into a
-small reusable builder seam, starting with either endcap terrace slums or spiral
-transfer arteries, then bind that seam to scene-brief, manifest,
+The current next action is to extract the first higher-level reusable builder
+seam from the completed story-bound builds: either threshold/control-rail
+interface kits from the Lucent habitat or endcap terrace/spiral artery kits
+from the Bloom, then bind that seam to scene-brief, manifest,
 inspection-render, and verifier contract drafts.
 
 ## Important Invariants

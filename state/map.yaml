@@ -74,6 +74,7 @@ current_artifacts:
     - docs/research/translations/ircss-french-houses-node-atlas.md
     - docs/research/translations/ircss-french-houses-node-mechanisms.md
     - docs/research/builds/aetheria-bloom-habitat.md
+    - docs/research/builds/lucent-tether-habitat.md
     - vibegeometry/
   tools:
     - tools/vibegeometry_state.py
@@ -85,6 +86,7 @@ current_artifacts:
     - tools/geometry_script_loader.py
     - tools/smoke_nodes_to_script_converter.py
     - tools/verify_aetheria_bloom_habitat.py
+    - tools/verify_lucent_tether_habitat.py
   pending_contracts:
     - schemas/scene-brief.schema.json
     - schemas/node-graph-manifest.schema.json
@@ -99,8 +101,8 @@ data_flow:
   - If state grows faster than understanding, cut it back.
 
 current_status:
-  summary: VibeGeometry has verified Geometry Script translations for local samples, official Blender demos, and IRCSS French Houses footholds, plus a from-scratch Aetheria Bloom whole-habitat build. Durable lessons now driving the pipeline: Python orchestrates intent and batching; Geometry Script emits inspectable node groups; source-bound scenes need explicit coordinate contracts before ornament; organic occupancy needs deterministic noise fields; dense detail must be batched; and visual acceptance needs domain-facing inspection renders plus verifier checks, not only overview renders. The first reusable `vibegeometry/` helper library now carries coordinate frames, fields, batching, Blender scene primitives, and verifier helpers used by the Bloom build. Known graph-tooling blockers remain repeat-zone feedback, repeat Top outputs, foreach zones, and gizmo nodes.
-  next_action: Grow `vibegeometry/` from helper primitives into builder seams by extracting one higher-level pattern next: either endcap terrace slums or spiral transfer arteries, then bind that seam to scene-brief, manifest, inspection-render, and verifier contract drafts.
+  summary: VibeGeometry has verified Geometry Script translations for local samples, official Blender demos, and IRCSS French Houses footholds, plus from-scratch Aetheria Bloom and Lucent tether habitat builds. Durable lessons now driving the pipeline: Python orchestrates intent and batching; Geometry Script emits inspectable node groups; source-bound scenes need explicit coordinate contracts before ornament; organic occupancy needs deterministic noise fields; dense detail must be batched; institutional spaces should model power as surfaces, rails, overlays, thresholds, and camera evidence; and visual acceptance needs domain-facing inspection renders plus verifier checks, not only overview renders. The first reusable `vibegeometry/` helper library now carries coordinate frames, fields, batching, Blender scene primitives, and verifier helpers used by the Bloom and Lucent builds. Known graph-tooling blockers remain repeat-zone feedback, repeat Top outputs, foreach zones, and gizmo nodes.
+  next_action: Extract the first higher-level reusable builder seam from the completed story-bound builds: either threshold/control-rail interface kits from the Lucent habitat or endcap terrace/spiral artery kits from the Bloom, then bind that seam to scene-brief, manifest, inspection-render, and verifier contract drafts.
 remotes:
   vibegeometry: https://github.com/GameCult/VibeGeometry
   geometry_script_fork: https://github.com/GameCult/geometry-script
