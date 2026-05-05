@@ -103,11 +103,13 @@ def verify_city_coordinate_contract():
         raise AssertionError("City ground surface should be orthogonal to tether with minimal X depth")
     if solar.location.x > 0.001 or radiator.location.x > 0.001:
         raise AssertionError("Ray florets should use object-space geometry, not hidden object offsets")
-    if max(vertex.co.x for vertex in solar.data.vertices) >= -5.45:
-        raise AssertionError("Solar ray florets should sit outside the dome base, sunward of the flat cut")
-    if max(vertex.co.x for vertex in radiator.data.vertices) >= -5.45:
-        raise AssertionError("Radiator ray florets should sit outside the dome base, sunward of the flat cut")
-    if solar.dimensions.y < 3.4 or solar.dimensions.z < 3.4 or radiator.dimensions.y < 3.4 or radiator.dimensions.z < 3.4:
+    solar_min_x = min(vertex.co.x for vertex in solar.data.vertices)
+    radiator_min_x = min(vertex.co.x for vertex in radiator.data.vertices)
+    if solar_min_x < -5.46 or radiator_min_x < -5.46:
+        raise AssertionError("Ray florets should hinge at the flat dome base, not behind it")
+    if solar.dimensions.x < 10.5 or radiator.dimensions.x < 10.5:
+        raise AssertionError("Ray florets should be Citadel-scale arms long enough to fold toward the far tether end")
+    if solar.dimensions.y < 4.2 or solar.dimensions.z < 4.2 or radiator.dimensions.y < 4.2 or radiator.dimensions.z < 4.2:
         raise AssertionError("Alternating solar/radiator ray florets should wrap around most of the dome rim")
 
 

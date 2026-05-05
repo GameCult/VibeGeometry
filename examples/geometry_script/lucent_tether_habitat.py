@@ -266,14 +266,14 @@ def add_yz_disk(name, x, radius, material, segments=96):
 def add_dome_base_crest(mats):
     solar_verts, solar_faces = [], []
     radiator_verts, radiator_faces = [], []
-    petals = 34
-    radial_steps = 5
+    petals = 18
+    radial_steps = 8
     for petal in range(petals):
         center_a = TAU * petal / petals + 0.025 * pymath.sin(petal * 1.7)
-        width = TAU / petals * (0.82 + 0.36 * hash01(petal, 0, 251))
-        outward_reach = 0.48 + 0.38 * fbm_2d(pymath.cos(center_a) * 2.1, pymath.sin(center_a) * 2.1, seed=177)
-        sunward_cant = 0.18 + 0.12 * hash01(petal, 9, 277)
-        twist = 0.08 * (hash01(petal, 4, 271) - 0.5)
+        width = TAU / petals * (0.72 + 0.24 * hash01(petal, 0, 251))
+        outward_reach = 0.8 + 0.42 * fbm_2d(pymath.cos(center_a) * 2.1, pymath.sin(center_a) * 2.1, seed=177)
+        arm_length = (TETHER_END[0] - CITY_GROUND_X) * (0.88 + 0.08 * hash01(petal, 12, 277))
+        twist = 0.18 * (hash01(petal, 4, 271) - 0.5)
         target_verts = solar_verts if petal % 2 == 0 else radiator_verts
         target_faces = solar_faces if petal % 2 == 0 else radiator_faces
         petal_base = len(target_verts)
@@ -284,10 +284,11 @@ def add_dome_base_crest(mats):
                 noise = fbm_2d(petal * 0.41, step * 0.73 + side, seed=303) - 0.5
                 local_width = width * (1.0 - 0.42 * smoothstep(t)) * edge + noise * 0.018
                 a = center_a + side * local_width * 0.5 + twist * t
-                radius = 1.57 + outward_reach * smoothstep(t) + 0.04 * noise
-                # Outside means sunward/outboard of the flattened dome base:
-                # negative X from the city ground plane, not inside the glass.
-                x = CITY_GROUND_X - 0.035 - sunward_cant * smoothstep(t)
+                radius = 1.62 + outward_reach * smoothstep(t) + 0.05 * noise
+                # External defensive arms stow by folding along the tether
+                # toward the far media-eye end; deployed they read as Citadel
+                # scale ray florets rather than petals glued to the dome.
+                x = CITY_GROUND_X + arm_length * smoothstep(t)
                 y = radius * pymath.cos(a)
                 z = radius * pymath.sin(a)
                 target_verts.append((x, y, z))

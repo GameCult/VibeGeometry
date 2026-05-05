@@ -155,16 +155,17 @@ else:
 **Sunflower Utility Crest**
 
 The city disk is the disk-floret region. The external crest is the ray-floret
-region: alternating solar panels and radiators, Perlin-warped and anchored
-around the flat dome base, radiating sunward outside the glass rather than
-inside the city volume.
+region: alternating solar panels and radiators, Perlin-warped and hinged around
+the flat dome base. These are Citadel-scale arms, large enough that a defensive
+folded posture can reach toward the far media-eye end of the tether and dwarf
+the dome itself.
 
 ```python
 for petal in range(34):
     center_a = TAU * petal / petals + 0.025 * pymath.sin(petal * 1.7)
     target_verts = solar_verts if petal % 2 == 0 else radiator_verts
     radius = 1.57 + outward_reach * smoothstep(t)
-    x = CITY_GROUND_X - 0.035 - sunward_cant * smoothstep(t)
+    x = CITY_GROUND_X + arm_length * smoothstep(t)
 ```
 
 **Shader Graphs Are Geometry Evidence Too**
