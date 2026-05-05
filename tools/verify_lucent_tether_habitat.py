@@ -20,6 +20,11 @@ REQUIRED_OBJECTS = [
     "lucent_tether_main_cable",
     "lucent_tether_spin_reference_core",
     "city_bubble_sealed_aquarium",
+    "city_bubble_tether_load_spine",
+    "city_bubble_elevator_umbilical",
+    "city_bubble_upper_tether_collar",
+    "city_bubble_tether_transfer_node",
+    "city_bubble_under_keel_counterweight",
     "city_bubble_miniature_skyscraper_mesh",
     "city_bubble_attention_lit_tower_mesh",
     "media_eye_transfer_lounge_glass_shell",
@@ -55,6 +60,25 @@ def verify_geometry_script_group():
         raise AssertionError("Feed ribbon carrier lacks the VG Lucent Feed Ribbon nodes modifier")
 
 
+def verify_render_engine_and_shaders():
+    if bpy.context.scene.render.engine != "CYCLES":
+        raise AssertionError(f"Expected Cycles render engine, found {bpy.context.scene.render.engine}")
+    expected_shader_nodes = {
+        "media-eye blue glass": {"ShaderNodeTexNoise", "ShaderNodeBump"},
+        "Lucent tether graphite": {"ShaderNodeTexNoise", "ShaderNodeBump"},
+        "moderation overlay blue": {"ShaderNodeTexNoise", "ShaderNodeValToRGB"},
+        "sponsor risk magenta": {"ShaderNodeTexNoise", "ShaderNodeValToRGB"},
+    }
+    for material_name, node_types in expected_shader_nodes.items():
+        material = bpy.data.materials.get(material_name)
+        if material is None:
+            raise AssertionError(f"Missing material {material_name}")
+        actual = {node.bl_idname for node in material.node_tree.nodes}
+        missing = sorted(node_types - actual)
+        if missing:
+            raise AssertionError(f"Material {material_name} is missing shader node types {missing}")
+
+
 def verify_artifacts():
     assert_render_artifacts(
         [
@@ -71,6 +95,7 @@ def main():
     assert_objects_exist(bpy, REQUIRED_OBJECTS)
     geometry_objects = assert_scene_density(bpy, min_geometry_objects=55)
     verify_geometry_script_group()
+    verify_render_engine_and_shaders()
     verify_artifacts()
     print(f"LUCENT_TETHER_VERIFY ok objects={len(geometry_objects)}")
 

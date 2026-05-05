@@ -58,6 +58,8 @@ From-scratch story-bound builds:
   tether habitat from Ghostlight `Lucent Hostage Feed`: tether axis, city bubble
   below, media-eye lounge, elevator threshold, glass rail, white safe-line,
   overlays, control rail, side panels, risk/heat surfaces, and security doors.
+  Accepted revision uses Cycles, shader-node work, and explicit city-bubble
+  attachment to the tether.
   Build notes: `docs/research/builds/lucent-tether-habitat.md`; verifier:
   `tools/verify_lucent_tether_habitat.py`.
 

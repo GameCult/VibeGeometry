@@ -25,7 +25,8 @@ therefore treats surfaces as active controls, not passive decoration.
   tether/lounge assembly to preserve the story's "far below" read.
 - `Y`: lounge width and panel spread.
 - The media-eye lounge is at positive `X`.
-- The sealed city bubble is at negative `X`, lower `Z`.
+- The sealed city bubble is at negative `X`, lower `Z`, and attached to the
+  tether by a load spine, elevator umbilical, collar, stays, and transfer node.
 - Crisis geometry lives inside the lounge: elevator gate and glass rail at the
   threshold, safe-line arc behind it, security beyond the doors.
 
@@ -56,6 +57,12 @@ materials, camera setup, render output, and verification. Geometry Script owns
 the inspectable node graph for the feed ribbon so the scene keeps a live
 procedural editing surface instead of becoming only a pile of mesh facts.
 
+The accepted revision uses Cycles, not EEVEE. Shader graph work is part of the
+build contract: glass gets procedural noise/bump and transmission tuning, metal
+and floor materials get micro-surface bump, and Lucent overlay materials use
+noise plus color ramps to read as active feed surfaces rather than flat colored
+cards.
+
 ## Translation Patterns
 
 **Habitat First, Room Second**
@@ -66,9 +73,9 @@ office with neon rectangles, which is how worldbuilding goes to die wearing a
 lanyard.
 
 ```python
-add_cylinder_between("lucent_tether_main_cable", (-6.5, 0.0, 0.0), (6.8, 0.0, 0.0), 0.075, mats["tether"])
-add_uv_sphere("city_bubble_sealed_aquarium", (-5.9, 0.0, -3.25), (1.95, 1.95, 1.05), mats["glass"])
-add_uv_sphere("media_eye_transfer_lounge_glass_shell", (4.6, 0.0, 0.0), (1.75, 1.05, 0.78), mats["glass"])
+add_cylinder_between("lucent_tether_main_cable", TETHER_START, TETHER_END, 0.075, mats["tether"])
+add_uv_sphere("city_bubble_sealed_aquarium", CITY_BUBBLE_CENTER, CITY_BUBBLE_SCALE, mats["glass"])
+add_cylinder_between("city_bubble_tether_load_spine", CITY_TETHER_JUNCTION, collar, 0.045, mats["tether"])
 ```
 
 **Crisis Geometry As Spatial Contract**
@@ -102,7 +109,20 @@ This keeps the aquarium dense without hand-authoring every tower.
 
 ```python
 n = fbm_2d(ix * 0.27, iy * 0.33, seed=91)
-append_box_parts(material_verts, material_faces, (x, y, -3.55 + height * 0.5), axes, size)
+append_box_parts(material_verts, material_faces, (x, y, CITY_BUBBLE_CENTER[2] - 0.30 + height * 0.5), axes, size)
+```
+
+**Shader Graphs Are Geometry Evidence Too**
+
+Flat material defaults can make a procedural scene read like a diagram even
+when the object layout is correct. The revised pass spends actual shader nodes
+on the surfaces that carry the lore: glass, tether material, and feed panels.
+
+```python
+noise = nodes.new("ShaderNodeTexNoise")
+bump = nodes.new("ShaderNodeBump")
+links.new(noise.outputs["Fac"], bump.inputs["Height"])
+links.new(bump.outputs["Normal"], bsdf.inputs["Normal"])
 ```
 
 ## Verification
@@ -116,18 +136,20 @@ Command:
 Result:
 
 ```text
-LUCENT_TETHER_VERIFY ok objects=59
+LUCENT_TETHER_VERIFY ok objects=72
 ```
 
-Render review accepted the first-pass composition after label shrinkage. The
-overview reads as tether plus city bubble plus media-eye lounge; the lounge
-inspection render exposes glass shell, elevator threshold, glass rail,
-safe-line, overlay panels, private rail, side panels, and security doors; the
-city inspection render reads as an aquarium-bubble miniature city.
+Render review rejected the first pass because the city bubble read as detached
+from the tether and the EEVEE/default-material pass was too shallow. The
+accepted revision uses Cycles, explicit bubble-to-tether attachment geometry,
+and shader-node work. The verifier now checks the attachment objects, Cycles
+engine, material shader-node types, named crisis geometry, render artifacts,
+and the `VG Lucent Feed Ribbon` Geometry Script group.
 
 ## Durable Lesson
 
 For Lucent spaces, avoid thinking "set dressing." The set is the power system.
-Build public surfaces as rails, rankings, prompt stacks, edits, and delayed
-feeds. Then put physical bodies and thresholds where those abstractions become
-dangerous.
+Build public surfaces as rails, rankings, prompt stacks, edits, delayed feeds,
+and shader behavior. Then put physical bodies and thresholds where those
+abstractions become dangerous. Also: "far below" does not mean "unattached."
+Large habitat parts need visible load paths, or the render becomes a polite lie.

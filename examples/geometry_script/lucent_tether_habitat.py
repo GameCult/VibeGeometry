@@ -44,6 +44,12 @@ from vibegeometry import (
 
 TAU = pymath.tau
 OUT_DIR = Path("experiments/generated/lucent_tether_habitat")
+TETHER_START = (-6.5, 0.0, 0.0)
+TETHER_END = (6.8, 0.0, 0.0)
+CITY_BUBBLE_CENTER = (-4.85, 0.0, -2.35)
+CITY_BUBBLE_SCALE = (1.95, 1.95, 1.05)
+CITY_TETHER_JUNCTION = (-4.85, 0.0, 0.0)
+MEDIA_EYE_CENTER = (4.6, 0.0, 0.0)
 
 
 @tree("VG Lucent Feed Ribbon")
@@ -73,6 +79,88 @@ def vg_lucent_feed_ribbon(
 
 def mat(name, color, emission=False, strength=0.0, alpha=1.0):
     return add_material(name, color, emission=emission, strength=strength, alpha=alpha)
+
+
+def socket_set(node, socket_name, value):
+    if socket_name in node.inputs:
+        node.inputs[socket_name].default_value = value
+
+
+def add_shader_bump(material, scale=38.0, detail=7.0, strength=0.05, distance=0.08):
+    nodes = material.node_tree.nodes
+    links = material.node_tree.links
+    bsdf = nodes.get("Principled BSDF")
+    if not bsdf:
+        return
+    noise = nodes.new("ShaderNodeTexNoise")
+    noise.name = f"{material.name} procedural micro-noise"
+    noise.inputs["Scale"].default_value = scale
+    noise.inputs["Detail"].default_value = detail
+    noise.inputs["Roughness"].default_value = 0.58
+    bump = nodes.new("ShaderNodeBump")
+    bump.name = f"{material.name} shader bump"
+    bump.inputs["Strength"].default_value = strength
+    bump.inputs["Distance"].default_value = distance
+    links.new(noise.outputs["Fac"], bump.inputs["Height"])
+    links.new(bump.outputs["Normal"], bsdf.inputs["Normal"])
+
+
+def add_panel_shader_graph(material, base_color, emission_color, pulse_color):
+    nodes = material.node_tree.nodes
+    links = material.node_tree.links
+    bsdf = nodes.get("Principled BSDF")
+    if not bsdf:
+        return
+    noise = nodes.new("ShaderNodeTexNoise")
+    noise.name = f"{material.name} scanline noise"
+    noise.inputs["Scale"].default_value = 55.0
+    noise.inputs["Detail"].default_value = 10.0
+    ramp = nodes.new("ShaderNodeValToRGB")
+    ramp.name = f"{material.name} risk-color ramp"
+    ramp.color_ramp.elements[0].position = 0.28
+    ramp.color_ramp.elements[0].color = base_color
+    ramp.color_ramp.elements[1].position = 1.0
+    ramp.color_ramp.elements[1].color = pulse_color
+    links.new(noise.outputs["Fac"], ramp.inputs["Fac"])
+    links.new(ramp.outputs["Color"], bsdf.inputs["Base Color"])
+    if "Emission Color" in bsdf.inputs:
+        bsdf.inputs["Emission Color"].default_value = emission_color
+    if "Emission Strength" in bsdf.inputs:
+        bsdf.inputs["Emission Strength"].default_value = 0.65
+
+
+def make_glass_shader(material, tint=(0.38, 0.72, 1.0, 0.28)):
+    material.use_nodes = True
+    material.blend_method = "BLEND"
+    material.use_screen_refraction = True
+    material.show_transparent_back = True
+    nodes = material.node_tree.nodes
+    bsdf = nodes.get("Principled BSDF")
+    if not bsdf:
+        return
+    socket_set(bsdf, "Base Color", tint)
+    socket_set(bsdf, "Alpha", tint[3])
+    socket_set(bsdf, "Roughness", 0.05)
+    socket_set(bsdf, "Metallic", 0.0)
+    socket_set(bsdf, "Transmission Weight", 0.55)
+    socket_set(bsdf, "IOR", 1.47)
+    add_shader_bump(material, scale=96.0, detail=8.0, strength=0.018, distance=0.045)
+
+
+def enrich_shader_graphs(mats):
+    make_glass_shader(mats["glass"])
+    add_shader_bump(mats["tether"], scale=70.0, detail=9.0, strength=0.075, distance=0.035)
+    add_shader_bump(mats["lucent_gray"], scale=45.0, detail=6.0, strength=0.045, distance=0.035)
+    add_shader_bump(mats["floor"], scale=24.0, detail=7.0, strength=0.035, distance=0.025)
+    add_shader_bump(mats["city"], scale=82.0, detail=4.0, strength=0.03, distance=0.02)
+    for key, pulse in [
+        ("cyan", (0.65, 1.0, 1.0, 1.0)),
+        ("amber", (1.0, 0.88, 0.32, 1.0)),
+        ("risk", (1.0, 0.45, 0.86, 1.0)),
+        ("heat", (1.0, 0.18, 0.08, 1.0)),
+        ("overlay_blue", (0.7, 0.86, 1.0, 1.0)),
+    ]:
+        add_panel_shader_graph(mats[key], mats[key].diffuse_color, mats[key].diffuse_color, pulse)
 
 
 def add_uv_sphere(name, loc, scale, material, segments=48, rings=24):
@@ -148,7 +236,7 @@ def add_panel(name, loc, size, material, angle=0.0, lean=0.0):
 
 
 def add_habitat_cable_bundle(mats):
-    add_cylinder_between("lucent_tether_main_cable", (-6.5, 0.0, 0.0), (6.8, 0.0, 0.0), 0.075, mats["tether"], vertices=24)
+    add_cylinder_between("lucent_tether_main_cable", TETHER_START, TETHER_END, 0.075, mats["tether"], vertices=24)
     add_cylinder_between("lucent_tether_spin_reference_core", (-6.25, 0.18, 0.16), (6.25, 0.18, 0.16), 0.023, mats["cyan"], vertices=10)
     add_cylinder_between("lucent_tether_service_darkline", (-6.25, -0.16, -0.12), (6.25, -0.16, -0.12), 0.018, mats["dark"], vertices=8)
     for i, x in enumerate([-4.9, -3.2, -1.4, 0.4, 2.1, 3.9, 5.4]):
@@ -164,11 +252,11 @@ def add_habitat_cable_bundle(mats):
 
 
 def add_city_bubble(mats):
-    bubble = add_uv_sphere("city_bubble_sealed_aquarium", (-5.9, 0.0, -3.25), (1.95, 1.95, 1.05), mats["glass"], 64, 32)
+    bubble = add_uv_sphere("city_bubble_sealed_aquarium", CITY_BUBBLE_CENTER, CITY_BUBBLE_SCALE, mats["glass"], 64, 32)
     bubble.rotation_euler[0] = pymath.radians(8)
     add_torus(
         "city_bubble_pressure_equator",
-        (-5.9, 0.0, -3.25),
+        CITY_BUBBLE_CENTER,
         1.95,
         0.022,
         mats["cyan"],
@@ -177,7 +265,7 @@ def add_city_bubble(mats):
     )
     add_torus(
         "city_bubble_lower_aquarium_rim",
-        (-5.9, 0.0, -3.52),
+        (CITY_BUBBLE_CENTER[0], CITY_BUBBLE_CENTER[1], CITY_BUBBLE_CENTER[2] - 0.27),
         1.42,
         0.018,
         mats["aquarium"],
@@ -189,10 +277,10 @@ def add_city_bubble(mats):
     light_verts, light_faces = [], []
     roads = []
     for ix in range(28):
-        x = -7.1 + ix * 0.09
+        x = CITY_BUBBLE_CENTER[0] - 1.2 + ix * 0.09
         for iy in range(22):
             y = -1.15 + iy * 0.11
-            ell = ((x + 5.9) / 1.42) ** 2 + (y / 1.42) ** 2
+            ell = ((x - CITY_BUBBLE_CENTER[0]) / 1.42) ** 2 + (y / 1.42) ** 2
             if ell > 1.0:
                 continue
             n = fbm_2d(ix * 0.27, iy * 0.33, seed=91)
@@ -203,22 +291,54 @@ def add_city_bubble(mats):
             append_box_parts(
                 material_verts,
                 material_faces,
-                (x, y, -3.55 + height * 0.5),
+                (x, y, CITY_BUBBLE_CENTER[2] - 0.30 + height * 0.5),
                 ((1, 0, 0), (0, 1, 0), (0, 0, 1)),
                 (0.045 + 0.03 * n, 0.055 + 0.025 * hash01(ix, iy, 7), height),
             )
         if ix % 4 == 0:
-            roads.append([(x, -1.25, -3.46), (x + 0.15 * pymath.sin(ix), 0.0, -3.44), (x, 1.25, -3.46)])
+            roads.append([(x, -1.25, CITY_BUBBLE_CENTER[2] - 0.21), (x + 0.15 * pymath.sin(ix), 0.0, CITY_BUBBLE_CENTER[2] - 0.19), (x, 1.25, CITY_BUBBLE_CENTER[2] - 0.21)])
     for iy in range(-10, 11, 3):
         y = iy * 0.11
-        roads.append([(-7.05, y, -3.47), (-5.9, y + 0.08 * pymath.sin(iy), -3.45), (-4.75, y, -3.47)])
+        roads.append([(CITY_BUBBLE_CENTER[0] - 1.15, y, CITY_BUBBLE_CENTER[2] - 0.22), (CITY_BUBBLE_CENTER[0], y + 0.08 * pymath.sin(iy), CITY_BUBBLE_CENTER[2] - 0.20), (CITY_BUBBLE_CENTER[0] + 1.15, y, CITY_BUBBLE_CENTER[2] - 0.22)])
     add_mesh_parts("city_bubble_miniature_skyscraper_mesh", city_verts, city_faces, mats["city"])
     add_mesh_parts("city_bubble_attention_lit_tower_mesh", light_verts, light_faces, mats["cyan"])
     add_multi_polyline_curve("city_bubble_aquarium_street_grid", roads, 0.006, mats["soft_white"], resolution=2)
 
 
+def add_city_bubble_tether_attachment(mats):
+    x, y, z = CITY_TETHER_JUNCTION
+    top = (x, y, z)
+    collar = (CITY_BUBBLE_CENTER[0], CITY_BUBBLE_CENTER[1], CITY_BUBBLE_CENTER[2] + 1.02)
+    keel = (CITY_BUBBLE_CENTER[0], CITY_BUBBLE_CENTER[1], CITY_BUBBLE_CENTER[2] - 0.22)
+    add_cylinder_between("city_bubble_tether_load_spine", top, collar, 0.045, mats["tether"], vertices=16)
+    add_cylinder_between("city_bubble_elevator_umbilical", (x + 0.14, 0.0, -0.05), (collar[0] + 0.14, 0.0, collar[2] - 0.03), 0.022, mats["cyan"], vertices=10)
+    add_torus(
+        "city_bubble_upper_tether_collar",
+        collar,
+        0.52,
+        0.025,
+        mats["soft_white"],
+        rotation=(0.0, 0.0, 0.0),
+        segments=96,
+    )
+    add_box("city_bubble_tether_transfer_node", (x, 0.0, -0.1), ((1, 0, 0), (0, 1, 0), (0, 0, 1)), (0.42, 0.34, 0.16), mats["lucent_gray"])
+    for i, angle in enumerate([0.0, pymath.pi / 2, pymath.pi, pymath.pi * 1.5]):
+        y2 = pymath.cos(angle) * 1.35
+        x2 = CITY_BUBBLE_CENTER[0] + pymath.sin(angle) * 0.42
+        z2 = CITY_BUBBLE_CENTER[2] + 0.78
+        add_cylinder_between(f"city_bubble_suspension_stay_{i:02d}", top, (x2, y2, z2), 0.012, mats["soft_white"], vertices=6)
+        add_curve_polyline(
+            f"city_bubble_tension_trace_{i:02d}",
+            [top, ((top[0] + x2) * 0.5, y2 * 0.35, -0.72), (x2, y2, z2)],
+            0.004,
+            mats["cyan"],
+            resolution=3,
+        )
+    add_cylinder_between("city_bubble_under_keel_counterweight", keel, (keel[0], keel[1], keel[2] - 0.75), 0.028, mats["dark"], vertices=10)
+
+
 def add_media_eye_lounge(mats):
-    add_uv_sphere("media_eye_transfer_lounge_glass_shell", (4.6, 0.0, 0.0), (1.75, 1.05, 0.78), mats["glass"], 64, 32)
+    add_uv_sphere("media_eye_transfer_lounge_glass_shell", MEDIA_EYE_CENTER, (1.75, 1.05, 0.78), mats["glass"], 64, 32)
     add_torus(
         "media_eye_lounge_structural_lash_ring",
         (4.6, 0.0, 0.0),
@@ -335,8 +455,10 @@ def build_scene():
         "city": mat("sealed miniature city", (0.58, 0.62, 0.66), alpha=0.95),
         "label": mat("label white", (0.92, 0.95, 1.0), emission=True, strength=0.45),
     }
+    enrich_shader_graphs(mats)
     add_habitat_cable_bundle(mats)
     add_city_bubble(mats)
+    add_city_bubble_tether_attachment(mats)
     add_media_eye_lounge(mats)
     add_overlay_ribbons_and_signage(mats)
 
@@ -351,20 +473,21 @@ def build_scene():
     eye.data.energy = 180
     eye.data.color = (0.45, 0.85, 1.0)
 
-    bpy.context.scene.render.engine = "BLENDER_EEVEE"
-    if hasattr(bpy.context.scene, "eevee"):
-        bpy.context.scene.eevee.taa_render_samples = 24
-    bpy.context.scene.render.resolution_x = 1400
-    bpy.context.scene.render.resolution_y = 950
+    bpy.context.scene.render.engine = "CYCLES"
+    bpy.context.scene.cycles.samples = 36
+    bpy.context.scene.cycles.preview_samples = 12
+    bpy.context.scene.cycles.use_denoising = True
+    bpy.context.scene.render.resolution_x = 1200
+    bpy.context.scene.render.resolution_y = 820
     bpy.context.scene.view_settings.view_transform = "Filmic"
     bpy.context.scene.view_settings.look = "Medium High Contrast"
 
-    bpy.ops.object.camera_add(location=(7.8, -8.4, 4.2))
+    bpy.ops.object.camera_add(location=(6.9, -8.2, 4.6))
     overview = bpy.context.object
     overview.name = "Camera_Lucent_Tether_Overview"
-    aim_camera(overview, (0.0, 0.0, -0.9))
+    aim_camera(overview, (0.2, 0.0, -1.0))
     overview.data.type = "ORTHO"
-    overview.data.ortho_scale = 8.4
+    overview.data.ortho_scale = 7.6
     bpy.context.scene.camera = overview
 
     bpy.ops.object.camera_add(location=(5.85, -2.95, 1.15))
@@ -374,12 +497,12 @@ def build_scene():
     lounge.data.type = "ORTHO"
     lounge.data.ortho_scale = 2.5
 
-    bpy.ops.object.camera_add(location=(-4.4, -3.15, -1.75))
+    bpy.ops.object.camera_add(location=(-3.35, -3.15, -0.95))
     city = bpy.context.object
     city.name = "Camera_City_Bubble_Aquarium"
-    aim_camera(city, (-5.92, 0.0, -3.32))
+    aim_camera(city, CITY_BUBBLE_CENTER)
     city.data.type = "ORTHO"
-    city.data.ortho_scale = 3.9
+    city.data.ortho_scale = 4.2
 
 
 def render_camera(camera_name, path):
