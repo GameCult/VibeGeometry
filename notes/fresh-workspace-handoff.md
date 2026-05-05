@@ -29,21 +29,10 @@ builder library and artifact schemas do not.
 Corpus inventory, graph maps, verification notes, and doctrine live in
 `docs/research/`. This handoff is not the ledger.
 
-Accepted corpus families so far:
-
-- Local math/display/utility graphs from Shriinivas samples: Cartesian helper
-  and function graphs, pie chart, field-value digit display, parametric/polar
-  equations.
-- Quellenform `CurveToMeshUV` utility sample.
-- Official Blender demo tranche: instance attributes, index-of-nearest,
-  shortest-path labyrinth, and raycast minigame helpers.
-- IRCSS French Houses footholds: `MakeSpiral -> VG Make Spiral` and
-  `PointyGothicCone -> VG Pointy Gothic Cone`, verified against source
-  evaluated geometry with max delta `0.0`.
-
-Current IRCSS frontier: `MakeSpiral` and `PointyGothicCone` are accepted
-footholds. Blockers are repeat-zone feedback, repeat `Top` outputs, foreach
-zones, gizmo nodes, and rejected empty-output `WindowBeams` harness. IRCSS maps
+Accepted corpus families include local Shriinivas samples, Quellenform
+`CurveToMeshUV`, official Blender demos, and IRCSS French Houses footholds.
+IRCSS blockers remain repeat-zone feedback, repeat `Top` outputs, foreach
+zones, gizmo nodes, and the rejected empty-output `WindowBeams` harness. Maps
 live in `docs/research/translations/ircss-french-houses-*.md`.
 
 From-scratch story-bound builds:
@@ -56,10 +45,10 @@ From-scratch story-bound builds:
   verifier: `tools/verify_aetheria_bloom_habitat.py`.
 - `examples/geometry_script/lucent_tether_habitat.py` generates the Lucent
   tether habitat from Ghostlight `Lucent Hostage Feed`: tether axis, city bubble
-  below, media-eye lounge, elevator threshold, glass rail, white safe-line,
-  overlays, control rail, side panels, risk/heat surfaces, and security doors.
-  Accepted revision uses Cycles, shader-node work, and explicit city-bubble
-  attachment to the tether.
+  below, media-eye lounge, crisis threshold, overlays, control/side panels, and
+  security doors. Accepted revision uses Cycles, shader nodes, explicit bubble
+  attachment, radial/tangential streets, irregular parcels, prestige anchor
+  towers, parks, and faux-rural edge falloff.
   Build notes: `docs/research/builds/lucent-tether-habitat.md`; verifier:
   `tools/verify_lucent_tether_habitat.py`.
 

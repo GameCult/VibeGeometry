@@ -5,6 +5,12 @@
 Primary source: `Aetheria/Stories/Lucent Hostage Feed.md` and its interactive
 Ghostlight scaffold. Supporting faction read:
 `Aetheria/Worldbuilding/Pre-Elysium/Factions/Powers/Major/Lucent Media.md`.
+Street-generation priors came from Parish and Muller's SIGGRAPH 2001
+`Procedural Modeling of Cities` and Chen, Esch, Wonka, Muller, and Zhang's
+SIGGRAPH 2008 `Interactive Procedural Street Modeling`:
+
+- https://people.eecs.berkeley.edu/~sequin/CS285/PAPERS/Parish_Muller01.pdf
+- https://peterwonka.net/Publications/pdfs/2008.SG.Chen.InteractiveProceduralStreetModeling.pdf
 
 The story describes a Lucent tether station with a transfer lounge at the
 media-eye end of the tether. The lounge has glass walls, an elevator gate, a
@@ -27,6 +33,8 @@ therefore treats surfaces as active controls, not passive decoration.
 - The media-eye lounge is at positive `X`.
 - The sealed city bubble is at negative `X`, lower `Z`, and attached to the
   tether by a load spine, elevator umbilical, collar, stays, and transfer node.
+- The tether continues down through the dome to the city ground surface, landing
+  in a prestige anchor plaza.
 - Crisis geometry lives inside the lounge: elevator gate and glass rail at the
   threshold, safe-line arc behind it, security beyond the doors.
 
@@ -102,14 +110,47 @@ add_panel("sponsor_risk_color_stack", (4.74, -0.86, 0.34), (0.15, 0.032, 0.62), 
 add_panel("audience_heat_meter", (3.55, -0.84, 0.30), (0.2, 0.032, 0.58), mats["heat"])
 ```
 
-**The City Bubble Is A Miniature Pressure Field**
+**Street Fields Beat Grids**
 
-The sealed city uses deterministic noise for attention-lit tower variation.
-This keeps the aquarium dense without hand-authoring every tower.
+The first city pass used a regular grid. The revised pass uses a small
+procedural street field instead: radial avenues grow from the tether anchor,
+tangential promenade rings bend around it, and irregular annular parcels fill
+between them. This is a compact use of two research lessons: global goals plus
+local constraints from L-system city growth, and smoothly varying direction
+fields from tensor-field street modeling.
 
 ```python
-n = fbm_2d(ix * 0.27, iy * 0.33, seed=91)
-append_box_parts(material_verts, material_faces, (x, y, CITY_BUBBLE_CENTER[2] - 0.30 + height * 0.5), axes, size)
+for i in range(16):
+    base_angle = TAU * i / 16 + (hash01(i, 4, 11) - 0.5) * 0.12
+    line = []
+    for step in range(9):
+        u = step / 8
+        r = 0.12 + 1.42 * smoothstep(u)
+        angle = base_angle + 0.08 * pymath.sin(u * TAU + i)
+        line.append((center[0] + r * pymath.cos(angle), center[1] + r * pymath.sin(angle), ground_z + 0.025))
+    roads.append(line)
+
+for ring_i, radius in enumerate([0.22, 0.42, 0.68, 0.95, 1.2, 1.42]):
+    for arc_i in range(3):
+        start = TAU * arc_i / 3 + ring_i * 0.21
+        end = start + TAU / 3 * (0.72 + 0.12 * hash01(ring_i, arc_i, 23))
+        roads.append(arc_points((center[0], center[1], ground_z + 0.028), radius, pymath.degrees(start), pymath.degrees(end), 24, plane="xy"))
+```
+
+**Land Use Falls Off From The Anchor**
+
+The tether anchor plaza is the prestige attractor. Tallest skyscrapers cluster
+around the plug-in point, the middle city steps down into irregular midrise
+blocks and parks, and the outer ring fades into green faux-rural cottagecore.
+This gives the skyline a social gradient instead of a height-map haircut.
+
+```python
+if zone < 0.28:
+    verts, faces = prestige_verts, prestige_faces
+elif zone < 0.72:
+    verts, faces = tower_verts, tower_faces
+else:
+    verts, faces = cottage_verts, cottage_faces
 ```
 
 **Shader Graphs Are Geometry Evidence Too**
@@ -136,15 +177,16 @@ Command:
 Result:
 
 ```text
-LUCENT_TETHER_VERIFY ok objects=72
+LUCENT_TETHER_VERIFY ok objects=78
 ```
 
 Render review rejected the first pass because the city bubble read as detached
 from the tether and the EEVEE/default-material pass was too shallow. The
 accepted revision uses Cycles, explicit bubble-to-tether attachment geometry,
-and shader-node work. The verifier now checks the attachment objects, Cycles
-engine, material shader-node types, named crisis geometry, render artifacts,
-and the `VG Lucent Feed Ribbon` Geometry Script group.
+shader-node work, and a non-grid city map. The verifier now checks the
+attachment objects, Cycles engine, material shader-node types, named crisis
+geometry, render artifacts, and the `VG Lucent Feed Ribbon` Geometry Script
+group.
 
 ## Durable Lesson
 
