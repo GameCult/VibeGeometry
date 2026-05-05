@@ -26,10 +26,9 @@ VibeGeometry is still an incubation scaffold: persistence, graph-translation
 corpus, repo-local Geometry Script tooling, verifiers, and doctrine exist; the
 builder library and artifact schemas do not.
 
-Corpus inventory lives in `docs/research/geonodes-translation-corpus.md`.
-Graph-specific maps and verification notes live in `docs/research/translations/`.
-Spatial reasoning doctrine lives in `docs/research/procedural-doctrine.md`.
-Keep this handoff as a re-entry surface, not a second corpus ledger.
+Corpus inventory, graph maps, verification notes, and spatial doctrine live in
+`docs/research/`. Keep this handoff as a re-entry surface, not a second corpus
+ledger.
 
 Accepted corpus families so far:
 
@@ -60,11 +59,12 @@ First from-scratch build test: `examples/geometry_script/aetheria_bloom_habitat.
 generates an Aetheria Bloom whole-habitat study using Bloom lore plus Eric
 Bruneton's Rama making-of as a cylindrical-world reference. It now emphasizes
 whole-cylinder mapped spaces and frame interfaces: full shell layers, despun
-hub cap and docking core, spun spire sheath, multi-level spokes, frame-transfer
-arteries, hub-cap terrace slums, favela/hyperurban belts, luxury spoke
-districts, mixed urban/suburban/industrial belts, industrial/agricultural areas,
-beach and sea bands, roads, rivers, and airflow cloud patches. Kappa is only a
-small service marker. Build notes live at
+hub cap and docking core, spun spire sheath, shared x/angle/radius coordinate
+helpers, golden-angle spiral spoke and transfer-loop distribution, layered
+endcaps, hub-cap terrace slums, favela/hyperurban belts, luxury spoke districts,
+mixed urban/suburban/industrial belts, industrial/agricultural areas, beach and
+sea bands, roads, rivers, airflow cloud patches, and surface service seams.
+Kappa is only a small service marker. Build notes live at
 `docs/research/builds/aetheria-bloom-habitat.md`; verification lives at
 `tools/verify_aetheria_bloom_habitat.py`.
 
@@ -87,10 +87,10 @@ The GameCult fork is intentionally pruned to `main` plus VibeGeometry-owned
 tooling branches. Do not copy upstream branch soup forward unless a future patch
 actually needs it.
 
-The current next action is to continue the Aetheria Bloom build by moving a
-repeated whole-habitat subsystem, preferably spoke/transfer-artery networks or
-wrapped region patches, into reusable Geometry Script groups and improving
-atmospheric/light readability.
+The current next action is to continue the Aetheria Bloom build by moving the
+shared cylindrical coordinate helpers plus spiral spoke/transfer-artery network
+into reusable Geometry Script groups, then improving atmospheric/light
+readability from render evidence.
 
 ## Important Invariants
 
@@ -120,7 +120,7 @@ atmospheric/light readability.
 
 ## Compaction Notes
 
-When preparing for imminent compaction, write hot memory first to
+For imminent compaction, write hot memory first to
 `state/scratch-compaction-<guid>.md`, then run:
 
 ```powershell

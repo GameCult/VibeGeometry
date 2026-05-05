@@ -199,6 +199,76 @@ def add_frame_transfer_artery(name, x, angle, start_radius, end_radius, material
     return add_curve_polyline(name, samples, bevel, material)
 
 
+def cyl_point(x, angle, radius):
+    return (x, radius * pymath.cos(angle), radius * pymath.sin(angle))
+
+
+def smoothstep(t):
+    return t * t * (3.0 - 2.0 * t)
+
+
+def add_spiral_spoke_loop(name, x, angle, start_radius, end_radius, material, bevel=0.04, cargo=False):
+    """Shared cylinder frame: x is axial, angle is shell azimuth, radius is spin radius."""
+    samples = []
+    handed = 1.0 if pymath.sin(angle * 2.0 + x * 0.37) >= 0 else -1.0
+    tangent_bias = 0.68 if cargo else 0.42
+    loop_gain = 0.58 if cargo else 0.34
+    for i in range(22):
+        u = i / 21
+        e = smoothstep(u)
+        radius = start_radius + (end_radius - start_radius) * e
+        a = angle + handed * (tangent_bias * (1.0 - u) + loop_gain * pymath.sin(u * pymath.pi))
+        x2 = x + handed * 0.62 * pymath.sin(u * pymath.pi) + 0.15 * pymath.sin(u * TAU * 2.0)
+        samples.append(cyl_point(x2, a, radius))
+    return add_curve_polyline(name, samples, bevel, material, resolution=4)
+
+
+def add_endcap_face(name, x, radius, material, segments=144):
+    import bpy
+
+    mesh = bpy.data.meshes.new(name + "Mesh")
+    verts = [(x, 0.0, 0.0)]
+    verts.extend(cyl_point(x, FULL_START + TAU * i / segments, radius) for i in range(segments))
+    faces = [(0, i + 1, 1 + ((i + 1) % segments)) for i in range(segments)]
+    mesh.from_pydata(verts, [], faces)
+    mesh.update()
+    obj = bpy.data.objects.new(name, mesh)
+    bpy.context.collection.objects.link(obj)
+    obj.data.materials.append(material)
+    return obj
+
+
+def add_endcap_ring(name, x, radius, material, minor_radius=0.025):
+    import bpy
+
+    bpy.ops.mesh.primitive_torus_add(
+        major_radius=radius,
+        minor_radius=minor_radius,
+        major_segments=128,
+        minor_segments=8,
+        location=(x, 0, 0),
+    )
+    obj = bpy.context.object
+    obj.name = name
+    obj.data.name = name + "Mesh"
+    obj.rotation_euler[1] = pymath.radians(90)
+    obj.data.materials.append(material)
+    return obj
+
+
+def add_endcap_terrace_blocks(prefix, x, radii, angles, material, height=0.18):
+    for ir, radius in enumerate(radii):
+        for ia, angle in enumerate(angles):
+            loc = cyl_point(x, angle, radius)
+            add_box(
+                f"{prefix}_{ir:02d}_{ia:02d}",
+                loc,
+                axes=((1, 0, 0), tangent(angle), radial(angle)),
+                size=(0.09, 0.16, height),
+                material=material,
+            )
+
+
 def add_cylinder_between(name, start, end, radius, material, vertices=16):
     import bpy
     from mathutils import Vector
@@ -295,9 +365,10 @@ def build_scene():
     mats = {
         "inner": mat("civic inner surface - open commons", (0.28, 0.30, 0.32), alpha=0.78),
         "utility": mat("utility mat amber", (0.95, 0.57, 0.18), alpha=0.42),
-        "pressure": mat("pressure laminate blue", (0.18, 0.45, 0.86), alpha=0.25),
-        "shield": mat("aggregate shielding graphite", (0.08, 0.075, 0.07), alpha=0.86),
+        "pressure": mat("pressure laminate blue", (0.18, 0.45, 0.86), alpha=0.2),
+        "shield": mat("aggregate shielding graphite", (0.08, 0.075, 0.07), alpha=0.38),
         "hub": mat("despun hub white", (0.82, 0.86, 0.88), alpha=0.88),
+        "endcap": mat("layered endcap pressure face", (0.62, 0.66, 0.7), alpha=0.62),
         "spire_sheath": mat("spun spire sheath", (0.38, 0.42, 0.46), alpha=0.34),
         "light": mat("light spine gold", (1.0, 0.78, 0.25), emission=True, strength=1.6),
         "farm": mat("TCS Root farms", (0.15, 0.55, 0.24), alpha=0.92),
@@ -333,28 +404,70 @@ def build_scene():
     add_cylinder_between("spun_spire_sheath_outer_frame", (-8.9, 0, 0), (8.9, 0, 0), 0.82, mats["spire_sheath"], vertices=48)
     add_gn_light_spine(mats["light"])
 
-    # Multi-level spokes: major passenger spokes, cargo arteries, utility ribs,
-    # and atmospheric-conditioning trunks all bridge the spun sheath to the
-    # rotating civic surface. The despun core only meets them through collars.
-    primary_angles = [pymath.radians(a) for a in (-120, -60, 0, 60, 120, 180)]
-    spoke_xs = [-7.2, -4.4, -1.6, 1.2, 4.0, 6.8]
-    for ix, x in enumerate(spoke_xs):
-        for ia, a in enumerate(primary_angles):
-            add_rotating_spoke(f"major_rotating_spoke_{ix:02d}_{ia:02d}", x, a, 0.82, 5.12, mats["hub"], radius=0.055, vertices=12)
-            add_cylinder_between(
-                f"spoke_base_transfer_collar_{ix:02d}_{ia:02d}",
-                (x - 0.28, radial(a)[1] * 5.02, radial(a)[2] * 5.02),
-                (x + 0.28, radial(a)[1] * 5.02, radial(a)[2] * 5.02),
-                0.16,
-                mats["pressure_line"],
-                vertices=20,
-            )
-            if ia % 2 == ix % 2:
-                add_frame_transfer_artery(f"frame_transfer_artery_{ix:02d}_{ia:02d}", x, a, 0.28, 0.82, mats["pressure_line"], sweep=0.72, bevel=0.018)
-    for ix, x in enumerate([-8.4, -6.0, -3.0, 0.0, 3.0, 6.0, 8.4]):
-        for deg in (-150, -90, -30, 30, 90, 150):
-            a = pymath.radians(deg + (ix % 2) * 15)
-            add_rotating_spoke(f"thin_utility_spoke_{ix:02d}_{deg}", x, a, 0.95, 5.55, mats["air"], radius=0.022, vertices=8)
+    # The Bloom lives in one cylindrical coordinate space. Spokes, endcaps,
+    # surface districts, roads, clouds, and transfer arteries all speak x/angle/radius.
+    for x, prefix in [(-9.05, "hubward"), (9.05, "capward")]:
+        add_endcap_face(f"{prefix}_endcap_pressure_face", x, 5.72, mats["endcap"])
+        add_endcap_face(f"{prefix}_endcap_inner_face", x + (0.035 if x < 0 else -0.035), INNER_RADIUS, mats["inner"], segments=128)
+        for ir, rr in enumerate((0.82, 1.6, 2.45, 3.25, 4.05, 4.75, 5.35)):
+            mat_key = "favela" if x < 0 and ir >= 2 else "beach" if x > 0 and ir >= 4 else "pressure_line"
+            add_endcap_ring(f"{prefix}_endcap_terrace_ring_{ir:02d}", x, rr, mats[mat_key], minor_radius=0.018 + ir * 0.002)
+    add_endcap_terrace_blocks(
+        "hubward_endcap_slum_balcony",
+        -9.12,
+        [2.1, 2.7, 3.3, 3.9, 4.45],
+        [pymath.radians(a) for a in range(-170, 181, 20)],
+        mats["favela"],
+        height=0.22,
+    )
+    add_endcap_terrace_blocks(
+        "capward_endcap_beach_service",
+        9.12,
+        [3.5, 4.1, 4.65],
+        [pymath.radians(a) for a in range(-160, 181, 40)],
+        mats["beach"],
+        height=0.1,
+    )
+
+    # Golden-angle spokes fill the cylinder like seeds on a head: each new
+    # artery avoids the previous one while staying in the same global frame.
+    golden_angle = pymath.pi * (3.0 - pymath.sqrt(5.0))
+    spoke_count = 46
+    prestige_angles = []
+    for i in range(spoke_count):
+        t = i / (spoke_count - 1)
+        x = -8.25 + 16.5 * t
+        a = ((i * golden_angle + 0.48 * pymath.sin(t * TAU * 3.0)) % TAU) - pymath.pi
+        cargo = i % 3 == 0
+        material = mats["pressure_line"] if cargo else mats["hub"]
+        bevel = 0.052 if cargo else 0.036
+        name = "spiral_cargo_spoke" if cargo else "spiral_passenger_spoke"
+        add_spiral_spoke_loop(f"{name}_{i:02d}", x, a, 0.82, 5.18, material, bevel=bevel, cargo=cargo)
+        add_cylinder_between(
+            f"spiral_spoke_shell_collar_{i:02d}",
+            cyl_point(x - 0.2, a, 5.05),
+            cyl_point(x + 0.2, a, 5.05),
+            0.12 if cargo else 0.085,
+            mats["pressure_line"],
+            vertices=18,
+        )
+        add_frame_transfer_artery(
+            f"spun_to_despun_transfer_loop_{i:02d}",
+            x,
+            a + pymath.pi / 2,
+            0.28,
+            0.82,
+            mats["pressure_line"],
+            sweep=0.95 if cargo else 0.62,
+            bevel=0.017,
+        )
+        if i % 5 == 0:
+            prestige_angles.append(a)
+    for i in range(64):
+        t = i / 63
+        x = -8.65 + 17.3 * t
+        a = ((i * golden_angle * 1.618 + 0.72 * pymath.sin(t * TAU * 2.0)) % TAU) - pymath.pi
+        add_spiral_spoke_loop(f"spiral_atmospheric_utility_rib_{i:02d}", x, a, 0.95, 5.55, mats["air"], bevel=0.015, cargo=False)
 
     # Whole-cylinder civic gradient. Axial bands move from hub-cap terrace slums
     # through dense and luxury urban districts, mixed suburbs, industrial/farm
@@ -371,13 +484,18 @@ def build_scene():
     add_surface_block_field("layered_hubcap_slum_stack", [-8.65, -8.25, -7.85, -7.45], dense_angles, mats["favela"], size=(0.16, 0.08, 0.22), radial_lift=-0.35, jitter=0.035)
     add_surface_block_field("hyperurban_microtower", [-7.0, -6.55, -6.1, -5.7], dense_angles[::2], mats["city"], size=(0.2, 0.1, 0.36), radial_lift=-0.42, jitter=0.03)
     for x in [-5.0, -4.2, -3.4]:
-        for a in primary_angles:
+        for a in prestige_angles[:8]:
             add_surface_box(f"luxury_spoke_plaza_{x:.1f}_{a:.2f}", x, a, mats["luxury"], size=(0.55, 0.34, 0.14), radial_lift=-0.31)
             for da in (-0.16, 0.16):
                 add_surface_box(f"luxury_spoke_tower_{x:.1f}_{a:.2f}_{da:.1f}", x + da, a + da, mats["city"], size=(0.18, 0.1, 0.42), radial_lift=-0.44)
     add_surface_block_field("mixed_suburban_industrial_block", [-2.2, -1.4, -0.6, 0.2], [pymath.radians(a) for a in range(-150, 181, 30)], mats["suburban"], size=(0.42, 0.18, 0.12), radial_lift=-0.27, jitter=0.04)
     add_surface_block_field("factory_yard_block", [1.2, 2.0, 2.8, 3.6], [pymath.radians(a) for a in range(-150, 181, 45)], mats["industrial"], size=(0.62, 0.22, 0.16), radial_lift=-0.29, jitter=0.035)
     add_surface_block_field("farm_service_shed", [4.2, 5.0, 5.6], [pymath.radians(a) for a in range(-165, 181, 45)], mats["farm"], size=(0.52, 0.16, 0.08), radial_lift=-0.24, jitter=0.04)
+    for i, deg in enumerate(range(-170, 181, 20)):
+        a = pymath.radians(deg + (i % 3) * 3)
+        add_surface_curve(f"axial_surface_service_lane_{i:02d}", [(-8.7, a), (-5.5, a + 0.08), (-1.4, a - 0.04), (2.9, a + 0.06), (8.6, a - 0.02)], INNER_RADIUS, 0.007, mats["pressure_line"], lift=-0.43)
+    for i, x in enumerate([-8.65, -7.25, -5.85, -4.45, -3.05, -1.65, -0.25, 1.15, 2.55, 3.95, 5.35, 6.75, 8.15]):
+        add_surface_curve(f"circumferential_market_seam_{i:02d}", [(x, pymath.radians(a)) for a in range(-180, 181, 18)], INNER_RADIUS, 0.006, mats["road"], lift=-0.45)
 
     road_specs = [
         [(-8.7, -160), (-7.2, -130), (-5.6, -94), (-3.0, -58), (-1.0, -34), (1.6, -14), (4.4, 8), (6.7, 26), (8.4, 44)],
@@ -487,7 +605,7 @@ def build_scene():
     bpy.context.object.name = "Camera_Bloom_Cutaway"
     aim_camera(bpy.context.object, (0.0, 0.0, 0.0))
     bpy.context.object.data.type = "ORTHO"
-    bpy.context.object.data.ortho_scale = 18.0
+    bpy.context.object.data.ortho_scale = 20.5
 
     bpy.ops.object.camera_add(location=(-0.8, 9.5, -7.5))
     detail_camera = bpy.context.object

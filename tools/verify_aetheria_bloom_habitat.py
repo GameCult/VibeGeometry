@@ -22,10 +22,17 @@ REQUIRED_OBJECTS = {
     "spun_spire_sheath_outer_frame",
     "traffic_light_spire_core",
     "GN_Light_Spine_Modifier_Carrier",
-    "major_rotating_spoke_00_00",
-    "thin_utility_spoke_00_-150",
-    "frame_transfer_artery_00_00",
-    "spoke_base_transfer_collar_00_00",
+    "hubward_endcap_pressure_face",
+    "capward_endcap_pressure_face",
+    "hubward_endcap_terrace_ring_00",
+    "capward_endcap_terrace_ring_00",
+    "hubward_endcap_slum_balcony_00_00",
+    "capward_endcap_beach_service_00_00",
+    "spiral_cargo_spoke_00",
+    "spiral_passenger_spoke_01",
+    "spiral_atmospheric_utility_rib_00",
+    "spun_to_despun_transfer_loop_00",
+    "spiral_spoke_shell_collar_00",
     "service_ring_kappa_human_gallery",
     "kappa_operations_gallery_badge_route",
     "octopoid_support_rig_prep_station",
@@ -47,8 +54,10 @@ REQUIRED_OBJECTS = {
     "wrapped_river_0",
     "airflow_cloud_patch_0",
     "layered_hubcap_slum_stack_00_00",
-    "luxury_spoke_plaza_-5.0_-2.09",
+    "luxury_spoke_plaza_-5.0_-3.14",
     "factory_yard_block_00_00",
+    "axial_surface_service_lane_00",
+    "circumferential_market_seam_00",
     "Camera_Bloom_Cutaway",
     "Camera_Interior_World",
 }
@@ -77,7 +86,7 @@ def verify_scene():
         assert_true(path.stat().st_size > 10_000, f"Generated artifact is suspiciously small: {path}")
 
     mesh_objects = [obj for obj in bpy.data.objects if obj.type in {"MESH", "CURVE", "FONT"}]
-    assert_true(len(mesh_objects) >= 250, f"Expected a populated whole-Bloom study scene, found {len(mesh_objects)} geometry/text objects")
+    assert_true(len(mesh_objects) >= 500, f"Expected a populated whole-Bloom study scene, found {len(mesh_objects)} geometry/text objects")
 
     print("AETHERIA_BLOOM_VERIFY ok")
     print("AETHERIA_BLOOM_VERIFY group", group.name, len(group.nodes), len(group.links))

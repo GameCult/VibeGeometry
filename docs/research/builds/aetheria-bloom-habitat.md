@@ -32,9 +32,16 @@ The build follows the current Bloom model:
 - despun or partially despun axial hub and light/traffic spire
 - despun hub cap and docking port on the center axis
 - spun-up spire sheath connected to the rotating spoke frame
+- shared cylindrical coordinate helpers so shell districts, spokes, surface
+  routes, cloud patches, and endcaps all join in one `x / angle / radius` frame
 - expensive spoke interfaces where transit, utilities, cargo, air, and authority
   concentrate
-- frame-transfer arteries between the despun core and spun sheath/spoke frame
+- golden-angle spiral spoke layout with tangential passenger/cargo loops from
+  the spun sheath to the civic surface
+- frame-transfer arteries between the despun core and spun sheath/spoke frame,
+  modeled as curved transfer loops instead of straight shafts
+- layered endcaps with pressure faces, terrace rings, slum balconies, and beach
+  service structures
 - outward stack of utility mat, pressure/structural shell, and aggregate shielding
 - layered civic geography: hub-cap terrace slums, hyper-urban favela belts,
   luxury spoke districts, urban mixed belts, suburban/industrial areas,
@@ -65,7 +72,7 @@ Result:
 ```text
 AETHERIA_BLOOM_VERIFY ok
 AETHERIA_BLOOM_VERIFY group VG Bloom Light Spine 21 31
-AETHERIA_BLOOM_VERIFY objects 481
+AETHERIA_BLOOM_VERIFY objects 735
 ```
 
 ## Procedural Translation Notes
@@ -77,9 +84,9 @@ This is intentionally hybrid:
 - Geometry Script emits `VG Bloom Light Spine`, an inspectable 21-node
   geometry-node group used by a Nodes modifier in the scene.
 - bpy builds the full shell surfaces, despun core, hub cap, docking port, spun
-  sheath, major spokes, thin utility spokes, frame-transfer arteries, wrapped
-  region patches, city blocks, roads, rivers, clouds, utility lines, service
-  markers, and cameras.
+  sheath, spiral spoke loops, endcaps, frame-transfer arteries, wrapped region
+  patches, city blocks, roads, rivers, clouds, utility lines, service markers,
+  and cameras.
 
 The IRCSS pass paid off in three ways:
 
@@ -87,9 +94,16 @@ The IRCSS pass paid off in three ways:
   transfer arteries, region patches, utility routes, and service markers before
   local dressing.
 - **Curves as attachment rails:** roads, rivers, and utility routes are curves
-  wrapped onto the inner cylinder or service layers; frame-transfer arteries
-  curve between rotating frames instead of pretending the hub/spire interface is
-  a straight elevator.
+  wrapped onto the inner cylinder or service layers; spiral spokes and
+  frame-transfer arteries curve between rotating frames instead of pretending
+  the hub/spire interface is a straight elevator.
+- **Coordinate space as contract:** `surface_point`, `cyl_point`, radial axes,
+  and tangents let each subsystem attach to the same cylindrical frame. That
+  makes twisted forms useful instead of decorative: the loop can bend, but its
+  endpoints still land on the sheath, shell, cap, or district layer.
+- **Golden-angle filling:** spoke placement uses the sunflower trick, stepping
+  by the golden angle along the axis so each new spoke avoids the previous
+  radial lanes while still reading as one organic exchange network.
 - **Python as orchestration:** the cylinder layers, region maps, city blocks,
   social-gradient bands, roads, rivers, forests, clouds, and spokes come from
   small tables and named helpers rather than copied object placement.
@@ -98,8 +112,9 @@ The IRCSS pass paid off in three ways:
 
 - The build is a spatial systems study, not final art.
 - The civic surface is a symbolic map-layer world, not a lived city.
-- The current whole-Bloom view is more diagrammatic than cinematic; it needs
-  atmospheric scale cues, denser horizon detail, and better light gradation.
+- The current whole-Bloom view is less skeletal, but still a study. It needs
+  denser horizon city detail and better art-directed lighting before it earns
+  the word cinematic without fraud.
 - Only the light spine is emitted through Geometry Script so far. The next pass
-  should move one repeated whole-Bloom subsystem, probably spoke/artery
-  networks or wrapped region patches, into reusable Geometry Script groups.
+  should move the shared coordinate helpers plus spiral spoke/artery network
+  into reusable Geometry Script groups.
