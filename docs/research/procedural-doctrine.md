@@ -100,6 +100,38 @@ Verification cue: name representative objects after the frame they prove, then
 render from a view that can reveal the attachment surface. `hubward_endcap_*`
 objects prove something different from `surface_*` objects.
 
+## Use Noise For Organic Occupancy
+
+Reach for this when repetition needs to feel grown, crowded, eroded, informal,
+or economically pressured. Regular polar or grid placement reads as planning.
+If the visual claim is accretion, give the system a pressure field.
+
+Mental move:
+
+```text
+domain coordinates -> fractal noise -> density / offset / scale / class -> batched geometry
+```
+
+In the Bloom terrace correction, rings still define rice-paddy shelves, but
+fractal value noise controls where buildings crowd together, how tier edges
+wobble, how tall units grow, where ladders appear, and where the poor slum
+transitions into outer high-gravity urban construction.
+
+```python
+n = fbm_2d(u * 8.0 + tier * 0.37, tier * 0.91, seed=31)
+density = 0.58 + tier_t * 0.34 + 0.23 * n
+angle_warp = (n - 0.5) * angular_step * 1.6
+height = (0.1 + 0.24 * tier_t) * (0.75 + 0.7 * n)
+```
+
+Metaphor in use: noise is weather over the settlement plan. The terraces are
+the terrain; the poverty field decides where the construction swells, thins,
+leans, or mutates.
+
+Verification cue: do not only count objects. Check density-bearing meshes for
+face counts, add a camera that looks at the actual domain surface, and inspect
+whether the pattern still reads as organic after batching.
+
 ## Start With A Pipeline
 
 Reach for this when the form feels like it has stages: a seed shape, a sampling

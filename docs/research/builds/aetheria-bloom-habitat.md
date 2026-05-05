@@ -47,11 +47,13 @@ The build follows the current Bloom model:
   belts, luxury spoke districts, urban mixed belts, suburban/industrial areas,
   industrial/agricultural bands, beach rim, sea band, roads, rivers, cloud
   patches, and service routes
-- hubward endcap terrace slums: annular shelves around the docking hub office
-  complex, stepping inward toward the Spire as "up" and extending outward to the
-  high-radius surface
-- rickety endcap favela detail: batched shacks, patched roofs, ladders, nets,
-  and handlines on the endcap terrace system
+- hubward endcap terrace slums: noisy, near-continuous annular shelf fields
+  around the docking hub office complex, stepping inward toward the Spire as
+  "up" and expanding outward with gravity until they meet the high-radius
+  surface
+- rickety-to-classy endcap construction gradient: batched poor shacks, patched
+  roofs, ladders, nets, handlines, midrise housing, and a denser urban crown on
+  the outer terraces
 - elaborated spoke plazas and town fields: plaza rings, kiosks, feeder walks,
   nested town houses, and lane networks
 - one small Service Ring Kappa marker among many maintenance systems, not the
@@ -67,6 +69,7 @@ Generated artifacts:
 - `experiments/generated/aetheria_bloom/aetheria_bloom_habitat.blend`
 - `experiments/generated/aetheria_bloom/aetheria_bloom_habitat.png`
 - `experiments/generated/aetheria_bloom/aetheria_bloom_interior_world.png`
+- `experiments/generated/aetheria_bloom/aetheria_bloom_hubward_endcap_terraces.png`
 
 Verification:
 
@@ -79,7 +82,7 @@ Result:
 ```text
 AETHERIA_BLOOM_VERIFY ok
 AETHERIA_BLOOM_VERIFY group VG Bloom Light Spine 21 31
-AETHERIA_BLOOM_VERIFY objects 1026
+AETHERIA_BLOOM_VERIFY objects 1028
 ```
 
 ## Procedural Translation Notes
@@ -93,7 +96,8 @@ This is intentionally hybrid:
 - bpy builds the full shell surfaces, despun core, hub cap, docking port, spun
   sheath, spiral spoke loops, endcaps, frame-transfer arteries, wrapped region
   patches, city blocks, hubward endcap terrace slums, batched town/plaza detail,
-  roads, rivers, clouds, utility lines, service markers, and cameras.
+  roads, rivers, clouds, utility lines, service markers, and cameras, including
+  a dedicated hubward-endcap inspection camera.
 
 The IRCSS pass paid off in three ways:
 
@@ -119,6 +123,10 @@ The IRCSS pass paid off in three ways:
   axial Spire, not along the cylinder wall. Terrace slums therefore belong on
   hubward/capward endcaps as annular shelves, galleries, ladders, nets, and
   handlines around the axial hub, growing outward to the surface.
+- **Noise as settlement pressure:** sparse concentric placement reads as civic
+  planning, not poverty. The current terrace pass uses fractal value noise to
+  warp angles, tier breaks, density, footprints, heights, ladders, and class
+  transition so the slum behaves like accretion over rice-paddy shelves.
 - **Python as orchestration:** the cylinder layers, region maps, city blocks,
   social-gradient bands, roads, rivers, forests, clouds, and spokes come from
   small tables and named helpers rather than copied object placement.

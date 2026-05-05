@@ -30,6 +30,8 @@ REQUIRED_OBJECTS = {
     "hubward_docking_hub_office_complex_office_spoke_bridge_00",
     "hubward_endcap_rice_paddy_slums_annular_shelf_mesh",
     "hubward_endcap_rice_paddy_slums_rickety_shack_mesh",
+    "hubward_endcap_rice_paddy_slums_midrise_housing_mesh",
+    "hubward_endcap_rice_paddy_slums_surface_urban_crown_mesh",
     "hubward_endcap_rice_paddy_slums_patched_roof_mesh",
     "hubward_endcap_rice_paddy_slums_ladders_nets_handlines",
     "capward_endcap_beach_service_00_00",
@@ -71,6 +73,7 @@ REQUIRED_OBJECTS = {
     "circumferential_market_seam_00",
     "Camera_Bloom_Cutaway",
     "Camera_Interior_World",
+    "Camera_Hubward_Endcap_Terraces",
 }
 
 
@@ -91,13 +94,25 @@ def verify_scene():
     carrier = bpy.data.objects["GN_Light_Spine_Modifier_Carrier"]
     assert_true(any(mod.type == "NODES" and mod.node_group == group for mod in carrier.modifiers), "Light-spine carrier lacks expected geometry-nodes modifier")
 
-    for filename in ("aetheria_bloom_habitat.png", "aetheria_bloom_interior_world.png", "aetheria_bloom_habitat.blend"):
+    for filename in (
+        "aetheria_bloom_habitat.png",
+        "aetheria_bloom_interior_world.png",
+        "aetheria_bloom_hubward_endcap_terraces.png",
+        "aetheria_bloom_habitat.blend",
+    ):
         path = ARTIFACT_DIR / filename
         assert_true(path.exists(), f"Missing generated artifact {path}")
         assert_true(path.stat().st_size > 10_000, f"Generated artifact is suspiciously small: {path}")
 
     mesh_objects = [obj for obj in bpy.data.objects if obj.type in {"MESH", "CURVE", "FONT"}]
     assert_true(len(mesh_objects) >= 930, f"Expected a populated whole-Bloom study scene, found {len(mesh_objects)} geometry/text objects")
+
+    slum_mesh = bpy.data.objects["hubward_endcap_rice_paddy_slums_rickety_shack_mesh"].data
+    mid_mesh = bpy.data.objects["hubward_endcap_rice_paddy_slums_midrise_housing_mesh"].data
+    crown_mesh = bpy.data.objects["hubward_endcap_rice_paddy_slums_surface_urban_crown_mesh"].data
+    assert_true(len(slum_mesh.polygons) >= 1200, f"Endcap slum mesh is too sparse: {len(slum_mesh.polygons)} faces")
+    assert_true(len(mid_mesh.polygons) >= 600, f"Endcap midrise mesh is too sparse: {len(mid_mesh.polygons)} faces")
+    assert_true(len(crown_mesh.polygons) >= 250, f"Endcap urban crown mesh is too sparse: {len(crown_mesh.polygons)} faces")
 
     print("AETHERIA_BLOOM_VERIFY ok")
     print("AETHERIA_BLOOM_VERIFY group", group.name, len(group.nodes), len(group.links))

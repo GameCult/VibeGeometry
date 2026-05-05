@@ -330,54 +330,83 @@ def append_endcap_ring_band(verts, faces, x, inner_radius, outer_radius, segment
 
 def add_hubward_endcap_terraced_slums(prefix, x, mats):
     # Bloom lore frame: on an endcap, "up" is inward toward the axial Spire.
-    # These are compressed annular terraces around the docking/hub offices,
-    # descending outward until they reach the rotating civic surface.
+    # These terraces are not polar graph paper. Fractal noise makes the shelf
+    # edges wobble, the settlement thicken, and the class gradient accrete
+    # outward until it meets the high-gravity surface city.
     shelf_verts, shelf_faces = [], []
-    shack_verts, shack_faces = [], []
+    poor_verts, poor_faces = [], []
+    middle_verts, middle_faces = [], []
+    city_verts, city_faces = [], []
     roof_verts, roof_faces = [], []
     ladder_lines = []
-    rings = [0.95, 1.28, 1.62, 1.98, 2.36, 2.76, 3.18, 3.62, 4.08, 4.55, 4.95]
+    rings = [0.72, 0.98, 1.24, 1.52, 1.82, 2.14, 2.48, 2.84, 3.22, 3.62, 4.04, 4.48, 4.9, 5.18]
     for tier, radius in enumerate(rings[:-1]):
         inner_r = radius
         outer_r = rings[tier + 1]
-        face_x = x + 0.04 + tier * 0.012
-        append_endcap_ring_band(shelf_verts, shelf_faces, face_x, inner_r, outer_r, segments=128)
-        count = 14 + tier * 3
+        tier_t = tier / (len(rings) - 2)
+        face_x = x + 0.035 + tier * 0.018
+        append_endcap_ring_band(shelf_verts, shelf_faces, face_x, inner_r, outer_r, segments=160)
+        count = int(30 + tier * 8 + 18 * fbm_2d(tier * 0.71, 4.0, seed=12))
+        angular_step = TAU / count
+        run = 0
         for i in range(count):
-            a = FULL_START + TAU * (i + 0.23 * (tier % 3)) / count
-            lane_r = (inner_r + outer_r) * 0.5 + 0.035 * pymath.sin(i * 1.7 + tier)
-            local_x = face_x + 0.035 * ((i + tier) % 3)
+            u = i / count
+            n = fbm_2d(u * 8.0 + tier * 0.37, tier * 0.91, seed=31)
+            n2 = fbm_2d(u * 15.0, tier * 1.7 + 3.0, seed=53)
+            density = 0.58 + tier_t * 0.34 + 0.23 * n
+            if n2 > density and run < 4:
+                run += 1
+                continue
+            run = 0
+            angle_warp = (n - 0.5) * angular_step * 1.6 + 0.12 * pymath.sin(tier * 1.37 + u * TAU * 2.0)
+            a = FULL_START + TAU * u + angle_warp
+            radial_t = 0.24 + 0.56 * fbm_2d(u * 5.0, tier * 0.8, seed=74)
+            lane_r = inner_r + (outer_r - inner_r) * radial_t + (n - 0.5) * (outer_r - inner_r) * 0.55
+            lane_r = max(inner_r + 0.04, min(outer_r - 0.035, lane_r))
+            local_x = face_x + 0.035 * ((i + tier) % 3) + 0.08 * (n - 0.5)
             local_axes = (tangent(a), radial(a), (1, 0, 0))
-            tangential = max(0.045, TAU * lane_r / count * 0.32)
-            radial_depth = max(0.09, (outer_r - inner_r) * 0.38)
-            height = 0.11 + 0.025 * ((i + tier) % 4)
+            tangential = max(0.055, TAU * lane_r / count * (0.72 + 0.5 * n))
+            radial_depth = max(0.08, (outer_r - inner_r) * (0.58 + 0.45 * n2))
+            height = (0.1 + 0.24 * tier_t) * (0.75 + 0.7 * n)
+            if tier_t < 0.55:
+                mesh_verts, mesh_faces = poor_verts, poor_faces
+                material_bias = 0.0
+            elif tier_t < 0.82:
+                mesh_verts, mesh_faces = middle_verts, middle_faces
+                material_bias = 0.12
+            else:
+                mesh_verts, mesh_faces = city_verts, city_faces
+                material_bias = 0.24
             append_box_parts(
-                shack_verts,
-                shack_faces,
-                cyl_point(local_x + height * 0.35, a, lane_r),
+                mesh_verts,
+                mesh_faces,
+                cyl_point(local_x + height * (0.34 + material_bias), a, lane_r),
                 local_axes,
                 (tangential, radial_depth, height),
             )
-            roof_axes = (tangent(a + 0.006), radial(a + 0.006), (1, 0, 0))
-            append_box_parts(
-                roof_verts,
-                roof_faces,
-                cyl_point(local_x + height * 0.78, a + 0.004, lane_r - 0.012),
-                roof_axes,
-                (tangential * 1.18, radial_depth * 1.05, 0.018),
-            )
-            if i % 2 == 0:
-                ladder_lines.append([cyl_point(local_x + 0.12, a, outer_r - 0.04), cyl_point(local_x + 0.18, a + 0.01, inner_r + 0.04)])
-            if i % 3 == 0:
+            if tier_t < 0.78 or n > 0.62:
+                roof_axes = (tangent(a + 0.006), radial(a + 0.006), (1, 0, 0))
+                append_box_parts(
+                    roof_verts,
+                    roof_faces,
+                    cyl_point(local_x + height * 0.78, a + 0.004, lane_r - 0.012),
+                    roof_axes,
+                    (tangential * 1.2, radial_depth * 1.06, 0.018),
+                )
+            if n > 0.38:
+                ladder_lines.append([cyl_point(local_x + 0.12, a, min(outer_r - 0.03, lane_r + radial_depth * 0.45)), cyl_point(local_x + 0.18, a + 0.012, max(inner_r + 0.03, lane_r - radial_depth * 0.48))])
+            if n2 > 0.34:
                 ladder_lines.append(
                     [
-                        cyl_point(local_x + 0.1, a - 0.025, lane_r),
-                        cyl_point(local_x + 0.12, a, lane_r - 0.03),
-                        cyl_point(local_x + 0.1, a + 0.025, lane_r),
+                        cyl_point(local_x + 0.08, a - angular_step * 0.35, lane_r + radial_depth * 0.35),
+                        cyl_point(local_x + 0.11, a + (n - 0.5) * angular_step, lane_r),
+                        cyl_point(local_x + 0.08, a + angular_step * 0.42, lane_r - radial_depth * 0.38),
                     ]
                 )
     add_mesh_parts(prefix + "_annular_shelf_mesh", shelf_verts, shelf_faces, mats["favela"])
-    add_mesh_parts(prefix + "_rickety_shack_mesh", shack_verts, shack_faces, mats["favela"])
+    add_mesh_parts(prefix + "_rickety_shack_mesh", poor_verts, poor_faces, mats["favela"])
+    add_mesh_parts(prefix + "_midrise_housing_mesh", middle_verts, middle_faces, mats["city"])
+    add_mesh_parts(prefix + "_surface_urban_crown_mesh", city_verts, city_faces, mats["luxury"])
     add_mesh_parts(prefix + "_patched_roof_mesh", roof_verts, roof_faces, mats["shack_roof"])
     add_multi_polyline_curve(prefix + "_ladders_nets_handlines", ladder_lines, 0.0055, mats["brace"], resolution=2)
 
@@ -488,6 +517,40 @@ def cyl_point(x, angle, radius):
 
 def smoothstep(t):
     return t * t * (3.0 - 2.0 * t)
+
+
+def hash01(ix, iy=0, seed=0):
+    n = ix * 374761393 + iy * 668265263 + seed * 1442695041
+    n = (n ^ (n >> 13)) * 1274126177
+    n = n ^ (n >> 16)
+    return (n & 0xFFFFFFFF) / 0xFFFFFFFF
+
+
+def value_noise_2d(x, y, seed=0):
+    ix = pymath.floor(x)
+    iy = pymath.floor(y)
+    fx = smoothstep(x - ix)
+    fy = smoothstep(y - iy)
+    a = hash01(ix, iy, seed)
+    b = hash01(ix + 1, iy, seed)
+    c = hash01(ix, iy + 1, seed)
+    d = hash01(ix + 1, iy + 1, seed)
+    ab = a + (b - a) * fx
+    cd = c + (d - c) * fx
+    return ab + (cd - ab) * fy
+
+
+def fbm_2d(x, y, seed=0, octaves=4):
+    value = 0.0
+    amplitude = 0.5
+    frequency = 1.0
+    total = 0.0
+    for octave in range(octaves):
+        value += value_noise_2d(x * frequency, y * frequency, seed + octave * 19) * amplitude
+        total += amplitude
+        amplitude *= 0.5
+        frequency *= 2.03
+    return value / total if total else 0.0
 
 
 def add_spiral_spoke_loop(name, x, angle, start_radius, end_radius, material, bevel=0.04, cargo=False):
@@ -908,6 +971,13 @@ def build_scene():
     detail_camera.data.type = "ORTHO"
     detail_camera.data.ortho_scale = 9.0
 
+    bpy.ops.object.camera_add(location=(-13.5, 0.45, 0.35))
+    cap_camera = bpy.context.object
+    cap_camera.name = "Camera_Hubward_Endcap_Terraces"
+    aim_camera(cap_camera, (-9.05, 0.0, 0.0))
+    cap_camera.data.type = "ORTHO"
+    cap_camera.data.ortho_scale = 6.6
+
     bpy.context.scene.render.engine = "BLENDER_EEVEE"
     if hasattr(bpy.context.scene, "eevee"):
         bpy.context.scene.eevee.taa_render_samples = 24
@@ -929,6 +999,7 @@ def main():
     blend_path = out_dir / "aetheria_bloom_habitat.blend"
     render_path = out_dir / "aetheria_bloom_habitat.png"
     detail_render_path = out_dir / "aetheria_bloom_interior_world.png"
+    cap_render_path = out_dir / "aetheria_bloom_hubward_endcap_terraces.png"
     bpy.ops.wm.save_as_mainfile(filepath=str(blend_path.resolve()))
     bpy.context.scene.camera = bpy.data.objects["Camera_Bloom_Cutaway"]
     bpy.context.scene.render.filepath = str(render_path.resolve())
@@ -936,9 +1007,13 @@ def main():
     bpy.context.scene.camera = bpy.data.objects["Camera_Interior_World"]
     bpy.context.scene.render.filepath = str(detail_render_path.resolve())
     bpy.ops.render.render(write_still=True)
+    bpy.context.scene.camera = bpy.data.objects["Camera_Hubward_Endcap_Terraces"]
+    bpy.context.scene.render.filepath = str(cap_render_path.resolve())
+    bpy.ops.render.render(write_still=True)
     print("AETHERIA_BLOOM_BLEND", blend_path.resolve())
     print("AETHERIA_BLOOM_RENDER", render_path.resolve())
     print("AETHERIA_BLOOM_INTERIOR_RENDER", detail_render_path.resolve())
+    print("AETHERIA_BLOOM_HUBWARD_ENDCAP_RENDER", cap_render_path.resolve())
     group = bpy.data.node_groups.get("VG Bloom Light Spine")
     if group:
         print("AETHERIA_BLOOM_GN_GROUP", group.name, len(group.nodes), len(group.links))

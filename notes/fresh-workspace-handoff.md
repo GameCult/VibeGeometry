@@ -26,9 +26,8 @@ VibeGeometry is still an incubation scaffold: persistence, graph-translation
 corpus, repo-local Geometry Script tooling, verifiers, and doctrine exist; the
 builder library and artifact schemas do not.
 
-Corpus inventory, graph maps, verification notes, and spatial doctrine live in
-`docs/research/`. Keep this handoff as a re-entry surface, not a second corpus
-ledger.
+Corpus inventory, graph maps, verification notes, and doctrine live in
+`docs/research/`. This handoff is not the ledger.
 
 Accepted corpus families so far:
 
@@ -42,18 +41,10 @@ Accepted corpus families so far:
   `PointyGothicCone -> VG Pointy Gothic Cone`, verified against source
   evaluated geometry with max delta `0.0`.
 
-Current frontier: IRCSS French Houses city-scale graph work. The accepted
-footholds are `MakeSpiral` and `PointyGothicCone`. Mapped blockers are
-repeat-zone feedback state, repeat `Top` boolean outputs, foreach zones, gizmo
-nodes, and a rejected empty-output harness for `WindowBeams`. The previous
-`nodes_to_script` duplicate-key failure around axes-to-rotation is fixed in the
-Geometry Script fork, so `GenerateArc` and `MakeStairs` now have compiling
-converter drafts. The file-level dependency map lives at
-`docs/research/translations/ircss-french-houses-system-map.md`; the all-node
-structural atlas lives at
-`docs/research/translations/ircss-french-houses-node-atlas.md`; the node-level
-mechanism study lives at
-`docs/research/translations/ircss-french-houses-node-mechanisms.md`.
+Current IRCSS frontier: `MakeSpiral` and `PointyGothicCone` are accepted
+footholds. Blockers are repeat-zone feedback, repeat `Top` outputs, foreach
+zones, gizmo nodes, and rejected empty-output `WindowBeams` harness. IRCSS maps
+live in `docs/research/translations/ircss-french-houses-*.md`.
 
 First from-scratch build test: `examples/geometry_script/aetheria_bloom_habitat.py`
 generates an Aetheria Bloom whole-habitat study using Bloom lore plus Eric
@@ -62,10 +53,11 @@ whole-cylinder mapped spaces and frame interfaces: full shell layers, despun
 hub cap and docking core, spun spire sheath, shared x/angle/radius coordinate
 helpers, golden-angle spoke/transfer loops, layered endcaps, mapped civic
 bands, roads, rivers, cloud patches, and service seams. The hubward terrace
-slums are on the endcap: annular shelves around the docking hub office complex
-step inward toward the Spire as "up" and grow outward to the surface. Plazas
-and towns have nested buildings, kiosks, feeder walks, and lane networks. Kappa
-is only a small service marker. Build notes live at
+slums are on the endcap: noise-driven annular shelf fields around the docking
+hub office complex step inward toward the Spire as "up" and grow outward into a
+classier high-gravity urban crown. Plazas and towns have nested buildings,
+kiosks, feeder walks, and lane networks. Kappa is only a small service marker.
+Build notes live at
 `docs/research/builds/aetheria-bloom-habitat.md`; verification lives at
 `tools/verify_aetheria_bloom_habitat.py`.
 
