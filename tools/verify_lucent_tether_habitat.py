@@ -20,6 +20,8 @@ REQUIRED_OBJECTS = [
     "lucent_tether_main_cable",
     "lucent_tether_spin_reference_core",
     "city_bubble_sealed_aquarium",
+    "city_bubble_pressure_equator",
+    "city_bubble_flat_ground_rim",
     "city_bubble_tether_load_spine",
     "city_bubble_elevator_umbilical",
     "city_bubble_upper_tether_collar",
@@ -28,6 +30,9 @@ REQUIRED_OBJECTS = [
     "city_bubble_under_keel_counterweight",
     "city_bubble_tether_anchor_plaza_core",
     "city_bubble_anchor_plaza_ring",
+    "city_bubble_flat_ground_surface_disk",
+    "city_bubble_flattening_boolean_cutter",
+    "city_bubble_perlin_leaf_crest",
     "city_bubble_interspersed_park_cells",
     "city_bubble_prestige_anchor_skyscrapers",
     "city_bubble_midcity_irregular_blocks",
@@ -86,6 +91,20 @@ def verify_render_engine_and_shaders():
             raise AssertionError(f"Material {material_name} is missing shader node types {missing}")
 
 
+def verify_city_coordinate_contract():
+    bubble = bpy.data.objects["city_bubble_sealed_aquarium"]
+    plaza = bpy.data.objects["city_bubble_tether_anchor_plaza_core"]
+    crest = bpy.data.objects["city_bubble_perlin_leaf_crest"]
+    if bubble.dimensions.x >= bubble.dimensions.y * 0.7:
+        raise AssertionError("City dome is not flattened along the tether axis")
+    if plaza.dimensions.x >= 0.05:
+        raise AssertionError("City ground surface should be orthogonal to tether with minimal X depth")
+    if crest.dimensions.x <= 0.45:
+        raise AssertionError("Sunflower crest should climb partway up the dome along the tether axis")
+    if crest.dimensions.y < 2.8 or crest.dimensions.z < 2.8:
+        raise AssertionError("Sunflower crest should wrap around most of the dome rim")
+
+
 def verify_artifacts():
     assert_render_artifacts(
         [
@@ -103,6 +122,7 @@ def main():
     geometry_objects = assert_scene_density(bpy, min_geometry_objects=55)
     verify_geometry_script_group()
     verify_render_engine_and_shaders()
+    verify_city_coordinate_contract()
     verify_artifacts()
     print(f"LUCENT_TETHER_VERIFY ok objects={len(geometry_objects)}")
 

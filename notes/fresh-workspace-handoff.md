@@ -47,8 +47,9 @@ From-scratch story-bound builds:
   tether habitat from Ghostlight `Lucent Hostage Feed`: tether axis, city bubble
   below, media-eye lounge, crisis threshold, overlays, control/side panels, and
   security doors. Accepted revision uses Cycles, shader nodes, explicit bubble
-  attachment, radial/tangential streets, irregular parcels, prestige anchor
-  towers, parks, and faux-rural edge falloff.
+  attachment, an orthogonal spin-gravity city plane, a flat-cut dome base,
+  radial/tangential streets, irregular parcels, prestige anchor towers, parks,
+  faux-rural edge falloff, and a sunflower-like ray-floret crest.
   Build notes: `docs/research/builds/lucent-tether-habitat.md`; verifier:
   `tools/verify_lucent_tether_habitat.py`.
 

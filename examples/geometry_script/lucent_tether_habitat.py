@@ -44,11 +44,12 @@ from vibegeometry import (
 
 TAU = pymath.tau
 OUT_DIR = Path("experiments/generated/lucent_tether_habitat")
-TETHER_START = (-6.5, 0.0, 0.0)
+CITY_GROUND_X = -5.45
+CITY_BUBBLE_CENTER = (-4.95, 0.0, 0.0)
+CITY_BUBBLE_SCALE = (1.0, 1.95, 1.95)
+CITY_TETHER_JUNCTION = (CITY_GROUND_X, 0.0, 0.0)
+TETHER_START = CITY_TETHER_JUNCTION
 TETHER_END = (6.8, 0.0, 0.0)
-CITY_BUBBLE_CENTER = (-4.85, 0.0, -2.35)
-CITY_BUBBLE_SCALE = (1.95, 1.95, 1.05)
-CITY_TETHER_JUNCTION = (-4.85, 0.0, 0.0)
 MEDIA_EYE_CENTER = (4.6, 0.0, 0.0)
 
 
@@ -157,6 +158,7 @@ def enrich_shader_graphs(mats):
     add_shader_bump(mats["park"], scale=18.0, detail=6.0, strength=0.045, distance=0.028)
     add_shader_bump(mats["cottage"], scale=31.0, detail=5.0, strength=0.055, distance=0.03)
     add_shader_bump(mats["plaza"], scale=36.0, detail=6.0, strength=0.028, distance=0.02)
+    add_shader_bump(mats["crest"], scale=22.0, detail=8.0, strength=0.035, distance=0.025)
     for key, pulse in [
         ("cyan", (0.65, 1.0, 1.0, 1.0)),
         ("amber", (1.0, 0.88, 0.32, 1.0)),
@@ -228,17 +230,66 @@ def arc_points(center, radius, start_deg, end_deg, steps, plane="xy", wobble=0.0
     return points
 
 
-def annular_sector_points(center, inner_radius, outer_radius, start_angle, end_angle, z):
+def annular_sector_points(center, inner_radius, outer_radius, start_angle, end_angle, plane="xy"):
+    if plane == "yz":
+        x, y, z = center
+        return [
+            (x, y + inner_radius * pymath.cos(start_angle), z + inner_radius * pymath.sin(start_angle)),
+            (x, y + outer_radius * pymath.cos(start_angle), z + outer_radius * pymath.sin(start_angle)),
+            (x, y + outer_radius * pymath.cos(end_angle), z + outer_radius * pymath.sin(end_angle)),
+            (x, y + inner_radius * pymath.cos(end_angle), z + inner_radius * pymath.sin(end_angle)),
+        ]
     return [
-        (center[0] + inner_radius * pymath.cos(start_angle), center[1] + inner_radius * pymath.sin(start_angle), z),
-        (center[0] + outer_radius * pymath.cos(start_angle), center[1] + outer_radius * pymath.sin(start_angle), z),
-        (center[0] + outer_radius * pymath.cos(end_angle), center[1] + outer_radius * pymath.sin(end_angle), z),
-        (center[0] + inner_radius * pymath.cos(end_angle), center[1] + inner_radius * pymath.sin(end_angle), z),
+        (center[0] + inner_radius * pymath.cos(start_angle), center[1] + inner_radius * pymath.sin(start_angle), center[2]),
+        (center[0] + outer_radius * pymath.cos(start_angle), center[1] + outer_radius * pymath.sin(start_angle), center[2]),
+        (center[0] + outer_radius * pymath.cos(end_angle), center[1] + outer_radius * pymath.sin(end_angle), center[2]),
+        (center[0] + inner_radius * pymath.cos(end_angle), center[1] + inner_radius * pymath.sin(end_angle), center[2]),
     ]
 
 
 def add_flat_polygon(name, verts, material):
     return add_mesh_parts(name, verts, [(0, 1, 2, 3)], material)
+
+
+def add_yz_disk(name, x, radius, material, segments=96):
+    verts = [(x, 0.0, 0.0)]
+    faces = []
+    for i in range(segments):
+        a = TAU * i / segments
+        verts.append((x, radius * pymath.cos(a), radius * pymath.sin(a)))
+    for i in range(segments):
+        faces.append((0, i + 1, 1 + ((i + 1) % segments)))
+    return add_mesh_parts(name, verts, faces, material)
+
+
+def add_dome_base_crest(mats):
+    verts = []
+    faces = []
+    petals = 34
+    radial_steps = 5
+    for petal in range(petals):
+        center_a = TAU * petal / petals + 0.025 * pymath.sin(petal * 1.7)
+        width = TAU / petals * (0.82 + 0.36 * hash01(petal, 0, 251))
+        climb = 0.58 + 0.36 * fbm_2d(pymath.cos(center_a) * 2.1, pymath.sin(center_a) * 2.1, seed=177)
+        twist = 0.08 * (hash01(petal, 4, 271) - 0.5)
+        petal_base = len(verts)
+        for side in (-1.0, 1.0):
+            for step in range(radial_steps + 1):
+                t = step / radial_steps
+                edge = (0.55 + 0.45 * smoothstep(1.0 - abs(t - 0.55) * 2.0))
+                noise = fbm_2d(petal * 0.41, step * 0.73 + side, seed=303) - 0.5
+                local_width = width * (1.0 - 0.42 * smoothstep(t)) * edge + noise * 0.018
+                a = center_a + side * local_width * 0.5 + twist * t
+                radius = 1.48 + 0.22 * smoothstep(t) + 0.03 * noise
+                x = CITY_GROUND_X + climb * smoothstep(t)
+                y = radius * pymath.cos(a)
+                z = radius * pymath.sin(a)
+                verts.append((x, y, z))
+        for step in range(radial_steps):
+            faces.append((petal_base + step, petal_base + step + 1, petal_base + radial_steps + 2 + step + 1, petal_base + radial_steps + 2 + step))
+    obj = add_mesh_parts("city_bubble_perlin_leaf_crest", verts, faces, mats["crest"])
+    obj.show_transparent = True
+    return obj
 
 
 def add_floor_patch(name, center, width, depth, material, z=0.0):
@@ -269,34 +320,47 @@ def add_habitat_cable_bundle(mats):
 
 
 def add_city_bubble(mats):
+    import bpy
+
     bubble = add_uv_sphere("city_bubble_sealed_aquarium", CITY_BUBBLE_CENTER, CITY_BUBBLE_SCALE, mats["glass"], 64, 32)
-    bubble.rotation_euler[0] = pymath.radians(8)
+    bpy.ops.mesh.primitive_cube_add(size=1.0, location=(CITY_GROUND_X - 2.0, 0.0, 0.0))
+    cutter = bpy.context.object
+    cutter.name = "city_bubble_flattening_boolean_cutter"
+    cutter.dimensions = (4.0, 5.0, 5.0)
+    bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
+    boolean = bubble.modifiers.new("boolean cut flat ground base", "BOOLEAN")
+    boolean.operation = "DIFFERENCE"
+    boolean.object = cutter
+    bpy.context.view_layer.objects.active = bubble
+    bubble.select_set(True)
+    bpy.ops.object.modifier_apply(modifier=boolean.name)
+    cutter.hide_viewport = True
+    cutter.hide_render = True
     add_torus(
         "city_bubble_pressure_equator",
-        CITY_BUBBLE_CENTER,
+        (CITY_GROUND_X + 0.02, 0.0, 0.0),
         1.95,
         0.022,
         mats["cyan"],
-        rotation=(0.0, 0.0, 0.0),
+        rotation=(0.0, pymath.radians(90), 0.0),
         segments=128,
     )
     add_torus(
-        "city_bubble_lower_aquarium_rim",
-        (CITY_BUBBLE_CENTER[0], CITY_BUBBLE_CENTER[1], CITY_BUBBLE_CENTER[2] - 0.27),
+        "city_bubble_flat_ground_rim",
+        (CITY_GROUND_X + 0.01, 0.0, 0.0),
         1.42,
         0.018,
         mats["aquarium"],
-        rotation=(0.0, 0.0, 0.0),
+        rotation=(0.0, pymath.radians(90), 0.0),
         segments=96,
     )
+    add_yz_disk("city_bubble_flat_ground_surface_disk", CITY_GROUND_X + 0.004, 1.54, mats["park"], segments=128)
 
-    ground_z = CITY_BUBBLE_CENTER[2] - 0.30
-    center = (CITY_BUBBLE_CENTER[0], CITY_BUBBLE_CENTER[1])
+    ground_x = CITY_GROUND_X + 0.018
     tower_verts, tower_faces = [], []
     prestige_verts, prestige_faces = [], []
     cottage_verts, cottage_faces = [], []
     park_faces = []
-    plaza_faces = []
     roads = []
 
     # Street field: major avenues radiate from the tether anchor, then bend
@@ -310,22 +374,19 @@ def add_city_bubble(mats):
             r = 0.12 + 1.42 * smoothstep(u)
             drift = 0.22 * pymath.sin(u * pymath.pi) * (hash01(i, step, 17) - 0.5)
             angle = base_angle + drift + 0.08 * pymath.sin(u * TAU + i)
-            line.append((center[0] + r * pymath.cos(angle), center[1] + r * pymath.sin(angle), ground_z + 0.025))
+            line.append((ground_x + 0.025, r * pymath.cos(angle), r * pymath.sin(angle)))
         roads.append(line)
     for ring_i, radius in enumerate([0.22, 0.42, 0.68, 0.95, 1.2, 1.42]):
         for arc_i in range(3):
             start = TAU * arc_i / 3 + ring_i * 0.21
             end = start + TAU / 3 * (0.72 + 0.12 * hash01(ring_i, arc_i, 23))
-            roads.append(arc_points((center[0], center[1], ground_z + 0.028), radius, pymath.degrees(start), pymath.degrees(end), 24, plane="xy", wobble=0.018))
+            roads.append(arc_points((ground_x + 0.028, 0.0, 0.0), radius, pymath.degrees(start), pymath.degrees(end), 24, plane="yz", wobble=0.018))
 
     # Anchor plaza: the tether physically lands on the ground surface. The
     # skyline knows where power plugs in.
-    for i in range(8):
-        a0 = TAU * i / 8
-        a1 = TAU * (i + 1) / 8
-        plaza_faces.extend(annular_sector_points(center, 0.0, 0.23, a0, a1, ground_z + 0.006))
-    add_flat_polygon("city_bubble_tether_anchor_plaza_core", annular_sector_points(center, 0.0, 0.24, 0.0, TAU / 4, ground_z + 0.012), mats["plaza"])
-    add_torus("city_bubble_anchor_plaza_ring", (center[0], center[1], ground_z + 0.025), 0.32, 0.011, mats["soft_white"], segments=96)
+    add_yz_disk("city_bubble_tether_anchor_plaza_core", ground_x + 0.012, 0.24, mats["plaza"], segments=48)
+    add_torus("city_bubble_anchor_plaza_ring", (ground_x + 0.025, 0.0, 0.0), 0.32, 0.011, mats["soft_white"], rotation=(0.0, pymath.radians(90), 0.0), segments=96)
+    add_dome_base_crest(mats)
 
     rings = [0.24, 0.42, 0.62, 0.84, 1.08, 1.31, 1.52]
     for ring in range(len(rings) - 1):
@@ -341,33 +402,33 @@ def add_city_bubble(mats):
             n = fbm_2d(ring * 0.61, cell * 0.29, seed=91)
             park_bias = fbm_2d(pymath.cos((a0 + a1) * 0.5) * 2.2 + ring, pymath.sin((a0 + a1) * 0.5) * 2.2, seed=121)
             if zone > 0.32 and park_bias > 0.68:
-                park_faces.extend(annular_sector_points(center, inner + 0.025, outer - 0.02, a0 + 0.025, a1 - 0.018, ground_z + 0.01))
+                park_faces.extend(annular_sector_points((ground_x + 0.012, 0.0, 0.0), inner + 0.025, outer - 0.02, a0 + 0.025, a1 - 0.018, plane="yz"))
                 continue
             r = inner + (outer - inner) * (0.45 + 0.22 * (n - 0.5))
             angle = (a0 + a1) * 0.5
-            radial_axis = (pymath.cos(angle), pymath.sin(angle), 0.0)
-            tangent_axis = (-pymath.sin(angle), pymath.cos(angle), 0.0)
+            radial_axis = (0.0, pymath.cos(angle), pymath.sin(angle))
+            tangent_axis = (0.0, -pymath.sin(angle), pymath.cos(angle))
             radial_width = max(0.04, (outer - inner) * (0.36 + 0.28 * n))
             tangential_width = max(0.045, r * (a1 - a0) * (0.55 + 0.3 * hash01(cell, ring, 37)))
             if zone < 0.28:
                 height = 0.5 + 0.62 * n
                 verts, faces = prestige_verts, prestige_faces
                 size = (tangential_width * 0.72, radial_width * 0.8, height)
-                loc = (center[0] + r * radial_axis[0], center[1] + r * radial_axis[1], ground_z + height * 0.5)
+                loc = (ground_x + height * 0.5, r * pymath.cos(angle), r * pymath.sin(angle))
             elif zone < 0.72:
                 height = 0.16 + 0.36 * n * (1.0 - zone * 0.35)
                 verts, faces = tower_verts, tower_faces
                 size = (tangential_width * 0.82, radial_width * 0.9, height)
-                loc = (center[0] + r * radial_axis[0], center[1] + r * radial_axis[1], ground_z + height * 0.5)
+                loc = (ground_x + height * 0.5, r * pymath.cos(angle), r * pymath.sin(angle))
             else:
                 if n < 0.38:
-                    park_faces.extend(annular_sector_points(center, inner + 0.02, outer - 0.02, a0 + 0.02, a1 - 0.02, ground_z + 0.012))
+                    park_faces.extend(annular_sector_points((ground_x + 0.012, 0.0, 0.0), inner + 0.02, outer - 0.02, a0 + 0.02, a1 - 0.02, plane="yz"))
                     continue
                 height = 0.045 + 0.07 * n
                 verts, faces = cottage_verts, cottage_faces
                 size = (tangential_width * 0.55, radial_width * 0.6, height)
-                loc = (center[0] + r * radial_axis[0], center[1] + r * radial_axis[1], ground_z + height * 0.5)
-            append_box_parts(verts, faces, loc, (tangent_axis, radial_axis, (0, 0, 1)), size)
+                loc = (ground_x + height * 0.5, r * pymath.cos(angle), r * pymath.sin(angle))
+            append_box_parts(verts, faces, loc, (tangent_axis, radial_axis, (1, 0, 0)), size)
 
     if park_faces:
         verts = park_faces
@@ -379,7 +440,7 @@ def add_city_bubble(mats):
     add_multi_polyline_curve("city_bubble_tensor_field_street_network", roads, 0.006, mats["soft_white"], resolution=3)
     add_multi_polyline_curve(
         "city_bubble_prestige_plaza_spokes",
-        [[(center[0], center[1], ground_z + 0.04), road[-1]] for road in roads[:16:2]],
+        [[(ground_x + 0.04, 0.0, 0.0), road[-1]] for road in roads[:16:2]],
         0.012,
         mats["cyan"],
         resolution=3,
@@ -389,35 +450,35 @@ def add_city_bubble(mats):
 def add_city_bubble_tether_attachment(mats):
     x, y, z = CITY_TETHER_JUNCTION
     top = (x, y, z)
-    collar = (CITY_BUBBLE_CENTER[0], CITY_BUBBLE_CENTER[1], CITY_BUBBLE_CENTER[2] + 1.02)
-    plaza = (CITY_BUBBLE_CENTER[0], CITY_BUBBLE_CENTER[1], CITY_BUBBLE_CENTER[2] - 0.30)
-    keel = (CITY_BUBBLE_CENTER[0], CITY_BUBBLE_CENTER[1], CITY_BUBBLE_CENTER[2] - 0.22)
+    collar = (CITY_GROUND_X + 0.08, 0.0, 0.0)
+    plaza = (CITY_GROUND_X + 0.08, 0.0, 0.0)
+    keel = (CITY_GROUND_X - 0.12, 0.0, 0.0)
     add_cylinder_between("city_bubble_tether_load_spine", top, plaza, 0.045, mats["tether"], vertices=16)
-    add_cylinder_between("city_bubble_elevator_umbilical", (x + 0.14, 0.0, -0.05), (collar[0] + 0.14, 0.0, collar[2] - 0.03), 0.022, mats["cyan"], vertices=10)
-    add_cylinder_between("city_bubble_elevator_drop_to_anchor_plaza", (x + 0.14, 0.0, collar[2] - 0.03), (plaza[0] + 0.14, 0.0, plaza[2] + 0.06), 0.018, mats["cyan"], vertices=10)
+    add_cylinder_between("city_bubble_elevator_umbilical", (x + 0.14, 0.0, -0.05), (plaza[0] + 0.14, 0.0, -0.05), 0.022, mats["cyan"], vertices=10)
+    add_cylinder_between("city_bubble_elevator_drop_to_anchor_plaza", (plaza[0] + 0.14, 0.0, -0.05), (plaza[0] + 0.14, 0.0, 0.18), 0.018, mats["cyan"], vertices=10)
     add_torus(
         "city_bubble_upper_tether_collar",
         collar,
         0.52,
         0.025,
         mats["soft_white"],
-        rotation=(0.0, 0.0, 0.0),
+        rotation=(0.0, pymath.radians(90), 0.0),
         segments=96,
     )
-    add_box("city_bubble_tether_transfer_node", (x, 0.0, -0.1), ((1, 0, 0), (0, 1, 0), (0, 0, 1)), (0.42, 0.34, 0.16), mats["lucent_gray"])
+    add_box("city_bubble_tether_transfer_node", (x + 0.08, 0.0, 0.0), ((1, 0, 0), (0, 1, 0), (0, 0, 1)), (0.42, 0.34, 0.34), mats["lucent_gray"])
     for i, angle in enumerate([0.0, pymath.pi / 2, pymath.pi, pymath.pi * 1.5]):
         y2 = pymath.cos(angle) * 1.35
-        x2 = CITY_BUBBLE_CENTER[0] + pymath.sin(angle) * 0.42
-        z2 = CITY_BUBBLE_CENTER[2] + 0.78
+        z2 = pymath.sin(angle) * 1.35
+        x2 = CITY_GROUND_X + 0.18 + 0.22 * pymath.sin(angle * 2.0)
         add_cylinder_between(f"city_bubble_suspension_stay_{i:02d}", top, (x2, y2, z2), 0.012, mats["soft_white"], vertices=6)
         add_curve_polyline(
             f"city_bubble_tension_trace_{i:02d}",
-            [top, ((top[0] + x2) * 0.5, y2 * 0.35, -0.72), (x2, y2, z2)],
+            [top, ((top[0] + x2) * 0.5, y2 * 0.35, z2 * 0.35), (x2, y2, z2)],
             0.004,
             mats["cyan"],
             resolution=3,
         )
-    add_cylinder_between("city_bubble_under_keel_counterweight", keel, (keel[0], keel[1], keel[2] - 0.75), 0.028, mats["dark"], vertices=10)
+    add_cylinder_between("city_bubble_under_keel_counterweight", keel, (keel[0] - 0.75, keel[1], keel[2]), 0.028, mats["dark"], vertices=10)
 
 
 def add_media_eye_lounge(mats):
@@ -506,7 +567,7 @@ def add_overlay_ribbons_and_signage(mats):
     labels = [
         ("label_media_eye", "media-eye transfer lounge", (4.65, -1.52, 0.7), 0.082),
         ("label_safe_line", "safe-line / glass rail", (5.18, 1.2, -0.34), 0.066),
-        ("label_city_bubble", "city bubble below: sealed aquarium", (-5.9, -1.9, -2.42), 0.12),
+        ("label_city_bubble", "orthogonal dome city / sunflower crest", (-5.38, -1.82, -1.72), 0.095),
         ("label_lucent_surfaces", "surfaces as controls, rankings, edits", (1.6, -0.82, 0.5), 0.082),
     ]
     for name, text, loc, size in labels:
@@ -540,6 +601,7 @@ def build_scene():
         "park": mat("interspersed park green", (0.12, 0.48, 0.22), alpha=0.92),
         "cottage": mat("verdant faux rural cottagecore", (0.46, 0.64, 0.39), alpha=0.96),
         "plaza": mat("tether anchor plaza stone", (0.68, 0.7, 0.66), alpha=0.96),
+        "crest": mat("Perlin-edged dome flower crest", (0.25, 0.9, 0.74), emission=True, strength=0.12, alpha=0.34),
         "label": mat("label white", (0.92, 0.95, 1.0), emission=True, strength=0.45),
     }
     enrich_shader_graphs(mats)
@@ -569,10 +631,10 @@ def build_scene():
     bpy.context.scene.view_settings.view_transform = "Filmic"
     bpy.context.scene.view_settings.look = "Medium High Contrast"
 
-    bpy.ops.object.camera_add(location=(6.9, -8.2, 4.6))
+    bpy.ops.object.camera_add(location=(6.6, -7.6, 4.9))
     overview = bpy.context.object
     overview.name = "Camera_Lucent_Tether_Overview"
-    aim_camera(overview, (0.2, 0.0, -1.0))
+    aim_camera(overview, (0.15, 0.0, 0.0))
     overview.data.type = "ORTHO"
     overview.data.ortho_scale = 7.6
     bpy.context.scene.camera = overview
@@ -584,12 +646,12 @@ def build_scene():
     lounge.data.type = "ORTHO"
     lounge.data.ortho_scale = 2.5
 
-    bpy.ops.object.camera_add(location=(-3.35, -3.15, -0.95))
+    bpy.ops.object.camera_add(location=(-2.75, -3.25, 1.75))
     city = bpy.context.object
     city.name = "Camera_City_Bubble_Aquarium"
     aim_camera(city, CITY_BUBBLE_CENTER)
     city.data.type = "ORTHO"
-    city.data.ortho_scale = 4.2
+    city.data.ortho_scale = 4.05
 
 
 def render_camera(camera_name, path):

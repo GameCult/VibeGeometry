@@ -27,14 +27,13 @@ therefore treats surfaces as active controls, not passive decoration.
 ## Coordinate Contract
 
 - `X`: tether axis, from the city-bubble side to the media-eye lounge.
-- `Z`: local visual altitude in the scene; the city bubble sits below the
-  tether/lounge assembly to preserve the story's "far below" read.
-- `Y`: lounge width and panel spread.
+- `YZ`: spinning city ground plane, orthogonal to the tether.
+- `+X`: outward from the city ground toward the dome/headquarters anchor side;
+  building height runs along this axis.
+- `Y`: lounge width and city ground-plane axis.
 - The media-eye lounge is at positive `X`.
-- The sealed city bubble is at negative `X`, lower `Z`, and attached to the
-  tether by a load spine, elevator umbilical, collar, stays, and transfer node.
-- The tether continues down through the dome to the city ground surface, landing
-  in a prestige anchor plaza.
+- The dome city is at negative `X`, boolean-cut flat at the ground plane, and
+  attached to the tether through a prestige anchor plaza.
 - Crisis geometry lives inside the lounge: elevator gate and glass rail at the
   threshold, safe-line arc behind it, security beyond the doors.
 
@@ -83,7 +82,7 @@ lanyard.
 ```python
 add_cylinder_between("lucent_tether_main_cable", TETHER_START, TETHER_END, 0.075, mats["tether"])
 add_uv_sphere("city_bubble_sealed_aquarium", CITY_BUBBLE_CENTER, CITY_BUBBLE_SCALE, mats["glass"])
-add_cylinder_between("city_bubble_tether_load_spine", CITY_TETHER_JUNCTION, collar, 0.045, mats["tether"])
+add_yz_disk("city_bubble_flat_ground_surface_disk", CITY_GROUND_X + 0.004, 1.54, mats["park"], segments=128)
 ```
 
 **Crisis Geometry As Spatial Contract**
@@ -127,14 +126,14 @@ for i in range(16):
         u = step / 8
         r = 0.12 + 1.42 * smoothstep(u)
         angle = base_angle + 0.08 * pymath.sin(u * TAU + i)
-        line.append((center[0] + r * pymath.cos(angle), center[1] + r * pymath.sin(angle), ground_z + 0.025))
+        line.append((ground_x + 0.025, r * pymath.cos(angle), r * pymath.sin(angle)))
     roads.append(line)
 
 for ring_i, radius in enumerate([0.22, 0.42, 0.68, 0.95, 1.2, 1.42]):
     for arc_i in range(3):
         start = TAU * arc_i / 3 + ring_i * 0.21
         end = start + TAU / 3 * (0.72 + 0.12 * hash01(ring_i, arc_i, 23))
-        roads.append(arc_points((center[0], center[1], ground_z + 0.028), radius, pymath.degrees(start), pymath.degrees(end), 24, plane="xy"))
+        roads.append(arc_points((ground_x + 0.028, 0.0, 0.0), radius, pymath.degrees(start), pymath.degrees(end), 24, plane="yz"))
 ```
 
 **Land Use Falls Off From The Anchor**
@@ -151,6 +150,19 @@ elif zone < 0.72:
     verts, faces = tower_verts, tower_faces
 else:
     verts, faces = cottage_verts, cottage_faces
+```
+
+**Sunflower Crest**
+
+The city disk is the disk-floret region. The crest is the ray-floret region:
+Perlin-warped translucent petals anchored around the flat dome base and climbing
+partway up the dome, not a loose decorative halo.
+
+```python
+for petal in range(34):
+    center_a = TAU * petal / petals + 0.025 * pymath.sin(petal * 1.7)
+    climb = 0.58 + 0.36 * fbm_2d(pymath.cos(center_a) * 2.1, pymath.sin(center_a) * 2.1, seed=177)
+    x = CITY_GROUND_X + climb * smoothstep(t)
 ```
 
 **Shader Graphs Are Geometry Evidence Too**
@@ -177,21 +189,23 @@ Command:
 Result:
 
 ```text
-LUCENT_TETHER_VERIFY ok objects=78
+LUCENT_TETHER_VERIFY ok objects=81
 ```
 
 Render review rejected the first pass because the city bubble read as detached
 from the tether and the EEVEE/default-material pass was too shallow. The
 accepted revision uses Cycles, explicit bubble-to-tether attachment geometry,
-shader-node work, and a non-grid city map. The verifier now checks the
-attachment objects, Cycles engine, material shader-node types, named crisis
-geometry, render artifacts, and the `VG Lucent Feed Ribbon` Geometry Script
-group.
+shader-node work, a non-grid city map, the orthogonal spinning city frame,
+boolean-cut flat dome base, and a sunflower ray-floret crest. The verifier now
+checks the attachment objects, Cycles engine, material shader-node types, named
+crisis geometry, city coordinate contract, render artifacts, and the `VG Lucent
+Feed Ribbon` Geometry Script group.
 
 ## Durable Lesson
 
 For Lucent spaces, avoid thinking "set dressing." The set is the power system.
 Build public surfaces as rails, rankings, prompt stacks, edits, delayed feeds,
 and shader behavior. Then put physical bodies and thresholds where those
-abstractions become dangerous. Also: "far below" does not mean "unattached."
-Large habitat parts need visible load paths, or the render becomes a polite lie.
+abstractions become dangerous. Also: "far below" is not the coordinate system.
+For a tether habitat, spin gravity decides the ground plane. Large habitat parts
+need visible load paths, or the render becomes a polite lie.
