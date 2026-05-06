@@ -63,10 +63,11 @@ script imports these primitives directly, so the library is not just a shrine.
 `crates/vg_csg` is the first Rust/Bevy-side interactive geometry organ.
 RealtimeCSG's public Unity repo exposes a useful brush/tree/operation/generation
 model, but not the optimized native C++ kernel or a supported runtime editing
-API. `vg_csg` therefore ports the architecture shape: ordered brushes, exact
-AABB subtraction for box solids, additive `CylinderZ`, `DomeCapZ`, and
-`FloretArm` primitives, Bevy-math mesh buffers, `LevelDsl`, tests, clippy, and
-an example room. Research note:
+API. Sander van Rossen's older public `LogicalError/Realtime-CSG-demo` and blog
+series are now the preferred clean research inputs. Current `vg_csg`: ordered
+brushes, exact AABB and oriented-box subtraction via convex plane splitting,
+additive `CylinderZ`, `DomeCapZ`, and `FloretArm` primitives, Bevy-math mesh
+buffers, `LevelDsl`, tests, clippy, and an example room. Research note:
 `docs/research/realtime-csg-bevy-assembler.md`.
 
 The repo-local Geometry Script clone has Blender 5.1 work for nested `@tree`
@@ -83,11 +84,11 @@ The GameCult fork is intentionally pruned to `main` plus VibeGeometry-owned
 tooling branches. Do not copy upstream branch soup forward unless a future patch
 actually needs it.
 
-The current next action is to extend `vg_csg` from a tested brush assembler into
-an interactive Bevy loop: add Bevy `Mesh` conversion, an ECS plugin/resource
-boundary, visual debug rendering for brush claims versus emitted mesh, and then
-upgrade the CSG kernel from AABB slabs toward convex half-space clipping and
-spatial indexing.
+The current next action is to move `vg_csg` toward the public RealtimeCSG demo's
+faster model: add explicit polygon categories, classify brush polygons through
+boolean tree operations, preserve source/cutter surfaces and material intent,
+then add spatial rejection/indexing and Bevy `Mesh`/ECS plugin boundaries for
+the interactive loop.
 
 ## Important Invariants
 
