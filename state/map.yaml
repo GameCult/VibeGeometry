@@ -13,8 +13,9 @@ mission:
     geometry-node graphs that produce specific visual results from reference
     images, text instructions, and iterative render review.
   near_term: >
-    Define the scene brief, node graph manifest, Python builder, render runner,
-    and review loop before building a large library of graph idioms.
+    Define the scene brief, node graph manifest, Python/Geometry Script builder,
+    Rust/Bevy CSG assembler, render runner, and review loop before building a
+    large library of graph idioms.
 
 hard_boundaries:
   - Blender 5.0+ is the target runtime unless a task explicitly chooses another version.
@@ -44,6 +45,7 @@ live_architecture:
     - `vibegeometry/` provides reusable Python helpers for coordinate contracts, deterministic fields, batched geometry, Blender object/material/camera setup, and verifier checks.
     - Geometry Script emits inspectable reusable Geometry Nodes groups.
     - bpy handles Blender objects, modifiers, materials, cameras, lights, files, renders, and evaluated-geometry checks.
+    - Rust/Bevy-side CSG tooling provides an interactive brush-and-boolean assembler path for fast level geometry, starting with box CSG and habitat-specific additive primitives.
     - External Python tools inspect source blends, generate converter drafts, compare outputs, and maintain corpus evidence.
   persistence:
     - `state/map.yaml` stores canonical mission, boundaries, architecture, artifacts, and next action.
@@ -75,6 +77,8 @@ current_artifacts:
     - docs/research/translations/ircss-french-houses-node-mechanisms.md
     - docs/research/builds/aetheria-bloom-habitat.md
     - docs/research/builds/lucent-tether-habitat.md
+    - docs/research/realtime-csg-bevy-assembler.md
+    - crates/vg_csg/
     - vibegeometry/
   tools:
     - tools/vibegeometry_state.py
@@ -101,8 +105,8 @@ data_flow:
   - If state grows faster than understanding, cut it back.
 
 current_status:
-  summary: VibeGeometry has verified Geometry Script translations for local samples, official Blender demos, and IRCSS French Houses footholds, plus from-scratch Aetheria Bloom and Lucent tether habitat builds. Durable lessons now driving the pipeline: Python orchestrates intent and batching; Geometry Script emits inspectable node groups; source-bound scenes need explicit coordinate contracts before ornament; spin-gravity habitats need ground planes orthogonal to their tether/rotation axis; utility petals, radiators, and solar arrays belong outside pressure glass and may need Citadel-scale presence; large habitat parts need visible load paths across coordinate frames; organic city maps need street fields, irregular parcels, parks, and land-use gradients rather than grids; dense detail must be batched; institutional spaces should model power as surfaces, rails, overlays, thresholds, shader behavior, and camera evidence; and visual acceptance needs domain-facing inspection renders plus verifier checks, not only overview renders. The first reusable `vibegeometry/` helper library now carries coordinate frames, fields, batching, Blender scene primitives, and verifier helpers used by the Bloom and Lucent builds. Known graph-tooling blockers remain repeat-zone feedback, repeat Top outputs, foreach zones, and gizmo nodes.
-  next_action: Extract the first higher-level reusable builder seam from the completed story-bound builds: either threshold/control-rail interface kits from the Lucent habitat or endcap terrace/spiral artery kits from the Bloom, then bind that seam to scene-brief, manifest, inspection-render, and verifier contract drafts.
+  summary: VibeGeometry has verified Geometry Script translations for local samples, official Blender demos, and IRCSS French Houses footholds, plus from-scratch Aetheria Bloom and Lucent tether habitat builds. Durable lessons now driving the pipeline: Python orchestrates intent and batching; Geometry Script emits inspectable node groups; source-bound scenes need explicit coordinate contracts before ornament; spin-gravity habitats need ground planes orthogonal to their tether/rotation axis; utility petals, radiators, and solar arrays belong outside pressure glass and may need Citadel-scale presence; large habitat parts need visible load paths across coordinate frames; organic city maps need street fields, irregular parcels, parks, and land-use gradients rather than grids; dense detail must be batched; institutional spaces should model power as surfaces, rails, overlays, thresholds, shader behavior, and camera evidence; and visual acceptance needs domain-facing inspection renders plus verifier checks, not only overview renders. The first reusable `vibegeometry/` helper library now carries coordinate frames, fields, batching, Blender scene primitives, and verifier helpers used by the Bloom and Lucent builds. A new Rust workspace crate, `vg_csg`, starts the interactive Bevy-compatible geometry path: RealtimeCSG-inspired ordered brushes, operation types, generation tracking, exact AABB subtraction for box solids, additive cylinder/dome/floret primitives, mesh-array output, tests, clippy coverage, and a sample room. Known graph-tooling blockers remain repeat-zone feedback, repeat Top outputs, foreach zones, and gizmo nodes.
+  next_action: Extend `vg_csg` from a tested brush assembler into an interactive Bevy loop: add Bevy `Mesh` conversion, an ECS plugin/resource boundary, visual debug rendering for brush claims versus emitted mesh, and then upgrade the CSG kernel from AABB slabs toward convex half-space clipping and spatial indexing.
 remotes:
   vibegeometry: https://github.com/GameCult/VibeGeometry
   geometry_script_fork: https://github.com/GameCult/geometry-script

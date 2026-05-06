@@ -22,37 +22,33 @@ git log --oneline -5
 
 ## Current State
 
-VibeGeometry is still an incubation scaffold: persistence, graph-translation
-corpus, repo-local Geometry Script tooling, verifiers, and doctrine exist; the
-builder library and artifact schemas do not.
+VibeGeometry is an incubation scaffold with persistence, graph-translation
+corpus notes, repo-local Geometry Script tooling, verifiers, doctrine, a Python
+helper library, and now a first Rust CSG assembler. Artifact schemas are still
+pending.
 
 Corpus inventory, graph maps, verification notes, and doctrine live in
-`docs/research/`. This handoff is not the ledger.
+`docs/research/`; this handoff is not the ledger. Accepted corpus families
+include local Shriinivas samples, Quellenform `CurveToMeshUV`, official Blender
+demos, and IRCSS French Houses footholds. IRCSS blockers remain repeat-zone
+feedback, repeat `Top` outputs, foreach zones, gizmo nodes, and the rejected
+empty-output `WindowBeams` harness.
 
-Accepted corpus families include local Shriinivas samples, Quellenform
-`CurveToMeshUV`, official Blender demos, and IRCSS French Houses footholds.
-IRCSS blockers remain repeat-zone feedback, repeat `Top` outputs, foreach
-zones, gizmo nodes, and the rejected empty-output `WindowBeams` harness. Maps
-live in `docs/research/translations/ircss-french-houses-*.md`.
+From-scratch story-bound builds live in `examples/geometry_script/`:
 
-From-scratch story-bound builds:
+- `aetheria_bloom_habitat.py`: whole Bloom study with explicit lore coordinate
+  frames, cylindrical/endcap attachment, golden-angle transfer curves,
+  deterministic settlement noise, batched dense detail, and inspection cameras.
+- `lucent_tether_habitat.py`: Ghostlight/Lucent tether habitat with orthogonal
+  spin-gravity city plane, flat-cut dome base, street-field city, shader work,
+  tether attachment, and exterior Citadel-scale solar/radiator florets.
 
-- `examples/geometry_script/aetheria_bloom_habitat.py` generates the Aetheria
-  Bloom whole-habitat study. It carries the key spatial lessons: explicit lore
-  coordinate frames, cylindrical/endcap attachment, golden-angle transfer
-  curves, deterministic settlement noise, batched dense detail, and inspection
-  cameras. Build notes: `docs/research/builds/aetheria-bloom-habitat.md`;
-  verifier: `tools/verify_aetheria_bloom_habitat.py`.
-- `examples/geometry_script/lucent_tether_habitat.py` generates the Lucent
-  tether habitat from Ghostlight `Lucent Hostage Feed`: tether axis, city bubble
-  below, media-eye lounge, crisis threshold, overlays, control/side panels, and
-  security doors. Accepted revision uses Cycles, shader nodes, explicit bubble
-  attachment, an orthogonal spin-gravity city plane, a flat-cut dome base,
-  radial/tangential streets, irregular parcels, prestige anchor towers, parks,
-  faux-rural edge falloff, and an exterior sunflower-like crest of alternating
-  Citadel-scale solar panels/radiators.
-  Build notes: `docs/research/builds/lucent-tether-habitat.md`; verifier:
-  `tools/verify_lucent_tether_habitat.py`.
+Build notes and verifiers:
+
+- `docs/research/builds/aetheria-bloom-habitat.md`
+- `docs/research/builds/lucent-tether-habitat.md`
+- `tools/verify_aetheria_bloom_habitat.py`
+- `tools/verify_lucent_tether_habitat.py`
 
 Current authoring prior: use the full Python stack. Python structures intent,
 tables, loops, variants, cleanup, validation, docs, and scene/render
@@ -63,6 +59,15 @@ handles Blender scene machinery and evaluated evidence.
 coordinate-frame helpers, deterministic field/noise helpers, mesh batching,
 thin Blender object/material/camera helpers, and verifier helpers. The Bloom
 script imports these primitives directly, so the library is not just a shrine.
+
+`crates/vg_csg` is the first Rust/Bevy-side interactive geometry organ.
+RealtimeCSG's public Unity repo exposes a useful brush/tree/operation/generation
+model, but not the optimized native C++ kernel or a supported runtime editing
+API. `vg_csg` therefore ports the architecture shape: ordered brushes, exact
+AABB subtraction for box solids, additive `CylinderZ`, `DomeCapZ`, and
+`FloretArm` primitives, Bevy-math mesh buffers, `LevelDsl`, tests, clippy, and
+an example room. Research note:
+`docs/research/realtime-csg-bevy-assembler.md`.
 
 The repo-local Geometry Script clone has Blender 5.1 work for nested `@tree`
 group reuse, a ported `nodes_to_script` converter, and menu-socket default
@@ -78,11 +83,11 @@ The GameCult fork is intentionally pruned to `main` plus VibeGeometry-owned
 tooling branches. Do not copy upstream branch soup forward unless a future patch
 actually needs it.
 
-The current next action is to extract the first higher-level reusable builder
-seam from the completed story-bound builds: either threshold/control-rail
-interface kits from the Lucent habitat or endcap terrace/spiral artery kits
-from the Bloom, then bind that seam to scene-brief, manifest,
-inspection-render, and verifier contract drafts.
+The current next action is to extend `vg_csg` from a tested brush assembler into
+an interactive Bevy loop: add Bevy `Mesh` conversion, an ECS plugin/resource
+boundary, visual debug rendering for brush claims versus emitted mesh, and then
+upgrade the CSG kernel from AABB slabs toward convex half-space clipping and
+spatial indexing.
 
 ## Important Invariants
 
