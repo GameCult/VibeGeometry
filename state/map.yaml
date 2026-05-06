@@ -71,6 +71,7 @@ current_artifacts:
     - notes/vibegeometry-implementation-plan.md
     - docs/architecture/pipeline-overview.md
     - docs/research/procedural-doctrine.md
+    - docs/research/realtime-csg-doctrine.md
     - docs/research/geometry-script-fork-notes.md
     - docs/research/translations/ircss-french-houses-system-map.md
     - docs/research/translations/ircss-french-houses-node-atlas.md
