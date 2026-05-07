@@ -107,6 +107,13 @@ fragment-carver triangles to 48 boundary triangles. The perf fixture only emits
 ordered kernel until the router has compact frontier batching and scratch
 storage; naive surface-list routing exploded polygon counts.
 
+Latest dense-kernel guardrail: `PolygonRouteScratch` now reuses routing scratch
+vectors for polygon classification. An attempted in-place fragment frontier
+changed `rotated_cut_stack_64` output shape, so it was reverted. A regression
+now pins that fixture at 280 fragments, 3404 triangles, 804 candidate pairs, and
+9417 rejected pairs. Future speed passes must either preserve that ordered
+output exactly or make an explicit, reviewed output-contract transition.
+
 ## Important Invariants
 
 - Target Blender 5.0+ unless the task says otherwise.
