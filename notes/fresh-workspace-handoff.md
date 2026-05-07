@@ -39,9 +39,10 @@ tables, loops, variants, cleanup, validation, docs, and scene/render
 orchestration; Geometry Script emits inspectable Geometry Nodes groups; `bpy`
 handles Blender scene machinery and evaluated evidence.
 
-`crates/vg_csg` is the first Rust/Bevy-side interactive geometry organ.
-It has also been extracted into the public standalone repo
-`https://github.com/GameCult/vg-csg` for independent development and sharing.
+`crates/vg_csg` is the first Rust/Bevy-side interactive geometry organ. In
+VibeGeometry it is now a git submodule pointing at
+`https://github.com/GameCult/vg-csg`, kept at the same path so workspace and
+`vg_grammar` path dependencies still resolve.
 That repo's `main` was rewritten from filtered VibeGeometry history rather than
 a synthetic import, preserving the CSG crate, docs, native bridge, and perf
 harness commit chain with one standalone packaging commit on top.

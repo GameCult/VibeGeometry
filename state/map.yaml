@@ -46,7 +46,7 @@ live_architecture:
     - `vibegeometry/` provides reusable Python helpers for coordinate contracts, deterministic fields, batched geometry, Blender object/material/camera setup, and verifier checks.
     - Geometry Script emits inspectable reusable Geometry Nodes groups.
     - bpy handles Blender objects, modifiers, materials, cameras, lights, files, renders, and evaluated-geometry checks.
-    - Rust/Bevy-side CSG tooling provides an interactive brush-and-boolean assembler path for fast level geometry, starting with box CSG and habitat-specific additive primitives.
+    - Rust/Bevy-side CSG tooling lives in the `crates/vg_csg` submodule, which points at `https://github.com/GameCult/vg-csg`, and provides an interactive brush-and-boolean assembler path for fast level geometry, starting with box CSG and habitat-specific additive primitives.
     - `vg_grammar` provides the authoring grammar above CSG: procedural rules emit semantic solid/void claims, then `vg_csg` adjudicates the space.
     - External Python tools inspect source blends, generate converter drafts, compare outputs, and maintain corpus evidence.
   persistence:
@@ -84,7 +84,7 @@ current_artifacts:
     - docs/research/builds/dream-machine-level.md
     - docs/research/builds/industrial-maintenance-loop.md
     - docs/research/realtime-csg-bevy-assembler.md
-    - crates/vg_csg/
+    - crates/vg_csg/ submodule -> https://github.com/GameCult/vg-csg
     - crates/vg_grammar/
     - vibegeometry/
   tools:
