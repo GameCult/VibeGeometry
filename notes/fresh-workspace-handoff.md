@@ -114,6 +114,13 @@ now pins that fixture at 280 fragments, 3404 triangles, 804 candidate pairs, and
 9417 rejected pairs. Future speed passes must either preserve that ordered
 output exactly or make an explicit, reviewed output-contract transition.
 
+Current realtime-editing seam: `Assembler` can mutate brush primitives and
+operations by `BrushId`, invalidating cached output and incrementing generation.
+`DirtyDemandFrontier` computes the conservative ordered suffix after the first
+dirty brush. The prefix before that index is the future cache boundary; the
+suffix is live because ordered CSG decisions propagate forward. There is not yet
+an incremental mesh rebuild from that plan.
+
 ## Important Invariants
 
 - Target Blender 5.0+ unless the task says otherwise.
