@@ -98,6 +98,15 @@ First implementation slice: `vg_csg` exports `DemandFrontier`/`DemandPair`, and
 `rejected_pairs`. These counters are currently observational and follow existing
 bounds gates; they are not yet a replacement router.
 
+Second implementation slice: `Assembler::rebuild_routed_surfaces()` now exposes
+an experimental surface-router path for exactly one convex source and one
+candidate subtractive convex cutter. It emits surviving source boundary polygons
+plus reversed cutter cap polygons, so the centered cut drops from 72 closed
+fragment-carver triangles to 48 boundary triangles. The perf fixture only emits
+`mode:"routed"` for supported cases. Dense repeated cutters must stay on the
+ordered kernel until the router has compact frontier batching and scratch
+storage; naive surface-list routing exploded polygon counts.
+
 ## Important Invariants
 
 - Target Blender 5.0+ unless the task says otherwise.
