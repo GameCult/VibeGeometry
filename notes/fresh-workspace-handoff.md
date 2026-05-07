@@ -58,8 +58,10 @@ surface, child and operation mutation, ordered assembler backend, exact AABB
 and oriented-box subtraction and intersection via convex plane splitting,
 crossing polygon classification into inside/outside/aligned/reverse-aligned
 buckets, polygon category/visibility/reversal metadata, primitive/solid/tree
-bounds, additive `CylinderZ`, `DomeCapZ`, and `FloretArm` primitives, release
-perf fixtures, Bevy-math mesh buffers, tests, clippy, and examples.
+bounds, additive `CylinderZ`, `DomeCapZ`, and `FloretArm` primitives,
+axis-aligned box fast path, compiled brush geometry cache, owned convex
+splitting, stable-generation output cache, release perf fixtures, Bevy-math
+mesh buffers, tests, clippy, and examples.
 Research note: `docs/research/realtime-csg-bevy-assembler.md`.
 Where `vg_csg` overlaps public RealtimeCSG/demo behavior, add exact observable
 parity fixtures instead of approximate plausibility tests.
@@ -77,9 +79,10 @@ Repo-local Geometry Script clone notes live in
 `.\tools\setup_geometry_script_clone.ps1` if `external/geometry-script` is
 missing.
 
-The current next action is to use the now-working RealtimeCSG C++ timing oracle
-to guide replacement of the ordered assembler backend with the category-router
-kernel behind the existing CSG tree API.
+The current next action is to add a dirty-rebuild benchmark mode, then use the
+RealtimeCSG C++ timing oracle to guide replacement of the ordered assembler
+backend with the category-router kernel where cached stable output cannot hide
+fragment-carving costs.
 
 ## Important Invariants
 
