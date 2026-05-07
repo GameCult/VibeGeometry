@@ -81,8 +81,17 @@ Repo-local Geometry Script clone notes live in
 missing.
 
 The current next action is to replace the ordered `vg_csg` dense rotated
-subtraction path with the category-router kernel while keeping cached-vs-dirty
-output parity tests green and comparing against the C++ timing oracle.
+subtraction path with the category-router kernel, then prototype a
+demand-shaped affected-pair frontier before adding any generic BVH/grid spatial
+index. Keep cached-vs-dirty output parity tests green and compare against the
+C++ timing oracle.
+
+Spatial-query correction from EpiphanyAquarium memory: GigaVoxels, froxels, and
+Dreams all point away from static "better tree" thinking. Let the consumer
+shape the query frontier first: dirty brush, branch bounds, requested output
+tile/view, or visible surface set. BVHs, grids, sweep-and-prune, and pair caches
+are candidate layouts only after that frontier exists and timing evidence says
+they help.
 
 ## Important Invariants
 
