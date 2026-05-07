@@ -46,6 +46,7 @@ live_architecture:
     - Geometry Script emits inspectable reusable Geometry Nodes groups.
     - bpy handles Blender objects, modifiers, materials, cameras, lights, files, renders, and evaluated-geometry checks.
     - Rust/Bevy-side CSG tooling provides an interactive brush-and-boolean assembler path for fast level geometry, starting with box CSG and habitat-specific additive primitives.
+    - `vg_grammar` provides the authoring grammar above CSG: procedural rules emit semantic solid/void claims, then `vg_csg` adjudicates the space.
     - External Python tools inspect source blends, generate converter drafts, compare outputs, and maintain corpus evidence.
   persistence:
     - `state/map.yaml` stores canonical mission, boundaries, architecture, artifacts, and next action.
@@ -72,6 +73,7 @@ current_artifacts:
     - docs/architecture/pipeline-overview.md
     - docs/research/procedural-doctrine.md
     - docs/research/realtime-csg-doctrine.md
+    - docs/research/dream-machine-grammar.md
     - docs/research/geometry-script-fork-notes.md
     - docs/research/translations/ircss-french-houses-system-map.md
     - docs/research/translations/ircss-french-houses-node-atlas.md
@@ -80,6 +82,7 @@ current_artifacts:
     - docs/research/builds/lucent-tether-habitat.md
     - docs/research/realtime-csg-bevy-assembler.md
     - crates/vg_csg/
+    - crates/vg_grammar/
     - vibegeometry/
   tools:
     - tools/vibegeometry_state.py
@@ -106,8 +109,8 @@ data_flow:
   - If state grows faster than understanding, cut it back.
 
 current_status:
-  summary: VibeGeometry has verified Geometry Script translations for local samples, official Blender demos, and IRCSS French Houses footholds, plus from-scratch Aetheria Bloom and Lucent tether habitat builds. Durable lessons now driving the pipeline: Python orchestrates intent and batching; Geometry Script emits inspectable node groups; source-bound scenes need explicit coordinate contracts before ornament; spin-gravity habitats need ground planes orthogonal to their tether/rotation axis; utility petals, radiators, and solar arrays belong outside pressure glass and may need Citadel-scale presence; large habitat parts need visible load paths across coordinate frames; organic city maps need street fields, irregular parcels, parks, and land-use gradients rather than grids; dense detail must be batched; institutional spaces should model power as surfaces, rails, overlays, thresholds, shader behavior, and camera evidence; and visual acceptance needs domain-facing inspection renders plus verifier checks, not only overview renders. The first reusable `vibegeometry/` helper library now carries coordinate frames, fields, batching, Blender scene primitives, and verifier helpers used by the Bloom and Lucent builds. The Rust crate `vg_csg` now has a convex-brush stepping-stone kernel: RealtimeCSG-inspired ordered brushes, operation types, generation tracking, exact AABB and oriented-box subtraction via convex plane splitting, additive cylinder/dome/floret primitives, mesh-array output, DSL coverage, tests, clippy, and a sample room. Public RealtimeCSG demo/source research points the target away from fragment carving and toward faster polygon classification through boolean trees. Known graph-tooling blockers remain repeat-zone feedback, repeat Top outputs, foreach zones, and gizmo nodes.
-  next_action: Move `vg_csg` toward the public RealtimeCSG demo's faster model: add explicit polygon categories, classify brush polygons through boolean tree operations, preserve source/cutter surfaces and material intent, then add spatial rejection/indexing and Bevy `Mesh`/ECS plugin boundaries for the interactive loop.
+  summary: VibeGeometry has verified Geometry Script translations for local samples, official Blender demos, and IRCSS French Houses footholds, plus from-scratch Aetheria Bloom and Lucent tether habitat builds. Durable lessons now driving the pipeline: Python orchestrates intent and batching; Geometry Script emits inspectable node groups; source-bound scenes need explicit coordinate contracts before ornament; spin-gravity habitats need ground planes orthogonal to their tether/rotation axis; utility petals, radiators, and solar arrays belong outside pressure glass and may need Citadel-scale presence; large habitat parts need visible load paths across coordinate frames; organic city maps need street fields, irregular parcels, parks, and land-use gradients rather than grids; dense detail must be batched; institutional spaces should model power as surfaces, rails, overlays, thresholds, shader behavior, and camera evidence; and visual acceptance needs domain-facing inspection renders plus verifier checks, not only overview renders. The first reusable `vibegeometry/` helper library now carries coordinate frames, fields, batching, Blender scene primitives, and verifier helpers used by the Bloom and Lucent builds. The Rust crate `vg_csg` now has a convex-brush stepping-stone kernel: RealtimeCSG-inspired ordered brushes, operation types, generation tracking, exact AABB and oriented-box subtraction via convex plane splitting, additive cylinder/dome/floret primitives, mesh-array output, DSL coverage, tests, clippy, and a sample room. The new `vg_grammar` crate is the first Dream Machine authoring layer: room/corridor/door rules emit semantic solid/void claims with tags into `vg_csg`, preserving intent before CSG resolves matter. Public RealtimeCSG demo/source research points the target away from fragment carving and toward faster polygon classification through boolean trees. Known graph-tooling blockers remain repeat-zone feedback, repeat Top outputs, foreach zones, and gizmo nodes.
+  next_action: Grow `vg_grammar` from room/corridor/door claims into a real procedural level grammar: add frames, seeded variation, rule composition, semantic materials/tags, and generated CSG tree structure, while moving `vg_csg` toward explicit polygon categories and boolean-tree classification.
 remotes:
   vibegeometry: https://github.com/GameCult/VibeGeometry
   geometry_script_fork: https://github.com/GameCult/geometry-script

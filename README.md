@@ -51,6 +51,8 @@ Currently present:
 - starter architecture notes for the Blender scene-generation pipeline
 - a small `vibegeometry/` helper library for coordinate frames, deterministic
   fields, batching, Blender object/material/camera helpers, and verifier checks
+- experimental Rust crates: `vg_csg` for Bevy-math brush assembly and
+  `vg_grammar` for semantic procedural claims feeding the CSG tree
 - a repo structure for schemas, prompts, examples, experiments, scripts, tools,
   notes, and durable state
 - small state inspection and pre-compaction helpers

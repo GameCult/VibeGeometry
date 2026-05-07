@@ -808,6 +808,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "vg_grammar"
+version = "0.1.0"
+dependencies = [
+ "bevy_math",
+ "vg_csg",
+]
+
+[[package]]
 name = "wasip2"
 version = "1.0.3+wasi-0.2.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"

@@ -1,0 +1,10 @@
+[package]
+name = "vg_grammar"
+version = "0.1.0"
+edition = "2024"
+description = "Procedural grammar layer that emits semantic CSG claims for VibeGeometry"
+license = "MIT"
+
+[dependencies]
+bevy_math = "0.17"
+vg_csg = { path = "../vg_csg" }

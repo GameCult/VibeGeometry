@@ -22,43 +22,22 @@ git log --oneline -5
 
 ## Current State
 
-VibeGeometry is an incubation scaffold with persistence, graph-translation
-corpus notes, repo-local Geometry Script tooling, verifiers, doctrine, a Python
-helper library, and now a first Rust CSG assembler. Artifact schemas are still
-pending.
+VibeGeometry now has three live implementation organs:
 
-Corpus inventory, graph maps, verification notes, and doctrine live in
-`docs/research/`; this handoff is not the ledger. Accepted corpus families
-include local Shriinivas samples, Quellenform `CurveToMeshUV`, official Blender
-demos, and IRCSS French Houses footholds. IRCSS blockers remain repeat-zone
-feedback, repeat `Top` outputs, foreach zones, gizmo nodes, and the rejected
-empty-output `WindowBeams` harness.
+- `vibegeometry/`: Python helpers for Blender coordinate frames, deterministic
+  fields, batching, object/material/camera setup, and verifier checks.
+- `crates/vg_csg`: Rust/Bevy-math CSG brush assembler.
+- `crates/vg_grammar`: Dream Machine grammar layer emitting semantic solid/void
+  claims into `vg_csg`.
 
-From-scratch story-bound builds live in `examples/geometry_script/`:
-
-- `aetheria_bloom_habitat.py`: whole Bloom study with explicit lore coordinate
-  frames, cylindrical/endcap attachment, golden-angle transfer curves,
-  deterministic settlement noise, batched dense detail, and inspection cameras.
-- `lucent_tether_habitat.py`: Ghostlight/Lucent tether habitat with orthogonal
-  spin-gravity city plane, flat-cut dome base, street-field city, shader work,
-  tether attachment, and exterior Citadel-scale solar/radiator florets.
-
-Build notes and verifiers:
-
-- `docs/research/builds/aetheria-bloom-habitat.md`
-- `docs/research/builds/lucent-tether-habitat.md`
-- `tools/verify_aetheria_bloom_habitat.py`
-- `tools/verify_lucent_tether_habitat.py`
+Corpus maps, story-bound builds, translation notes, RealtimeCSG doctrine, and
+procedural doctrine live under `docs/research/`; this handoff is not the ledger.
+Artifact schemas are still pending.
 
 Current authoring prior: use the full Python stack. Python structures intent,
 tables, loops, variants, cleanup, validation, docs, and scene/render
 orchestration; Geometry Script emits inspectable Geometry Nodes groups; `bpy`
 handles Blender scene machinery and evaluated evidence.
-
-`vibegeometry/` is the first reusable helper library. It currently holds
-coordinate-frame helpers, deterministic field/noise helpers, mesh batching,
-thin Blender object/material/camera helpers, and verifier helpers. The Bloom
-script imports these primitives directly, so the library is not just a shrine.
 
 `crates/vg_csg` is the first Rust/Bevy-side interactive geometry organ.
 RealtimeCSG's public Unity repo exposes a useful brush/tree/operation/generation
@@ -70,25 +49,22 @@ additive `CylinderZ`, `DomeCapZ`, and `FloretArm` primitives, Bevy-math mesh
 buffers, `LevelDsl`, tests, clippy, and an example room. Research note:
 `docs/research/realtime-csg-bevy-assembler.md`.
 
-The repo-local Geometry Script clone has Blender 5.1 work for nested `@tree`
-group reuse, a ported `nodes_to_script` converter, and menu-socket default
-tolerance. See `docs/research/geometry-script-fork-notes.md`. Run
+`crates/vg_grammar` is the first Dream Machine grammar layer above CSG. Rules
+emit semantic solid/void claims with tags, then compile those claims into
+`vg_csg` brushes. Current rules: `RoomSpec`, `CorridorSpec`, `DoorSpec`.
+Example: `cargo run -p vg_grammar --example dream_room`. Research note:
+`docs/research/dream-machine-grammar.md`.
+
+Repo-local Geometry Script clone notes live in
+`docs/research/geometry-script-fork-notes.md`. Run
 `.\tools\setup_geometry_script_clone.ps1` if `external/geometry-script` is
-missing in a fresh workspace.
+missing.
 
-The local toolchain branch is `vibegeometry/blender-5-nodes-to-script`.
-The upstream PR branch is `vibegeometry/blender-5-nested-tree-groups`, and PR
-#69 is intentionally limited to the nested-group fix:
-https://github.com/carson-katri/geometry-script/pull/69.
-The GameCult fork is intentionally pruned to `main` plus VibeGeometry-owned
-tooling branches. Do not copy upstream branch soup forward unless a future patch
-actually needs it.
-
-The current next action is to move `vg_csg` toward the public RealtimeCSG demo's
-faster model: add explicit polygon categories, classify brush polygons through
-boolean tree operations, preserve source/cutter surfaces and material intent,
-then add spatial rejection/indexing and Bevy `Mesh`/ECS plugin boundaries for
-the interactive loop.
+The current next action is to grow `vg_grammar` from room/corridor/door claims
+into a real procedural level grammar: add frames, seeded variation, rule
+composition, semantic materials/tags, and generated CSG tree structure, while
+moving `vg_csg` toward explicit polygon categories and boolean-tree
+classification.
 
 ## Important Invariants
 
