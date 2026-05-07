@@ -67,6 +67,13 @@ Research note: `docs/research/realtime-csg-bevy-assembler.md`.
 Where `vg_csg` overlaps public RealtimeCSG/demo behavior, add exact observable
 parity fixtures instead of approximate plausibility tests.
 
+Current visible Rust-side showpiece: `cargo run -p vg_csg --example
+dream_machine_level` emits `experiments/generated/dream_machine_level/` with
+OBJ, MTL, and SVG preview artifacts. It is a machine-cathedral switchyard:
+cut foundation nave, central glass dome, anchor-city towers, giant alternating
+solar/radiator florets, looping cargo arteries, and material partitions. Build
+note: `docs/research/builds/dream-machine-level.md`.
+
 `crates/vg_grammar` is the Dream Machine grammar layer above CSG. Rules emit
 semantic solid/void claims with tags, then compile those claims into `vg_csg`
 brushes. Current features: local `Frame`s, oriented claims, seeded variation,
@@ -80,11 +87,11 @@ Repo-local Geometry Script clone notes live in
 `.\tools\setup_geometry_script_clone.ps1` if `external/geometry-script` is
 missing.
 
-The current next action is to use the new demand-frontier counters to replace
-the ordered `vg_csg` dense rotated subtraction path with a category-router
-kernel. Keep cached-vs-dirty output parity tests green, compare against the C++
-timing oracle, and only add BVH/grid storage after frontier batching proves it
-needs one.
+The current next action is to build the first Bevy inspection shell around the
+Rust-side CSG artifact, using the Dream Machine level as the load/generate
+target. Keep orbit camera, material groups, and dirty edit hooks visible so
+future mesh-patching work is judged against an actual interactive object rather
+than isolated timing fixtures.
 
 Spatial-query correction from EpiphanyAquarium memory: GigaVoxels, froxels, and
 Dreams all point away from static "better tree" thinking. Let the consumer
