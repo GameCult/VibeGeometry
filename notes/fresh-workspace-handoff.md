@@ -123,7 +123,9 @@ CSG and the general convex builder now have prefix checkpoint caches, and
 `build_incremental()` resumes from the checkpoint before the first dirty brush.
 Output parity is tested against full rebuilds. Checkpoint validity is tracked as
 a prefix boundary to avoid deep-copying stale history after tail edits. Mesh
-emission is still whole-output; the category-router path is still separate.
+emission is still whole-output for candidate edits; rejected dirty suffixes can
+reuse the previous mesh when replay proves no geometry was touched. The report
+flag is `reused_mesh`. The category-router path is still separate.
 
 ## Important Invariants
 
