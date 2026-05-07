@@ -43,10 +43,11 @@ handles Blender scene machinery and evaluated evidence.
 RealtimeCSG's public Unity repo exposes a useful brush/tree/operation/generation
 model, but not the optimized native C++ kernel or a supported runtime editing
 API. Sander van Rossen's older public `LogicalError/Realtime-CSG-demo` and blog
-series are now the preferred clean research inputs. Current `vg_csg`: ordered
-brushes, exact AABB and oriented-box subtraction via convex plane splitting,
-additive `CylinderZ`, `DomeCapZ`, and `FloretArm` primitives, Bevy-math mesh
-buffers, `LevelDsl`, tests, clippy, and an example room. Research note:
+series are now the preferred clean research inputs. Current `vg_csg`: public
+CSG operation/branch/tree/brush handle surface, child and operation mutation,
+ordered assembler backend, exact AABB and oriented-box subtraction via convex
+plane splitting, additive `CylinderZ`, `DomeCapZ`, and `FloretArm` primitives,
+Bevy-math mesh buffers, tests, clippy, and examples. Research note:
 `docs/research/realtime-csg-bevy-assembler.md`.
 Where `vg_csg` overlaps public RealtimeCSG/demo behavior, add exact observable
 parity fixtures instead of approximate plausibility tests.
@@ -64,10 +65,10 @@ Repo-local Geometry Script clone notes live in
 `.\tools\setup_geometry_script_clone.ps1` if `external/geometry-script` is
 missing.
 
-The current next action is to add generated CSG tree structure to `vg_grammar`
-and explicit polygon categories to `vg_csg`: grammar should emit nested boolean
-intent instead of only a flat brush list, while the kernel should classify
-source polygons through that tree.
+The current next action is to replace the ordered assembler backend with the
+category-router kernel behind the existing CSG tree API: implement source
+polygon categories, visible/reversed flags, brush/branch bounds, and
+boolean-tree classification while preserving current parity fixtures.
 
 ## Important Invariants
 

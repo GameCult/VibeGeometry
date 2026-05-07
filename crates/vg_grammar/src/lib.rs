@@ -8,7 +8,7 @@ mod context;
 mod frame;
 mod rules;
 
-pub use claim::{Claim, ClaimKind, ClaimTag, ClaimTree, CompileReport};
+pub use claim::{Claim, ClaimKind, ClaimTag, ClaimTree, CompileReport, TreeCompileReport};
 pub use context::{GrammarContext, Materials};
 pub use frame::Frame;
 pub use rules::{CorridorSpec, DoorSpec, GalleryChainSpec, RoomSpec, Rule, RuleSet};

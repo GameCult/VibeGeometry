@@ -405,11 +405,13 @@ mod tests {
         );
 
         let report = tree.compile();
+        let tree_report = tree.compile_csg_tree().expect("claims compile to tree");
         let output = report.assembler.build();
         let door_void = Aabb::from_center_size(Vec3::new(3.0, 0.0, 1.1), Vec3::new(0.7, 1.4, 2.2));
 
         assert!(output.mesh.triangle_count() > 60);
         assert!(output.report.warnings.is_empty());
+        assert!(tree_report.arena.nodes().len() > report.brush_ids.len());
         for tri in output.mesh.indices.chunks_exact(3) {
             let center = (output.mesh.positions[tri[0] as usize]
                 + output.mesh.positions[tri[1] as usize]
@@ -433,9 +435,11 @@ mod tests {
         assert!(tree.claims().iter().any(|claim| !claim.is_axis_aligned()));
 
         let report = tree.compile();
+        let tree_report = tree.compile_csg_tree().expect("claims compile to tree");
         let output = report.assembler.build();
         assert!(output.mesh.triangle_count() > 150);
         assert!(output.report.warnings.is_empty());
+        assert!(tree_report.arena.nodes().len() > report.brush_ids.len());
     }
 
     #[test]

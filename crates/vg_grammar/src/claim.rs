@@ -1,5 +1,8 @@
 use bevy_math::{Quat, Vec3};
-use vg_csg::{Assembler, BrushId, MaterialId};
+use vg_csg::{
+    Assembler, BrushId, CsgBranchOp, CsgNodeId, CsgOperationType, CsgTree, CsgTreeArena,
+    CsgTreeBranch, MaterialId, Primitive,
+};
 
 use crate::Frame;
 
@@ -177,6 +180,53 @@ impl ClaimTree {
             void_claims: self.count_kind(ClaimKind::Void),
         }
     }
+
+    pub fn compile_csg_tree(&self) -> Option<TreeCompileReport> {
+        if self.claims.is_empty() {
+            return None;
+        }
+
+        let mut arena = CsgTreeArena::new();
+        let mut solid_nodes = Vec::new();
+        let mut void_nodes = Vec::new();
+
+        for claim in &self.claims {
+            let primitive = claim.primitive();
+            let brush = arena.generate_brush(
+                &claim.name,
+                CsgOperationType::Additive,
+                primitive,
+                claim.material,
+            );
+
+            match claim.kind {
+                ClaimKind::Solid => solid_nodes.push(brush.node),
+                ClaimKind::Void => void_nodes.push(brush.node),
+            }
+        }
+
+        let solid_root = branch_or_single(&mut arena, "solids", CsgBranchOp::Addition, solid_nodes);
+        let root = if void_nodes.is_empty() {
+            solid_root
+        } else {
+            let void_root =
+                branch_or_single(&mut arena, "voids", CsgBranchOp::Addition, void_nodes);
+            arena
+                .generate_branch(
+                    "grammar result",
+                    CsgBranchOp::Subtraction,
+                    [solid_root, void_root],
+                )
+                .node
+        };
+
+        Some(TreeCompileReport {
+            tree: arena.generate_tree(root),
+            arena,
+            solid_claims: self.count_kind(ClaimKind::Solid),
+            void_claims: self.count_kind(ClaimKind::Void),
+        })
+    }
 }
 
 #[derive(Clone, Debug)]
@@ -185,6 +235,52 @@ pub struct CompileReport {
     pub brush_ids: Vec<BrushId>,
     pub solid_claims: usize,
     pub void_claims: usize,
+}
+
+#[derive(Clone, Debug)]
+pub struct TreeCompileReport {
+    pub arena: CsgTreeArena,
+    pub tree: CsgTree,
+    pub solid_claims: usize,
+    pub void_claims: usize,
+}
+
+impl TreeCompileReport {
+    pub fn compile_to_assembler(&self) -> Assembler {
+        self.arena.compile_tree_to_assembler(self.tree)
+    }
+}
+
+fn branch_or_single(
+    arena: &mut CsgTreeArena,
+    name: &str,
+    op: CsgBranchOp,
+    nodes: Vec<CsgNodeId>,
+) -> CsgNodeId {
+    if nodes.len() == 1 {
+        nodes[0]
+    } else {
+        CsgTreeBranch {
+            node: arena.generate_branch(name, op, nodes).node,
+        }
+        .node
+    }
+}
+
+impl Claim {
+    fn primitive(&self) -> Primitive {
+        if self.is_axis_aligned() {
+            Primitive::Box {
+                bounds: vg_csg::Aabb::from_center_size(self.center, self.size),
+            }
+        } else {
+            Primitive::OrientedBox {
+                center: self.center,
+                size: self.size,
+                rotation: self.rotation,
+            }
+        }
+    }
 }
 
 #[cfg(test)]
@@ -213,6 +309,27 @@ mod tests {
         assert_eq!(report.void_claims, 1);
         assert_eq!(report.brush_ids.len(), 2);
         assert_eq!(report.assembler.brushes().len(), 2);
+    }
+
+    #[test]
+    fn claim_tree_compiles_nested_csg_tree_intent() {
+        let mut tree = ClaimTree::new();
+        tree.push(Claim::solid_box(
+            "wall",
+            Vec3::ZERO,
+            Vec3::new(4.0, 0.25, 3.0),
+            MaterialId(1),
+        ));
+        tree.push(Claim::void_box(
+            "door",
+            Vec3::new(0.0, 0.0, -0.25),
+            Vec3::new(1.0, 0.5, 1.5),
+        ));
+
+        let report = tree.compile_csg_tree().expect("non-empty tree");
+        assert_eq!(report.solid_claims, 1);
+        assert_eq!(report.void_claims, 1);
+        assert_eq!(report.compile_to_assembler().brushes().len(), 2);
     }
 
     #[test]
