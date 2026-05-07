@@ -125,7 +125,10 @@ Output parity is tested against full rebuilds. Checkpoint validity is tracked as
 a prefix boundary to avoid deep-copying stale history after tail edits. Mesh
 emission is still whole-output for candidate edits; rejected dirty suffixes can
 reuse the previous mesh when replay proves no geometry was touched. The report
-flag is `reused_mesh`. The category-router path is still separate.
+flag is `reused_mesh`. `rebuild()` intentionally bypasses checkpoint caches;
+box dirty edits currently use the direct builder because the honest baseline is
+faster than checkpoint replay until real mesh patching exists. The
+category-router path is still separate.
 
 ## Important Invariants
 
