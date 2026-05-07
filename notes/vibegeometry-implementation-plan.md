@@ -43,6 +43,19 @@ not carry live next-action clutter.
 
 ## Near-Term Sequence
 
+0. Make the Rust CSG machine meaner and leaner.
+   - Replace the dense rotated subtraction carver with a category-router path
+     that preserves source polygons, splits only crossings, routes categories,
+     and keeps cached-vs-dirty output parity green before performance claims.
+   - Add a demand-frontier prototype before any generic BVH/grid index. The
+     frontier should emit affected brush pairs from dirty brushes, branch
+     bounds, and requested output scope; indexes are candidate storage layouts,
+     not the idea.
+   - Add counters and fixtures for global rebuild, affected-brush rebuild, and
+     request/tile-scoped rebuild so timings explain what work was refused.
+   - Move hot polygon/category work toward reusable scratch arenas and compact
+     arrays only after the router proves exact output parity.
+
 1. Promote the Bloom coordinate/noise lessons into reusable builder seams.
    - Build on the new `vibegeometry/` helper library rather than adding more
      one-off example functions.
