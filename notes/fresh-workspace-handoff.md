@@ -118,8 +118,11 @@ Current realtime-editing seam: `Assembler` can mutate brush primitives and
 operations by `BrushId`, invalidating cached output and incrementing generation.
 `DirtyDemandFrontier` computes the conservative ordered suffix after the first
 dirty brush. The prefix before that index is the future cache boundary; the
-suffix is live because ordered CSG decisions propagate forward. There is not yet
-an incremental mesh rebuild from that plan.
+suffix is live because ordered CSG decisions propagate forward. Box-only ordered
+CSG now has a real prefix checkpoint cache, and `build_incremental()` resumes
+from the checkpoint before the first dirty brush. Output parity is tested against
+full rebuilds. Mesh emission is still whole-output, and rotated/non-box paths
+still fall back.
 
 ## Important Invariants
 
