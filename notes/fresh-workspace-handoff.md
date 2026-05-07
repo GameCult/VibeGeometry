@@ -48,10 +48,14 @@ brushes, exact AABB and oriented-box subtraction via convex plane splitting,
 additive `CylinderZ`, `DomeCapZ`, and `FloretArm` primitives, Bevy-math mesh
 buffers, `LevelDsl`, tests, clippy, and an example room. Research note:
 `docs/research/realtime-csg-bevy-assembler.md`.
+Where `vg_csg` overlaps public RealtimeCSG/demo behavior, add exact observable
+parity fixtures instead of approximate plausibility tests.
 
-`crates/vg_grammar` is the first Dream Machine grammar layer above CSG. Rules
-emit semantic solid/void claims with tags, then compile those claims into
-`vg_csg` brushes. Current rules: `RoomSpec`, `CorridorSpec`, `DoorSpec`.
+`crates/vg_grammar` is the Dream Machine grammar layer above CSG. Rules emit
+semantic solid/void claims with tags, then compile those claims into `vg_csg`
+brushes. Current features: local `Frame`s, oriented claims, seeded variation,
+`RuleSet` composition, `RoomSpec`, `CorridorSpec`, `DoorSpec`, and
+`GalleryChainSpec`.
 Example: `cargo run -p vg_grammar --example dream_room`. Research note:
 `docs/research/dream-machine-grammar.md`.
 
@@ -60,11 +64,10 @@ Repo-local Geometry Script clone notes live in
 `.\tools\setup_geometry_script_clone.ps1` if `external/geometry-script` is
 missing.
 
-The current next action is to grow `vg_grammar` from room/corridor/door claims
-into a real procedural level grammar: add frames, seeded variation, rule
-composition, semantic materials/tags, and generated CSG tree structure, while
-moving `vg_csg` toward explicit polygon categories and boolean-tree
-classification.
+The current next action is to add generated CSG tree structure to `vg_grammar`
+and explicit polygon categories to `vg_csg`: grammar should emit nested boolean
+intent instead of only a flat brush list, while the kernel should classify
+source polygons through that tree.
 
 ## Important Invariants
 

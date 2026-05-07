@@ -1,5 +1,7 @@
-use bevy_math::Vec3;
+use bevy_math::{Quat, Vec3};
 use vg_csg::{Assembler, BrushId, MaterialId};
+
+use crate::Frame;
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct ClaimTag(pub String);
@@ -22,6 +24,7 @@ pub struct Claim {
     pub kind: ClaimKind,
     pub center: Vec3,
     pub size: Vec3,
+    pub rotation: Quat,
     pub material: MaterialId,
     pub tags: Vec<ClaimTag>,
 }
@@ -38,6 +41,25 @@ impl Claim {
             kind: ClaimKind::Solid,
             center,
             size,
+            rotation: Quat::IDENTITY,
+            material,
+            tags: Vec::new(),
+        }
+    }
+
+    pub fn solid_oriented_box(
+        name: impl Into<String>,
+        center: Vec3,
+        size: Vec3,
+        rotation: Quat,
+        material: MaterialId,
+    ) -> Self {
+        Self {
+            name: name.into(),
+            kind: ClaimKind::Solid,
+            center,
+            size,
+            rotation,
             material,
             tags: Vec::new(),
         }
@@ -49,6 +71,24 @@ impl Claim {
             kind: ClaimKind::Void,
             center,
             size,
+            rotation: Quat::IDENTITY,
+            material: MaterialId::default(),
+            tags: Vec::new(),
+        }
+    }
+
+    pub fn void_oriented_box(
+        name: impl Into<String>,
+        center: Vec3,
+        size: Vec3,
+        rotation: Quat,
+    ) -> Self {
+        Self {
+            name: name.into(),
+            kind: ClaimKind::Void,
+            center,
+            size,
+            rotation,
             material: MaterialId::default(),
             tags: Vec::new(),
         }
@@ -57,6 +97,16 @@ impl Claim {
     pub fn tagged(mut self, tag: impl Into<String>) -> Self {
         self.tags.push(ClaimTag::new(tag));
         self
+    }
+
+    pub fn in_frame(mut self, frame: Frame) -> Self {
+        self.center = frame.point(self.center);
+        self.rotation = frame.rotation * self.rotation;
+        self
+    }
+
+    pub fn is_axis_aligned(&self) -> bool {
+        self.rotation.abs_diff_eq(Quat::IDENTITY, 1.0e-6)
     }
 }
 
@@ -94,14 +144,27 @@ impl ClaimTree {
         let mut brush_ids = Vec::with_capacity(self.claims.len());
         for claim in &self.claims {
             let brush_id = match claim.kind {
-                ClaimKind::Solid => assembler.solid_box(
+                ClaimKind::Solid if claim.is_axis_aligned() => assembler.solid_box(
                     &claim.name,
                     vg_csg::Aabb::from_center_size(claim.center, claim.size),
                     claim.material,
                 ),
-                ClaimKind::Void => assembler.cut_box(
+                ClaimKind::Solid => assembler.solid_oriented_box(
+                    &claim.name,
+                    claim.center,
+                    claim.size,
+                    claim.rotation,
+                    claim.material,
+                ),
+                ClaimKind::Void if claim.is_axis_aligned() => assembler.cut_box(
                     &claim.name,
                     vg_csg::Aabb::from_center_size(claim.center, claim.size),
+                ),
+                ClaimKind::Void => assembler.cut_oriented_box(
+                    &claim.name,
+                    claim.center,
+                    claim.size,
+                    claim.rotation,
                 ),
             };
             brush_ids.push(brush_id);
@@ -149,6 +212,27 @@ mod tests {
         assert_eq!(report.solid_claims, 1);
         assert_eq!(report.void_claims, 1);
         assert_eq!(report.brush_ids.len(), 2);
+        assert_eq!(report.assembler.brushes().len(), 2);
+    }
+
+    #[test]
+    fn oriented_claims_compile_to_oriented_brushes() {
+        let mut tree = ClaimTree::new();
+        tree.push(Claim::solid_oriented_box(
+            "angled wall",
+            Vec3::ZERO,
+            Vec3::new(4.0, 0.25, 3.0),
+            Quat::from_rotation_z(0.25),
+            MaterialId(1),
+        ));
+        tree.push(Claim::void_oriented_box(
+            "angled door",
+            Vec3::ZERO,
+            Vec3::new(1.0, 0.5, 1.5),
+            Quat::from_rotation_z(0.25),
+        ));
+
+        let report = tree.compile();
         assert_eq!(report.assembler.brushes().len(), 2);
     }
 }

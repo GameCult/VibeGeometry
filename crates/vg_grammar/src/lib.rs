@@ -5,8 +5,10 @@
 
 mod claim;
 mod context;
+mod frame;
 mod rules;
 
 pub use claim::{Claim, ClaimKind, ClaimTag, ClaimTree, CompileReport};
 pub use context::{GrammarContext, Materials};
-pub use rules::{CorridorSpec, DoorSpec, RoomSpec, Rule};
+pub use frame::Frame;
+pub use rules::{CorridorSpec, DoorSpec, GalleryChainSpec, RoomSpec, Rule, RuleSet};
