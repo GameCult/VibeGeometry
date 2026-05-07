@@ -40,6 +40,8 @@ orchestration; Geometry Script emits inspectable Geometry Nodes groups; `bpy`
 handles Blender scene machinery and evaluated evidence.
 
 `crates/vg_csg` is the first Rust/Bevy-side interactive geometry organ.
+It has also been extracted into the public standalone repo
+`https://github.com/GameCult/vg-csg` for independent development and sharing.
 RealtimeCSG's public Unity repo exposes a useful brush/tree/operation/generation
 model and public P/Invoke declarations for the optimized native C++ plugin.
 The standalone direct-DLL bridge under `tools/realtimecsg_native_bridge` mirrors

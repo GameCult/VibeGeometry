@@ -116,5 +116,6 @@ current_status:
   next_action: Build the first Bevy inspection shell for Rust-side CSG artifacts: load or generate the Dream Machine level mesh, show orbit camera/material groups, and keep dirty edit hooks visible so later mesh-patching work is judged against an actual interactive object rather than isolated timing fixtures.
 remotes:
   vibegeometry: https://github.com/GameCult/VibeGeometry
+  vg_csg: https://github.com/GameCult/vg-csg
   geometry_script_fork: https://github.com/GameCult/geometry-script
   geometry_script_upstream_pr: https://github.com/carson-katri/geometry-script/pull/69
