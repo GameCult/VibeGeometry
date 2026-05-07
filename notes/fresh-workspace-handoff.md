@@ -74,6 +74,15 @@ cut foundation nave, central glass dome, anchor-city towers, giant alternating
 solar/radiator florets, looping cargo arteries, and material partitions. Build
 note: `docs/research/builds/dream-machine-level.md`.
 
+Grounded fixture example: `cargo run -p vg_csg --example
+industrial_maintenance_loop` emits
+`experiments/generated/industrial_maintenance_loop/` with OBJ, MTL, SVG, and PNG
+preview artifacts. It builds a curved habitat-shell maintenance loop from local
+tangent/radial/up frames: central floor-to-ceiling machinery island, inner
+manifold faces, outer staging rail/tools, one supervisor gallery segment,
+service artery mouths, and dry-operation mobility gear. Build note:
+`docs/research/builds/industrial-maintenance-loop.md`.
+
 `crates/vg_grammar` is the Dream Machine grammar layer above CSG. Rules emit
 semantic solid/void claims with tags, then compile those claims into `vg_csg`
 brushes. Current features: local `Frame`s, oriented claims, seeded variation,

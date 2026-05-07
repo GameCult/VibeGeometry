@@ -1,0 +1,49 @@
+newmtl mat_scuffed_deck
+Kd 0.21 0.20 0.18
+Ke 0.015 0.012 0.010
+Ns 65
+
+newmtl mat_curved_shell
+Kd 0.28 0.26 0.22
+Ke 0.015 0.012 0.010
+Ns 65
+
+newmtl mat_dark_substrate
+Kd 0.045 0.043 0.040
+Ke 0.0 0.0 0.0
+Ns 65
+
+newmtl mat_machinery
+Kd 0.18 0.17 0.15
+Ke 0.018 0.015 0.012
+Ns 65
+
+newmtl mat_pipe_trunks
+Kd 0.09 0.085 0.075
+Ke 0.01 0.008 0.006
+Ns 65
+
+newmtl mat_amber_screens
+Kd 0.95 0.48 0.12
+Ke 0.70 0.26 0.035
+Ns 65
+
+newmtl mat_blue_diagnostics
+Kd 0.08 0.55 0.95
+Ke 0.03 0.28 0.60
+Ns 65
+
+newmtl mat_gallery_glass
+Kd 0.30 0.65 0.90
+Ke 0.04 0.20 0.36
+Ns 65
+
+newmtl mat_anchor_hazard
+Kd 0.85 0.58 0.12
+Ke 0.20 0.09 0.02
+Ns 65
+
+newmtl mat_mobility_gear
+Kd 0.18 0.22 0.24
+Ke 0.02 0.025 0.03
+Ns 65
