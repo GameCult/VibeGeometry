@@ -41,16 +41,21 @@ handles Blender scene machinery and evaluated evidence.
 
 `crates/vg_csg` is the first Rust/Bevy-side interactive geometry organ.
 RealtimeCSG's public Unity repo exposes a useful brush/tree/operation/generation
-model, but not the optimized native C++ kernel or a supported runtime editing
-API. Sander van Rossen's older public `LogicalError/Realtime-CSG-demo` and blog
-series are now the preferred clean research inputs. Current `vg_csg`: public
-CSG operation/branch/tree/brush handle surface, child and operation mutation,
-ordered assembler backend, exact AABB and oriented-box subtraction and
-intersection via convex plane splitting, crossing polygon classification into
-inside/outside/aligned/reverse-aligned buckets, polygon
-category/visibility/reversal metadata, primitive/solid/tree bounds, additive
-`CylinderZ`, `DomeCapZ`, and `FloretArm` primitives, release perf fixtures,
-Bevy-math mesh buffers, tests, clippy, and examples.
+model and public P/Invoke declarations for the optimized native C++ plugin.
+The standalone direct-DLL bridge under `tools/realtimecsg_native_bridge` mirrors
+that managed wrapper surface and intentionally fails closed if the plugin emits
+zero mesh descriptions. Current bridge status: the DLL loads, exported calls
+create brush meshes, brushes, and trees, but direct mesh generation outside
+Unity's hosted lifecycle returns success with count 0 even for an additive cube.
+Do not use those zero outputs as timings. Sander van Rossen's older public
+`LogicalError/Realtime-CSG-demo` and blog series remain the preferred clean
+research inputs. Current `vg_csg`: public CSG operation/branch/tree/brush handle
+surface, child and operation mutation, ordered assembler backend, exact AABB
+and oriented-box subtraction and intersection via convex plane splitting,
+crossing polygon classification into inside/outside/aligned/reverse-aligned
+buckets, polygon category/visibility/reversal metadata, primitive/solid/tree
+bounds, additive `CylinderZ`, `DomeCapZ`, and `FloretArm` primitives, release
+perf fixtures, Bevy-math mesh buffers, tests, clippy, and examples.
 Research note: `docs/research/realtime-csg-bevy-assembler.md`.
 Where `vg_csg` overlaps public RealtimeCSG/demo behavior, add exact observable
 parity fixtures instead of approximate plausibility tests.
@@ -69,11 +74,9 @@ Repo-local Geometry Script clone notes live in
 missing.
 
 The current next action is to continue replacing the ordered assembler backend
-with the category-router kernel behind the existing CSG tree API: make the
-inside/outside/aligned/reverse-aligned category buckets drive mesh emission
-through boolean branch routing, preserve material/surface metadata, and wire a
-public-demo/reference performance harness for the existing JSONL timing
-fixtures.
+with the category-router kernel behind the existing CSG tree API, while
+isolating the missing RealtimeCSG native initialization path before treating the
+C++ plugin as a timing oracle.
 
 ## Important Invariants
 
