@@ -45,10 +45,11 @@ model, but not the optimized native C++ kernel or a supported runtime editing
 API. Sander van Rossen's older public `LogicalError/Realtime-CSG-demo` and blog
 series are now the preferred clean research inputs. Current `vg_csg`: public
 CSG operation/branch/tree/brush handle surface, child and operation mutation,
-ordered assembler backend, exact AABB and oriented-box subtraction via convex
-plane splitting, additive `CylinderZ`, `DomeCapZ`, and `FloretArm` primitives,
-Bevy-math mesh buffers, tests, clippy, and examples. Research note:
-`docs/research/realtime-csg-bevy-assembler.md`.
+ordered assembler backend, exact AABB and oriented-box subtraction and
+intersection via convex plane splitting, polygon category/visibility/reversal
+metadata, primitive/solid/tree bounds, additive `CylinderZ`, `DomeCapZ`, and
+`FloretArm` primitives, Bevy-math mesh buffers, tests, clippy, and examples.
+Research note: `docs/research/realtime-csg-bevy-assembler.md`.
 Where `vg_csg` overlaps public RealtimeCSG/demo behavior, add exact observable
 parity fixtures instead of approximate plausibility tests.
 
@@ -65,10 +66,11 @@ Repo-local Geometry Script clone notes live in
 `.\tools\setup_geometry_script_clone.ps1` if `external/geometry-script` is
 missing.
 
-The current next action is to replace the ordered assembler backend with the
-category-router kernel behind the existing CSG tree API: implement source
-polygon categories, visible/reversed flags, brush/branch bounds, and
-boolean-tree classification while preserving current parity fixtures.
+The current next action is to continue replacing the ordered assembler backend
+with the category-router kernel behind the existing CSG tree API: split crossing
+polygons into classifiable pieces, route inside/outside/aligned/reverse-aligned
+categories through boolean branches, and preserve material/surface metadata
+while keeping the current parity fixtures green.
 
 ## Important Invariants
 
