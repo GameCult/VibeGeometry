@@ -45,8 +45,12 @@ model and public P/Invoke declarations for the optimized native C++ plugin.
 The standalone direct-DLL bridge under `tools/realtimecsg_native_bridge` mirrors
 that managed wrapper surface and intentionally fails closed if the plugin emits
 zero mesh descriptions. Current bridge status: the DLL loads, exported calls
-create brush meshes, brushes, and trees, but direct mesh generation outside
-Unity's hosted lifecycle returns success with count 0 even for an additive cube.
+create brush meshes, brushes, and trees, the health probe verifies bounds,
+outlines, raycasts, and mesh-description extraction, and the combined perf
+fixture appends native C++ timing records. The key construction lesson: build
+brush nodes before the tree, create the tree, insert children through the public
+Foundation range-insert path, and avoid eagerly setting default brush operation
+or flag state.
 Do not use those zero outputs as timings. Sander van Rossen's older public
 `LogicalError/Realtime-CSG-demo` and blog series remain the preferred clean
 research inputs. Current `vg_csg`: public CSG operation/branch/tree/brush handle
@@ -73,10 +77,9 @@ Repo-local Geometry Script clone notes live in
 `.\tools\setup_geometry_script_clone.ps1` if `external/geometry-script` is
 missing.
 
-The current next action is to continue replacing the ordered assembler backend
-with the category-router kernel behind the existing CSG tree API, while
-isolating the missing RealtimeCSG native initialization path before treating the
-C++ plugin as a timing oracle.
+The current next action is to use the now-working RealtimeCSG C++ timing oracle
+to guide replacement of the ordered assembler backend with the category-router
+kernel behind the existing CSG tree API.
 
 ## Important Invariants
 

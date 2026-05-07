@@ -12,5 +12,6 @@ experiments/blender-cache/
 experiments/source-blends/
 experiments/source-repos/
 experiments/inspection/
+experiments/generated/realtimecsg-cpp-*.jsonl
 *.blend1
 *.blend2
