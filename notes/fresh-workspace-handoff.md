@@ -42,6 +42,9 @@ handles Blender scene machinery and evaluated evidence.
 `crates/vg_csg` is the first Rust/Bevy-side interactive geometry organ.
 It has also been extracted into the public standalone repo
 `https://github.com/GameCult/vg-csg` for independent development and sharing.
+That repo's `main` was rewritten from filtered VibeGeometry history rather than
+a synthetic import, preserving the CSG crate, docs, native bridge, and perf
+harness commit chain with one standalone packaging commit on top.
 RealtimeCSG's public Unity repo exposes a useful brush/tree/operation/generation
 model and public P/Invoke declarations for the optimized native C++ plugin.
 The standalone direct-DLL bridge under `tools/realtimecsg_native_bridge` mirrors
